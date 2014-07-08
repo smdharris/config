@@ -1,0 +1,16 @@
+# ADD RUSH TO PATH, IF NOT ALREADY
+#    This /looks/ like it might be csh syntax, but it's not.
+#
+
+echo "Using /usr/local/etc/bashrc"
+
+########################################## old rush crap`
+if ( /bin/echo "$PATH" | grep /usr/local/rush > /dev/null ) 
+then 
+	sleep 0
+else 
+	export PATH="${PATH}:/usr/local/rush/bin"
+fi
+
+
+

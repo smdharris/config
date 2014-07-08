@@ -1,0 +1,4 @@
+SHAPES_install
+getenv "MODULESLOADED"
+getenv "MAYA_MODULE_PATH"
+SHAPES

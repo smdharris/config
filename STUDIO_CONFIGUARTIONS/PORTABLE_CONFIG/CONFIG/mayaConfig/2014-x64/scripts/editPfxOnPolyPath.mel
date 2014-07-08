@@ -1,0 +1,100 @@
+//
+//  Alias|Wavefront Script File
+//  MODIFY THIS AT YOUR OWN RISK
+//
+//  Creation Date:  2005
+//  Author:         Duncan Brinsmead
+//
+//
+//<doc>
+//<name editPfxOnPolyPath>
+//<owner "Alias|Wavefront Unsupported">
+//
+//<synopsis>
+//      editPfxOnPolyPath
+//
+//<returns>
+//      None.
+//
+//<description>
+// This mel procedure allows one to edit the path curve cvs for a paint effect 
+// stroke on poly mesh. This command will turn all the input 2D curves for selected
+// paint effects strokes into 3D curves. Unlike curve on surfaces( nurbs surfaces ), 
+// curve on meshes are currently not directly editable. They have input connections
+// from a 2D nurbs curve and a surface.
+// This routine takes the input 2d nurbs curve (not editable) and turns it into
+// a 3D nurbs curve (can be edited). The resulting curves are still defined in
+// uv space, however, where u and v are x and y with the z value of the curve being
+// ignored. One can best view the resulting curves in a front view, looking within a range
+// of a couple of units of the origin. Moving the curves or their cs in x and y will
+// move the paint effects stroke in u and v across the poly mesh.
+//
+//<flags>
+//  None.
+//
+//</doc>
+
+
+proc string [] getPolyPathCurvesFromStroke( string $stroke )
+{
+	string $strokePaths = ($stroke + ".pathCurve");
+	int $numPaths = `getAttr -size $strokePaths`;
+	int $i;
+	string $pathCurves[];
+	int $outIndex =0;
+	for( $i = 0; $i < $numPaths; $i++ ){
+		string $paths[] = `listConnections -s 1 -type curveFromMesh 
+					($strokePaths + "["+$i+"].curve")`;
+		if( size( $paths ) > 0 ){
+			$pathCurves[$outIndex] = $paths[0];
+			$outIndex++;
+		}
+	} 
+	return $pathCurves;
+}
+
+proc string makePathCurve3D( string $path )
+{
+	string $curves[] = `listConnections -s 1 -type nurbsCurve ($path+".curveOnMesh")`;
+	if( size($curves) > 0 ){
+		string $curve2d = $curves[0];
+		string $curve3d = `createNode nurbsCurve`;
+		connectAttr ($curve2d + ".worldSpace[0]") ($curve3d + ".create");
+		// Do a getattr to force evaluation of the curve
+		getAttr -s ($curve3d + ".cp");
+		connectAttr -f ($curve3d + ".worldSpace[0]") ($path + ".curveOnMesh");
+		string $tforms[] = listTransforms( $curve3d );
+		return( $tforms[0] );
+	} else {
+		return "";
+	}
+}
+
+global proc editPfxOnPolyPath()
+{
+	string $strokes[] = getStrokes( 2 );
+
+	if( size( $strokes ) < 0 ){
+		warning( "editPfxOnPolyPath: no strokes selected" );
+		return;
+	}
+	string $stroke;
+	string $outCurves[];
+	int $cind = 0;
+	for( $stroke in $strokes ){
+		string $pathCurves[] = getPolyPathCurvesFromStroke( $stroke );
+		if( size( $pathCurves ) > 0 ){
+			string $path;
+			for( $path in $pathCurves ){
+				$outCurves[$cind] = makePathCurve3D( $path );
+				$cind++;
+			}
+		}
+	}
+	if( $cind == 0 ){
+		warning( "editPfxOnPolyPath: no strokes on poly meshes are selected" );
+	} else {
+		select -r $outCurves;
+		xform -cp;
+	}
+}

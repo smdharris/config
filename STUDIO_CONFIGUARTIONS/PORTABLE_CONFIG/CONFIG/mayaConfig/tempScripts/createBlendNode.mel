@@ -1,0 +1,98 @@
+global proc createBlendNode(){
+
+	
+	string $surfaces[] = `ls -l  -dag -sl -type mesh -type nurbsSurface `;
+	string $outSurfacePlug, $inSurfacePlug , $outSurfaceType ;
+	
+	if(`nodeType $surfaces[0]` == "mesh" && `nodeType $surfaces[1]` == "mesh"){
+	
+	    int $n1[] = `polyEvaluate -v $surfaces[0]`;
+	    int $n2[] =` polyEvaluate -v $surfaces[1]`;
+	    if($n1[0] != $n2[0] )
+
+		    error "meshes must have the same topology";
+	  $outSurfacePlug =  ".worldMesh[0]";	
+	  $inSurfacePlug = ".inMesh";
+	  $outSurfaceType =  "mesh";	
+	}
+	
+	else
+	
+	if(`nodeType $surfaces[0]` == "nurbsSurface" && `nodeType $surfaces[1]` == "nurbsSurface"){
+	   
+	        int $spansUV[2] = `getAttr ( $surfaces[0] +".spansUV" )`;
+		int $degreeUV[2] = `getAttr ( $surfaces[0] +".degreeUV" )`;
+		
+		int $n1  = ($spansUV[0] +$degreeUV[0])*($spansUV[1] +$degreeUV[1]);
+		
+		$spansUV = `getAttr ( $surfaces[1] +".spansUV" )`;
+		$degreeUV = `getAttr ( $surfaces[0] +".degreeUV" )`;
+		
+		int $n2  = ($spansUV[0] +$degreeUV[0])*($spansUV[1] +$degreeUV[1]);
+		if($n1 != $n2 )
+
+		    error "nurbs surfaces must have the same topology";
+
+	   
+	   
+	  $outSurfacePlug =  ".worldSpace[0]";	
+	  $inSurfacePlug = ".create";		    
+	  $outSurfaceType =  "nurbsSurface";	
+	}
+	else
+		error "Invalid surface type specified";
+	
+	string $outSurface = `createNode $outSurfaceType`;
+
+	string $blendNode = `createNode blendNode`;
+
+	sets -add initialShadingGroup $outSurface ;
+
+	connectAttr ( $surfaces[0] + $outSurfacePlug ) ($blendNode + ".inputSurface1");
+	connectAttr ( $surfaces[1] + $outSurfacePlug ) ($blendNode + ".inputSurface2");
+
+
+
+	connectAttr ($blendNode + ".outputSurface") ( $outSurface + $inSurfacePlug ) ;
+
+
+
+
+
+
+}
+
+/*
+
+
+global proc createBlendNode(){
+
+	
+	string $meshes[] = `ls -l  -dag -sl -type mesh `;
+
+	int $n1[] =` polyEvaluate -v $meshes[0]`;
+	int $n2[] =` polyEvaluate -v $meshes[1]`;
+	if($n1[0] != $n2[0] )
+		
+		error "meshes must have the same topology";
+
+
+	string $blendNode = `createNode blendNode`;
+
+	string $outMesh = `createNode mesh`;
+
+	sets -add initialShadingGroup $outMesh ;
+
+	connectAttr ( $meshes[0] + ".worldMesh[0]" ) ($blendNode + ".inMesh1");
+	connectAttr ( $meshes[1] + ".worldMesh[0]" ) ($blendNode + ".inMesh2");
+
+	connectAttr ($blendNode + ".outMesh") ( $outMesh + ".inMesh" ) ;
+
+
+
+
+
+
+}
+
+*/

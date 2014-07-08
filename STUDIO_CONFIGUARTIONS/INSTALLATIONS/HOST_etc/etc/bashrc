@@ -1,0 +1,15 @@
+# System-wide .bashrc file for interactive bash(1) shells.
+if [ -z "$PS1" ]; then
+   return
+fi
+
+PS1='\h:\W \u\$ '
+# Make bash check its window size after a process completes
+shopt -s checkwinsize
+
+# ADD RUSH TO PATH, IF NOT ALREADY
+#    This /looks/ like it might be csh syntax, but it's not.
+#
+if ( /bin/echo "$PATH" | grep /usr/local/rush > /dev/null ); then sleep 0
+else PATH="${PATH}:/usr/local/rush/bin"; export PATH; fi
+

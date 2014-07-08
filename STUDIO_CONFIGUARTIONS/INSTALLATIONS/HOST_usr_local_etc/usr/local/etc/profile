@@ -1,0 +1,27 @@
+# System-wide .profile for sh(1)
+
+############################################# old rush crap
+# ADD RUSH TO PATH, IF NOT ALREADY
+#    This /looks/ like it might be csh syntax, but it's not.
+#
+if ( /bin/echo "$PATH" | grep /usr/local/rush > /dev/null )
+then 
+	sleep 0
+else 
+	PATH="${PATH}:/usr/local/rush/bin" 
+	export PATH
+fi
+
+# initialise environment  modules /usr/local/etc/modules
+if [ -e /usr/local/etc/modules ]
+then
+	export MODULESHOME="/usr/local/etc/modules"
+	eval `tclsh ${MODULESHOME}/modulecmd.tcl sh autoinit`
+	echo "Using modules courtesy of /usr/local/etc/profile"
+
+	source /usr/local/etc/utslabrc
+
+else
+	echo "WARNING /usr/local/etc/modules not found - modules not working"
+fi
+

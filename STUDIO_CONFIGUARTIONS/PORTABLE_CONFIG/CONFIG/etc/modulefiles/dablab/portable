@@ -1,0 +1,44 @@
+#%Module1.0
+##
+## null modulefile
+##
+## @configure_input@
+##
+proc ModulesHelp { } {
+        global version
+
+        puts stderr "\tThis module configures the shell for DAB LAB work."
+	    puts stderr "\t DAB LAB "
+        puts stderr "\n\tVersion $version\n"
+}
+
+module-whatis	"This is the base configuration of the DAB Animation Labs"
+
+# setenv variable value
+# append-path variable value
+# prepend-path variable value
+# remove-path variable value
+# prereq modulefile
+# is-loaded modulefile
+# module subcommand
+# module-info option - name,specified,shell,shelltype,alias,version,mode,
+# module-alias
+# module-version module-file version-name
+# module-user level - advanced,expert,
+# set-alias alias-name alias-string
+# unset_alias alias-name
+# system string
+# uname field - sysname,nodename,domain,release,version,machine
+
+
+switch [ module-info mode ] {
+	"load" {
+			puts stderr ">>>>>> Congratulations The DAB Lab Module is loaded <<<<<<<<"
+			}
+	"unload" {
+			puts stderr ">>>>>> Unloading The DAB Lab Module <<<<<<<<"
+}
+	}
+# for Tcl script use only
+set     version      "@VERSION@"
+

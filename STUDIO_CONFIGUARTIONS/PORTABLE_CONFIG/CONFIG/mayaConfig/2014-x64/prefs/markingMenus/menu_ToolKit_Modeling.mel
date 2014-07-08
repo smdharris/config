@@ -1,0 +1,287 @@
+
+    menuItem
+        -label "Quad" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "nexOpt -e manipType quadraw; " 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "N" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -italicized 0
+        -boldFont 1
+        -sourceType "mel" 
+        menuEditorMenuItem1;
+
+    menuItem
+        -label "Extrude" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "nexOpt -e manipType extrude; " 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "S" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -italicized 0
+        -boldFont 1
+        -sourceType "mel" 
+        menuEditorMenuItem2;
+
+    menuItem
+        -label "Multi-Cut" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "nexOpt -e manipType cut;" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "E" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -italicized 0
+        -boldFont 1
+        -sourceType "mel" 
+        menuEditorMenuItem3;
+
+    menuItem
+        -label "Weld" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "nexOpt -e manipType weld; " 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "W" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -italicized 0
+        -boldFont 1
+        -sourceType "mel" 
+        menuEditorMenuItem4;
+
+    menuItem
+        -label "Bevel" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "nexOpt -e manipType bevel;" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "SE" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -italicized 0
+        -boldFont 1
+        -sourceType "mel" 
+        menuEditorMenuItem5;
+
+    menuItem
+        -label "Bridge" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "nexOpt -e manipType bridge;" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "NW" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -italicized 0
+        -boldFont 1
+        -sourceType "mel" 
+        menuEditorMenuItem6;
+
+    menuItem
+        -label "Connect" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "nexOpt -e manipType connect; " 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "SW" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -italicized 0
+        -boldFont 1
+        -sourceType "mel" 
+        menuEditorMenuItem7;
+
+    menuItem
+        -label "Symmetry" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "if (`nexCtx -q -sym`) { nexCtx -dsm; } else { nexCtx -sym; } dR_updateSymButton; dR_updateCommandPanel();" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "NE" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -italicized 0
+        -boldFont 1
+        -sourceType "mel" 
+        menuEditorMenuItem8;
+
+    menuItem
+        -label "ToolKit On Off" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "dR_ToggleNexTool;" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem9;
+
+    menuItem
+        -label "View Toolkit Panel" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "ToggleModelingToolkit;" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem10;
+
+    menuItem
+        -label "Select Constrained Object" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "//check the objects that are selected\nstring $sel[]=`ls -sl`;\n//the first object in the array\nstring $firstObject = $sel[0];\n//set the object as the constrained object for snapping\ndR_setSlideType(\"othersurface\", $firstObject);" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem11;
+
+    menuItem
+        -label "Constrained Off" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "dR_setSlideType(\"off\", \"\");" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem12;
+
+setParent -m ..;
+

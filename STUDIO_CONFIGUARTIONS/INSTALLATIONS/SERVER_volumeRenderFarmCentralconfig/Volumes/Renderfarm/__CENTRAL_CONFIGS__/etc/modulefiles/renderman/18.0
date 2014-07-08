@@ -1,0 +1,47 @@
+#%Module1.0
+##
+## renderman/18.0  modulefile
+##
+## @configure_input@
+##
+proc ModulesHelp { } {
+        global version
+	puts stderr " Your config is coming from $env(CONFIG)"
+        puts stderr "\tThis module configures renderman products"
+        puts stderr "\n\tVersion $version\n"
+}
+
+module-whatis	"Configure Renderman from Pixar"
+
+# setenv variable value
+# append-path variable value
+# prepend-path variable value
+# remove-path variable value
+# prereq modulefile
+# is-loaded modulefile
+# module subcommand
+# module-info option - name,specified,shell,shelltype,alias,version,mode,
+# module-alias
+# module-version module-file version-name
+# module-user level - advanced,expert,
+# set-alias alias-name alias-string
+# unset_alias alias-name
+# system string
+# uname field - sysname,nodename,domain,release,version,machine
+
+switch [ module-info mode ] {
+	"load" {
+			puts stderr ">>>>>> Loading Renderman 18.0 <<<<<<<<"
+			}
+	"unload" {
+			puts stderr ">>>>>> Unloading Renderman 18.0 <<<<<<<<"
+}
+	}
+	
+set RMANTREE /Applications/Pixar/RenderManProServer-18.0
+setenv RMANTREE $RMANTREE
+setenv PIXAR_LICENSE_FILE /Applications/Pixar/pixar.license
+	
+# for Tcl script use only
+set     version      "@VERSION@"
+

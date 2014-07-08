@@ -1,0 +1,87 @@
+#%Module1.0
+##
+## maya2015 modulefile
+##
+## @configure_input@
+##
+proc ModulesHelp { } {
+        global version
+		puts stderr " Your config is coming from $env(CONFIG)"
+        puts stderr "\tThis module configures maya 2015."
+        puts stderr "\n\tVersion $version\n"
+}
+
+module-whatis	"Configure Maya 2015"
+
+# setenv variable value
+# append-path variable value
+# prepend-path variable value
+# remove-path variable value
+# prereq modulefile
+# is-loaded modulefile
+# module subcommand
+# module-info option - name,specified,shell,shelltype,alias,version,mode,
+# module-alias
+# module-version module-file version-name
+# module-user level - advanced,expert,
+# set-alias alias-name alias-string
+# unset_alias alias-name
+# system string
+# uname field - sysname,nodename,domain,release,version,machine
+
+switch [ module-info mode ] {
+	"load" {
+			puts stderr ">>>>>> Loading Maya 2015 <<<<<<<<"
+			}
+	"unload" {
+			puts stderr ">>>>>> Unloading Maya 2015 <<<<<<<<"
+}
+	}
+	
+set CONFIG $env(CONFIG)
+
+set MAYA_VERSION 2015
+setenv MAYA_VERSION $MAYA_VERSION
+
+set MAYA_INSTALL_PATH /Applications/Autodesk/maya$MAYA_VERSION
+setenv MAYA_INSTALL_PATH $MAYA_INSTALL_PATH
+
+set MAYA_APP_DIR $CONFIG/mayaConfig
+setenv MAYA_APP_DIR $MAYA_APP_DIR
+
+append-path MAYA_SCRIPT_PATH $MAYA_APP_DIR/scripts
+append-path MAYA_SCRIPT_PATH $MAYA_APP_DIR/tempScripts
+
+set MAYA_PROJECT default
+set MAYA_PROJECTS_DIR $MAYA_APP_DIR/projects
+setenv MAYA_PROJECT $MAYA_PROJECT
+setenv MAYA_PROJECTS_DIR MAYA_PROJECTS_DIR
+
+append-path MAYA_PRESET_PATH $MAYA_APP_DIR/presets
+append-path MAYA_PLUG_IN_PATH $MAYA_APP_DIR/plugins
+append-path MAYA_MODULE_PATH $MAYA_APP_DIR/$MAYA_VERSION-x64/modules
+
+set RMS "RenderManStudio-18.0-maya2014"
+append-path MAYA_MODULE_PATH /Applications/Pixar/$RMS/etc
+
+append-path MAYA_SHELF_PATH $MAYA_APP_DIR/shelves
+append-path MAYA_TOOLCLIPS_PATH $MAYA_APP_DIR/toolclips
+append-path PYTHONPATH $MAYA_APP_DIR/scripts
+
+setenv XBMLANGPATH $MAYA_APP_DIR/icons
+
+append-path PATH $MAYA_INSTALL_PATH/Maya.app/Contents/bin
+append-path PATH /usr/aw/COM/bin
+append-path PATH /usr/aw/COM/etc
+
+set STARTD $env(STARTD)
+append-path PATH $STARTD/bin
+
+set MAYA_LOCATION $MAYA_INSTALL_PATH/Maya.app/Contents
+setenv MAYA_LOCATION $MAYA_LOCATION
+#append-path DYLD_LIBRARY_PATH $MAYA_LOCATION/MacOS
+setenv DYLD_LIBRARY_PATH $MAYA_LOCATION/MacOS	
+	
+# for Tcl script use only
+set     version      "@VERSION@"
+

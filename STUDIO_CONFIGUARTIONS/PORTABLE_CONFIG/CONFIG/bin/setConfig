@@ -1,0 +1,10 @@
+#!/bin/bash
+#  this is to be sourced to set the environment locally
+#  it assumes $CONFIG has been set to the top level of you configurations
+
+#################################
+# Modules setup TCL
+module use ${CONFIG}/etc/modulefiles
+module load dablab/central
+module load maya/2014
+module load nuke/8.0v5

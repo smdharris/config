@@ -1,0 +1,104 @@
+#!/bin/
+# version 0.3 mattg
+# this is the confirm dialog to the initialiser
+
+CWD=$(pwd)
+echo ">>> STARTING UTS STUDIO CONFIGURATION: "${USER}"@"$CWD
+farm_config="__CENTRAL_CONFIGS__"
+unset CONFIG
+unset CONFIG_CENTRAL
+unset CONFIG_LOCAL
+unset RENDERFARM
+#echo ">>> Unsetting envars"
+
+if [ -e ~/.startDirectory ]
+	then
+	export STARTD=$(cat ~/.startDirectory)
+	echo ">>> INFO: STARTD=${STARTD}"
+else
+	echo ">>> WARNING:  No ~/.startDirctory found, $STARTD not set"
+fi
+
+
+#### does /volumes/Renderfarm exist if it does set ${RENDERFARM}
+#
+#open $CWD/lib/MountFileServers/MountFileServers
+renderfarm="/Volumes/Renderfarm"
+if [ -e ${renderfarm} ]
+then
+	echo ">>> INFO: Found Renderfarm: ${renderfarm}"
+	export RENDERFARM=${renderfarm}
+else
+	echo ">>> Cant find Renderfarm ${RENDERFARM}"
+fi
+
+
+
+###### Find or make central config for the user under farm_config/${USER}
+#
+if [ -e ${RENDERFARM}/${farm_config}/user/${USER}/CONFIG ] 
+	then
+	export CONFIG_CENTRAL=${RENDERFARM}/${farm_config}/user/${USER}/CONFIG
+	echo ">>> INFO: Found Central User Configs ${CONFIG_CENTRAL}"
+elif [ -e ${RENDERFARM}/${farm_config}/user/${USER} ] 
+	then
+	mkdir ${RENDERFARM}/${farm_config}/user/${USER}/CONFIG
+	export CONFIG_CENTRAL=${RENDERFARM}/${farm_config}/user/${USER}/CONFIG
+	echo ">>> INFO: Found Central User Configs (added CONFIG directory) ${CONFIG_CENTRAL}"
+elif [ -e ${RENDERFARM}/${farm_config} ] 
+	then
+	mkdir ${RENDERFARM}/${farm_config}/user/${USER}
+	mkdir ${RENDERFARM}/${farm_config}/user/${USER}/CONFIG
+	export CONFIG_CENTRAL=${RENDERFARM}/${farm_config}/user/${USER}/CONFIG
+	echo ">>> INFO: Found Central User Configs (added user/${USER}/CONFIG directory) ${CONFIG_CENTRAL}"
+else 
+	echo ">>> WARNING: Couldnt find the central configuration files ${CONFIG_CENTRAL}"
+fi
+
+
+######	Set the local config is running from a thumbdrive
+#
+if [ -e ${CWD}/bin/setConfig ] 
+	then
+	export CONFIG_LOCAL=${CWD}
+	#echo ">>> DEBUG: Set CONFIG_LOCAL to pwd "$CONFIG_LOCAL
+fi
+
+###### If both local and central exist then push the local to the central then set central up to use
+#
+if  [ ${CONFIG_CENTRAL} ] && [ ${CONFIG_LOCAL} ] && [ ${CONFIG_LOCAL} != ${CONFIG_CENTRAL} ]
+	then
+	echo ">>> INFO: Backing up Central Config and pushing local config to central by rsync ......"
+	dateString=`date "+%Y-%m-%d"`
+	backupfile='CONFIG_BACKUP_'$dateString'.tar'
+
+	cd ${CONFIG_CENTRAL}/..
+	tar  --exclude='.*' -cf ${backupfile} CONFIG & > /dev/null 2>&1
+
+	echo ">>> INFO: Config Local   is ${CONFIG_LOCAL}"
+	echo ">>> INFO: Config Central is ${CONFIG_CENTRAL}"
+	
+	rsync -rtu --delete-after ${CONFIG_LOCAL}/ ${CONFIG_CENTRAL}/ & > /dev/null 2>&1
+	cd ${CWD}
+	#echo ">>> Set CONFIG to CONFIG_CENTRAL"
+	#echo '>>> INFO: Using Config Local'
+	export CONFIG=${CONFIG_LOCAL}
+fi
+
+######	Finally source the shell setup routine
+#
+if [ ${CONFIG} ] 
+	then
+	echo ">>> INFO: Sourceing Central Configs ${CONFIG}/bin/setConfig"
+	source ${CONFIG}/bin/setConfig
+	source ${CONFIG}/bin/introduction
+elif [ ${CONFIG_LOCAL} ]
+	then
+	export CONFIG=${CONFIG_LOCAL}
+	echo ">>> INFO: Sourcing Local Configs ${CONFIG}/bin/setConfig"
+	source ${CONFIG}/bin/setConfig
+	alias intro="source ${CONFIG}/bin/introduction"
+	source ${CONFIG}/bin/introduction
+else
+	echo "WARNING: cant find configs locally or centrally... oops"
+fi
