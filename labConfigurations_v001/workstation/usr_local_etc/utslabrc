@@ -1,0 +1,8 @@
+# ADD SOME ENVIRONMENT SET UPS FOR THE LAB
+#
+echo "Using /usr/local/etc/utslabrc"
+
+module load dab/central
+module load dab/local
+module load semester/2014spr
+

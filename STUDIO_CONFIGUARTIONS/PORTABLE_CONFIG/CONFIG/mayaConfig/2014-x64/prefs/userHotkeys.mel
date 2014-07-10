@@ -1,6 +1,0 @@
-//Maya Preference 2014 (Release 1)
-//
-//
-
-hotkey -keyShortcut "0" -releaseName ("HfAttrSelect_Menu_revert");
-hotkey -keyShortcut "0" -name ("HfAttrSelect_Menu");

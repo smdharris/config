@@ -1,0 +1,715 @@
+// Copyright (C) 1997-2000 Alias|Wavefront,
+// a division of Silicon Graphics Limited.
+//
+// The information in this file is provided for the exclusive use of the
+// licensees of Alias|Wavefront.  Such users have the right to use, modify,
+// and incorporate this code into other products for purposes authorized
+// by the Alias|Wavefront license agreement, without fee.
+//
+// ALIAS|WAVEFRONT DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+// INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
+// EVENT SHALL ALIAS|WAVEFRONT BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+// CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
+// DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+// TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+// PERFORMANCE OF THIS SOFTWARE.
+//
+//
+// Alias|Wavefront Script File
+//
+// Creation Date:  
+//
+//
+//
+//  Procedure Name:
+//      cleanUpScene
+//
+//  Description:
+//      This procedure invokes the clean up scene operations.
+//
+//  Input Arguments:
+//
+//  Return Value:
+//      None.
+//
+
+
+
+global proc string[] listEmptyGroups( ) 
+//
+//	Lists groups with no relatives or connections,
+//	and supplies them to the calling proc to
+//	do with as needed.
+//
+{
+	string $obj;
+	string $unused[];
+	string $xforms[] = `ls -transforms -leaf`;
+	for( $obj in $xforms ) {
+		if( size( listRelatives("-c", $obj) ) == 0 ) {
+			if( `objectType $obj` == "transform") {
+				string $conn[] = `listConnections($obj)`;
+				if( size( $conn ) == 0 ) {
+					$unused[size($unused)] = $obj;
+				} else if( (size( $conn ) == 1)
+					   &&  (`objectType $conn[0]` == "displayLayer") ) {
+					$unused[size($unused)] = $obj;
+				} else if( (size( $conn ) == 1)
+					   &&  (`objectType $conn[0]` == "renderLayer") ) {
+					$unused[size($unused)] = $obj;
+				}
+			}
+		}
+	}
+	return $unused;
+}
+
+global proc deleteEmptyGroups( ) 
+//
+//	Deletes anything returned by listEmptyGroups,
+//	until the list itself is empty
+//
+{
+	int $i;
+	string $unused[] = `listEmptyGroups`;
+	int $numTransf = size(`ls -transforms`);
+	int $numUnused = size($unused);
+	while ( $numUnused > 0 ) {
+		delete $unused;
+		for ($i = 0; $i < size($unused); $i++)
+			print ("delete " + $unused[$i] + "\n");
+		$unused = `listEmptyGroups`;
+
+		// 132335: need to avoid infinite loop possibility
+		// if referenced files - nothing deleted.
+		if (size($unused) == $numUnused &&
+			size(`ls -transforms`) == $numTransf) {
+			break;
+		} else {
+			$numUnused = size($unused);
+			$numTransf = size(`ls -transforms`);
+		}
+	}
+}
+
+global proc deleteUnusedLocators()
+// 
+// Desription:
+//    Deletes those locator objects that don't have connections
+//    to either their shape or transform nodes. 
+//
+{
+    int $i, $j, $shapeConnections, $parentConnections;
+    string $nodeList[] = `ls -typ locator`;
+    string $connectionList[];
+    string $cmd;
+
+    for ($i = 0; $i < size($nodeList); $i++) {
+		// Check if the locator shape is connected
+		//
+		string $locatorShape = $nodeList[$i];
+
+        $connectionList = `listConnections $locatorShape`;
+        $numConnections = size($connectionList);
+		if ($numConnections == 0)
+		{
+			// Check if the locator transform is connected
+			//
+			string $parent[] = `listRelatives -f -p $nodeList[$i]`;
+			int $parentOK = true;
+			for($j = 0; $j < size($parent); $j++)
+			{
+				string $parentNode = $parent[$j];
+				$connectionList = `listConnections $parentNode`;
+				$parentConnections = size($connectionList);
+				if ($parentConnections != 0)
+				{
+					$parentOK = false;
+					break;
+				}
+				
+			}
+			if ($parentOK)
+			{
+				for($j=0;$j<size($parent);$j++)
+				{
+					$parentNode = $parent[$j];
+
+					// Don't remove the locator transform if there are  
+					// objects parented under it other than the locator
+					// shape
+					//
+					string $childL[] = `listRelatives -c $parentNode`;
+					if (size($childL) > 1)
+						continue;
+					
+					$cmd = ("delete \"" + $parentNode + "\"");
+					evalEcho ($cmd);
+				}
+			}
+        }
+    }
+}
+
+
+//
+//	cleanUpScene:
+//		$option = 1: does the cleanup operation
+//		$option = 2: option window for cleanup
+//
+global proc cleanUpScene (int $option)
+{
+	if ($option == 1) {	
+		// Do the cleanup
+		setOptionVars (false);
+		performCleanUpScene();
+	} else if ($option == 2) {
+		// Option window for the cleanup work
+		cleanUpOptions();
+	}
+}
+
+
+//
+//	invokes the MEL procs to start deleting the unused database.
+//
+global proc cleanUp ()
+{
+    if (`optionVar -query nurbsSrfOption`) {
+        print "Removing invalid nurbs surfaces\n";
+        print "-------------------------------\n";
+        deleteInvalidNurbs(0);
+
+		// These nodes can be considered "invalid" 
+		// if they have no connections.  The list is
+		// far from complete; we'll add to it as needed.
+		//
+		deleteUnusedCommon( "stitchSrf", 0 );
+		deleteUnusedCommon( "rebuildSurface", 0 );
+		deleteUnusedCommon( "insertKnotSurface", 0 );
+		deleteUnusedCommon( "avgNurbsSurfacePoints", 0 );
+        print "\n";
+    }
+
+    if (`optionVar -query nurbsCrvOption`) {
+        print "Removing unused nurbs curves\n";
+        print "----------------------------\n";
+        deleteUnusedCommon("nurbsCurve", 0);
+        print "\n";
+    }
+
+    if (`optionVar -query locatorOption`) {
+        print "Removing unused locators\n";
+        print "------------------------\n";
+		deleteUnusedLocators();
+        print "\n";
+    }
+
+    if (`optionVar -query ptConOption`) {
+        print "Removing unused point constraints\n";
+        print "---------------------------------\n";
+        deleteUnusedCommon("pointConstraint", 0);
+        print "\n";
+    }
+
+	if (`optionVar -query deformerOption`) {
+    	print "Removing unused deformers\n";
+		print "-------------------------\n";
+    	deleteUnusedDeformers();
+		print "\n";
+	}
+
+    if (`optionVar -query expressionOption`) {
+        print "Removing unused expressions\n";
+        print "---------------------------\n";
+		deleteUnusedExpressions();
+        print "\n";
+    }
+
+    if (`optionVar -query groupIDnOption`) {
+        print "Removing unused groupID nodes\n";
+        print "-----------------------------\n";
+        deleteUnusedCommon("groupId", 1);
+        print "\n";
+    }
+
+    if (`optionVar -query animationCurveOption`) {
+        print "Removing unused animation curves\n";
+        print "--------------------------------\n";
+		deleteUnusedCommon("animCurve", 0);
+        print "\n";
+    }
+
+    if (`optionVar -query snapshotOption`) {
+        print "Removing unused snapshot nodes\n";
+        print "------------------------------\n";
+		deleteUnusedCommon("snapshot", 1);
+        print "\n";
+    }
+
+    if (`optionVar -query unitConversionOption`) {
+        print "Removing unused unit conversion nodes\n";
+        print "-------------------------------------\n";
+		deleteUnusedCommon("unitConversion", 1);
+		deleteUnusedCommon("timeToUnitConversion", 1);
+		deleteUnusedCommon("unitToTimeConversion", 1);
+        print "\n";
+    }
+
+	if (`optionVar -query shaderOption`) {
+		print "Removing unused rendering nodes\n";
+		print "-------------------------------\n";
+		MLdeleteUnused();
+		print "\n";
+	}
+
+    if (`optionVar -query cachedOption`) {
+        print "Removing cached data in datablocks\n";
+        print "----------------------------------\n";
+		int $cleared = `clearCache -allNodes`;
+		print( "Cleaned out " + $cleared + " datablocks\n");
+        print "\n";
+    }
+
+	if (`optionVar -query transformOption`) {
+	    print "Removing empty transforms\n";
+		print "-------------------------\n";
+	    deleteEmptyGroups();
+		print "\n";
+	}
+
+    if (`optionVar -query setsOption`) {
+        print "Removing empty sets\n";
+        print "-------------------\n";
+        deleteUnusedSets();
+        print "\n";
+    }
+
+    if (`optionVar -query partitionOption`) {
+        print "Removing empty partitions\n";
+        print "-------------------------\n";
+        deleteUnusedCommon("partition", 0);
+        print "\n";
+    }
+
+    if (`optionVar -query referencedOption`) {
+        print "Removing unused referenced items\n";
+        print "--------------------------------\n";
+		RNdeleteUnused();
+        print "\n";
+    }
+
+	print "\nScene optimized - check Script Editor for details.\n";
+}
+
+
+//
+//	option box layout for cleanup
+//
+global proc cleanUpOptions ()
+{
+	string $commandName = "cleanUpScene";
+	string $callback = ($commandName + "Callback");
+	string $setup = ($commandName + "Setup");
+
+	string $layout = getOptionBox();
+	setParent $layout;
+
+	setOptionBoxCommandName($commandName);
+
+	string $tabLayout = `tabLayout -scrollable 1`;
+	tabLayout -edit
+        -tabsVisible false
+        -preSelectCommand ("createCleanUpSceneTabUI " + $tabLayout)
+        $tabLayout;
+	columnLayout -adj true;
+		setParent ..;
+	tabLayout -edit
+        $tabLayout;
+
+	createCleanUpSceneTabUI($tabLayout);
+
+
+	//  Std buttons for options.
+    //
+	string $applyBtn = getOptionBoxApplyBtn();
+	button -edit -l "Optimize"
+        -command ($callback + " " + $tabLayout + " " + 1 + "; performCleanUpScene")
+        $applyBtn;
+    string $saveBtn = getOptionBoxSaveBtn();
+    button -edit
+        -command ($callback + " " + $tabLayout + " " + 0 + "; hideOptionBox")
+        $saveBtn;
+    string $resetBtn = getOptionBoxResetBtn();
+    button -edit
+        -command ($setup + " " + $tabLayout + " " + 1)
+        $resetBtn;
+
+    setOptionBoxTitle("Optimize Scene Size Options");
+	showOptionBox();
+}
+
+
+global proc createCleanUpSceneTabUI (string $tabLayout)
+{
+    string $tab[] = `tabLayout -query -childArray $tabLayout`;
+    int $currentTabIndex = `tabLayout -query -selectTabIndex $tabLayout`;
+
+    if (0 == `columnLayout -query -numberOfChildren $tab[$currentTabIndex-1]`) {
+
+        setParent $tab[$currentTabIndex-1];
+
+        string $label;
+        int $index;
+
+        setUITemplate -pushTemplate attributeEditorTemplate;
+
+        waitCursor -state 1;
+
+        if (1 == $currentTabIndex) {
+			checkBoxGrp -ncb 1 -label "Remove Invalid"
+				-label1 "NURBS Surfaces + Curves" nurbsSrfOption;
+			separator;			
+			checkBoxGrp -ncb 1 -label "Remove Empty"
+				-label1 "Sets" setsOption;
+			checkBoxGrp -ncb 1
+				-label1 "Partitions" partitionOption;
+			checkBoxGrp -ncb 1 
+				-label1 "Transforms" transformOption;
+			separator -w 490;			
+			checkBoxGrp -ncb 1  -label "Remove Unused"
+				-label1 "Animation Curves" animationCurveOption;
+			checkBoxGrp -ncb 1 -label1 "NURBS Curves" -value1 false nurbsCrvOption;
+			checkBoxGrp -ncb 1 -label1 "Cached Data" -value1 false cachedOption;
+			checkBoxGrp -ncb 1 -label1 "Deformers" deformerOption;
+			checkBoxGrp -ncb 1 -label1 "Expressions" -value1 false expressionOption;
+			checkBoxGrp -ncb 1 -label1 "GroupID Nodes" groupIDnOption;
+			checkBoxGrp -ncb 1 -label1 "Rendering Nodes" shaderOption;
+			checkBoxGrp -ncb 1 -label1 "Locators" locatorOption;
+			checkBoxGrp -ncb 1 -label1 "Point Constraints" ptConOption;
+			checkBoxGrp -ncb 1 -label1 "Snapshot Nodes" snapshotOption;
+			checkBoxGrp -ncb 1 -label1 "Unit Conversion Nodes" 
+				unitConversionOption;
+			checkBoxGrp -ncb 1 -label1 "Referenced Items" referencedOption;
+
+			setParent ..;
+		}
+
+		eval (("cleanUpSceneSetup " + $tabLayout + " " + 0));
+
+        waitCursor -state 0;
+        setUITemplate -popTemplate;
+	}
+}
+
+
+//
+//	intialize the options for cleanup
+//
+global proc setOptionVars(int $forceFactorySettings)
+{
+	if ($forceFactorySettings || !`optionVar -exists nurbsSrfOption`)
+		optionVar -intValue nurbsSrfOption true;
+    if ($forceFactorySettings || !`optionVar -exists nurbsCrvOption`)
+        optionVar -intValue nurbsCrvOption false;
+	if ($forceFactorySettings || !`optionVar -exists deformerOption`)
+		optionVar -intValue deformerOption true;
+	if ($forceFactorySettings || !`optionVar -exists expressionOption`)
+		optionVar -intValue expressionOption false;
+	if ($forceFactorySettings || !`optionVar -exists groupIDnOption`)
+		optionVar -intValue groupIDnOption true;
+	if ($forceFactorySettings || !`optionVar -exists animationCurveOption`)
+		optionVar -intValue animationCurveOption true;
+	if ($forceFactorySettings || !`optionVar -exists shaderOption`)
+		optionVar -intValue shaderOption true;
+	if ($forceFactorySettings || !`optionVar -exists cachedOption`)
+		optionVar -intValue cachedOption false;
+	if ($forceFactorySettings || !`optionVar -exists transformOption`)
+		optionVar -intValue transformOption true;
+    if ($forceFactorySettings || !`optionVar -exists setsOption`)
+        optionVar -intValue setsOption true;
+    if ($forceFactorySettings || !`optionVar -exists partitionOption`)
+        optionVar -intValue partitionOption false;
+    if ($forceFactorySettings || !`optionVar -exists locatorOption`)
+        optionVar -intValue locatorOption false;
+    if ($forceFactorySettings || !`optionVar -exists ptConOption`)
+        optionVar -intValue ptConOption true;
+    if ($forceFactorySettings || !`optionVar -exists snapshotOption`)
+        optionVar -intValue snapshotOption true;
+    if ($forceFactorySettings || !`optionVar -exists unitConversionOption`)
+        optionVar -intValue unitConversionOption true;
+    if ($forceFactorySettings || !`optionVar -exists referencedOption`)
+        optionVar -intValue referencedOption true;
+}
+
+
+//
+//	callback to set the values based on current settings
+//
+global proc cleanUpSceneCallback(string $parent, int $doIt)
+{
+    setParent $parent;
+	
+	if (`checkBoxGrp -exists nurbsSrfOption`) {
+		optionVar -intValue nurbsSrfOption
+			`checkBoxGrp -query -value1 nurbsSrfOption`;
+	}
+	if (`checkBoxGrp -exists nurbsCrvOption`) {
+		optionVar -intValue nurbsCrvOption
+			`checkBoxGrp -query -value1 nurbsCrvOption`;
+	}
+	if (`checkBoxGrp -exists deformerOption`) {
+		optionVar -intValue deformerOption
+			`checkBoxGrp -query -value1 deformerOption`;
+	}
+    if (`checkBoxGrp -exists expressionOption`) {
+        optionVar -intValue expressionOption
+            `checkBoxGrp -query -value1 expressionOption`;
+    }
+    if (`checkBoxGrp -exists groupIDnOption`) {
+        optionVar -intValue groupIDnOption
+            `checkBoxGrp -query -value1 groupIDnOption`;
+    }
+    if (`checkBoxGrp -exists animationCurveOption`) {
+        optionVar -intValue animationCurveOption
+            `checkBoxGrp -query -value1 animationCurveOption`;
+    }
+    if (`checkBoxGrp -exists shaderOption`) {
+        optionVar -intValue shaderOption
+            `checkBoxGrp -query -value1 shaderOption`;
+    }
+    if (`checkBoxGrp -exists cachedOption`) {
+        optionVar -intValue cachedOption
+            `checkBoxGrp -query -value1 cachedOption`;
+    }
+    if (`checkBoxGrp -exists transformOption`) {
+        optionVar -intValue transformOption
+            `checkBoxGrp -query -value1 transformOption`;
+    }
+    if (`checkBoxGrp -exists setsOption`) {
+        optionVar -intValue setsOption
+            `checkBoxGrp -query -value1 setsOption`;
+    }
+    if (`checkBoxGrp -exists partitionOption`) {
+        optionVar -intValue partitionOption
+            `checkBoxGrp -query -value1 partitionOption`;
+    }
+    if (`checkBoxGrp -exists locatorOption`) {
+        optionVar -intValue locatorOption
+            `checkBoxGrp -query -value1 locatorOption`;
+    }
+    if (`checkBoxGrp -exists ptConOption`) {
+        optionVar -intValue ptConOption
+            `checkBoxGrp -query -value1 ptConOption`;
+    }
+    if (`checkBoxGrp -exists snapshotOption`) {
+        optionVar -intValue snapshotOption
+            `checkBoxGrp -query -value1 snapshotOption`;
+    }
+    if (`checkBoxGrp -exists unitConversionOption`) {
+        optionVar -intValue unitConversionOption
+            `checkBoxGrp -query -value1 unitConversionOption`;
+    }
+    if (`checkBoxGrp -exists referencedOption`) {
+        optionVar -intValue referencedOption
+            `checkBoxGrp -query -value1 referencedOption`;
+    }
+}
+
+
+//
+//	reset the option values
+//
+global proc cleanUpSceneSetup(string $parent, int $forceFactorySettings)
+{
+	setOptionVars($forceFactorySettings);
+	
+	if (`checkBoxGrp -exists nurbsSrfOption`) {
+		checkBoxGrp -edit
+            -value1 `optionVar -query nurbsSrfOption`
+            nurbsSrfOption;
+	}
+	if (`checkBoxGrp -exists nurbsCrvOption`) {
+		checkBoxGrp -edit
+            -value1 `optionVar -query nurbsCrvOption`
+            nurbsCrvOption;
+	}
+	if (`checkBoxGrp -exists deformerOption`) {
+		checkBoxGrp -edit
+            -value1 `optionVar -query deformerOption`
+            deformerOption;
+	}
+    if (`checkBoxGrp -exists expressionOption`) {
+        checkBoxGrp -edit
+            -value1 `optionVar -query expressionOption`
+            expressionOption;
+    }
+    if (`checkBoxGrp -exists groupIDnOption`) {
+        checkBoxGrp -edit
+            -value1 `optionVar -query groupIDnOption`
+            groupIDnOption;
+    }
+    if (`checkBoxGrp -exists animationCurveOption`) {
+        checkBoxGrp -edit
+            -value1 `optionVar -query animationCurveOption`
+            animationCurveOption;
+    }
+    if (`checkBoxGrp -exists shaderOption`) {
+        checkBoxGrp -edit
+            -value1 `optionVar -query shaderOption`
+            shaderOption;
+    }
+    if (`checkBoxGrp -exists cachedOption`) {
+        checkBoxGrp -edit
+            -value1 `optionVar -query cachedOption`
+            cachedOption;
+    }
+    if (`checkBoxGrp -exists transformOption`) {
+        checkBoxGrp -edit
+            -value1 `optionVar -query transformOption`
+            transformOption;
+    }
+    if (`checkBoxGrp -exists setsOption`) {
+        checkBoxGrp -edit
+            -value1 `optionVar -query setsOption`
+            setsOption;
+    }
+    if (`checkBoxGrp -exists partitionOption`) {
+        checkBoxGrp -edit
+            -value1 `optionVar -query partitionOption`
+            partitionOption;
+    }
+    if (`checkBoxGrp -exists locatorOption`) {
+        checkBoxGrp -edit
+            -value1 `optionVar -query locatorOption`
+            locatorOption;
+    }
+    if (`checkBoxGrp -exists ptConOption`) {
+        checkBoxGrp -edit
+            -value1 `optionVar -query ptConOption`
+            ptConOption;
+    }
+    if (`checkBoxGrp -exists snapshotOption`) {
+        checkBoxGrp -edit
+            -value1 `optionVar -query snapshotOption`
+            snapshotOption;
+    }
+    if (`checkBoxGrp -exists unitConversionOption`) {
+        checkBoxGrp -edit
+            -value1 `optionVar -query unitConversionOption`
+            unitConversionOption;
+    }
+    if (`checkBoxGrp -exists referencedOption`) {
+        checkBoxGrp -edit
+            -value1 `optionVar -query referencedOption`
+            referencedOption;
+    }
+}
+
+
+//-------------------------------------------------
+
+//
+// Some Short delete procs.
+//
+
+global proc deleteUnusedCommon(string $typ, int $minVal)
+{
+    int $i, $numConnections;
+    string $nodeList[] = `ls -typ $typ`;
+    string $connectionList[];
+    string $cmd;
+
+    for ($i = 0; $i < size($nodeList); $i++) {
+        $connectionList = `listConnections $nodeList[$i]`;
+        $numConnections = `size($connectionList)`;
+        if ($numConnections <= $minVal && 
+			$nodeList[$i] != "characterPartition") {
+            $cmd = ("delete " + $nodeList[$i]);
+            evalEcho ($cmd);
+        }
+    }
+}
+
+
+//
+// Delete Unused Sets.
+//
+
+global proc deleteUnusedSets()
+{
+	string $cmd;
+	string $sets[] = `ls -sets`;
+
+	for( $set in $sets ) {
+		string $elements[] = `sets -q $set`;
+		if( `size $elements` < 1 ) {
+			if( $set != "defaultLightSet" && $set != "defaultObjectSet" &&
+				$set != "initialParticleSE" && $set != "initialShadingGroup") {
+				$cmd = ("delete " + $set);
+				evalEcho ($cmd);
+			}
+		}
+	}
+}
+
+//  ====================== deleteUnusedExpressions ======================
+//
+//
+//  Creation Date:  March, 1999
+//
+//  Description:
+//    Deletes all expression nodes which have no direct connections 
+//  to any of their output attributes.  A unit node with nothing on 
+//  the other side is considered not to be a direct connection, i.e. it is
+//  skipped over.  Note we say "direct" connections.  An expression might 
+//  be part of a connected group of nodes which were cut off from the 
+//  rest of the scene, hence "not used," but this routine
+//  does not attempt to depth-search the network to detect such situations.
+// 
+//  This routine deletes only "expression" nodes, not dynExpressions.  
+//  dynExpressions are built into the particle shapes.
+//
+//  CAUTION: If you have an expression that executes Mel commands but
+//  has no output connections, this routine *will* delete it.  Use cautiously!
+//
+//  INPUT ARGUMENTS
+//      None.
+// 
+//  Return Value: 
+//      int $deleteCount = 
+//           number of expression nodes deleted
+//
+global proc int deleteUnusedExpressions() {
+
+	int $deletedCount = 0;
+
+	//  Get a list of all expression nodes.
+	//
+	string $nodeList[];
+	clear( $nodeList );
+	$nodeList = `ls -type expression`;
+
+	// Iterate through list of nodes
+	//
+	int $i;
+	int $nodeCount = size( $nodeList );
+	for ($i = 0; $i  < $nodeCount; $i++)
+	{
+		// See if this node's "output" attribute has any
+		// outgoing connections.
+		//
+        string $outputs[];
+        clear( $outputs );
+        $outputs = `listConnections -source false -destination true -skipConversionNodes true ($nodeList[$i]+".output")`;
+        if( size( $outputs ) == 0 )		
+		{
+			delete $nodeList[$i];
+			$deletedCount++;
+		}
+	}
+	return $deletedCount;						
+}
+
+
+	

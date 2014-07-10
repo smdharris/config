@@ -1,0 +1,8 @@
+#!/bin/bash
+#  this is to be sourced to set the environment locally
+#  it assumes $CONFIG has been set to the top level of you configurations
+
+#################################
+# Modules setup TCL  add these portable module files to be found
+module use ${CONFIG}/etc/modulefiles
+

@@ -1,0 +1,62 @@
+select -r boids ;
+delete;
+
+particle -n boids -jbp 0 0 0 -nj 10 -jr 20 -c 1 ;
+setAttr boidsShape.particleRenderType 4;
+
+float $range = 15;	// search range
+matrix $dst[10][10];	// distance measure
+float $c_pos[]; 	// current boid
+float $n_pos[]; 	// nearest boids
+int $cl;		// current loop
+int $nl;		// nearest loop
+float 	$inbetween;
+float 	$temp[];
+float 	$sorted[];
+matrix	$nearest[10][3];
+int 	$loop;
+
+for ( $cl = 0; $cl < 10; $cl++ ) {
+
+  for ( $nl = 0; $nl < 10; $nl++ ) {
+	
+    $c_pos = `particle -attribute position -id $cl -q boids`;
+    $n_pos = `particle -attribute position -id $nl -q boids`;
+		
+    $dst[$cl][$nl] = sqrt ( pow ( ( $n_pos[0] - $c_pos[0] ) , 2 ) + pow ( ( $n_pos[1] - $c_pos[1] ) , 2 ) + pow ( ( $n_pos[2] - $c_pos[2] ) , 2 ) ) ;
+    print ( $dst[$cl][$nl] + " \n" );
+
+    }
+}
+	
+for ( $cl = 0; $cl < 10; $cl++ ) {
+
+  for ( $nl = 0; $nl < 10; $nl++ ) {
+    
+    $inbetween = $dst[$cl][$nl];
+    $temp[$nl] = $inbetween;
+  
+  }
+  
+  $sorted = sort($temp);				
+
+  for ( $loop = 0; $loop < 4; $loop++ )	{ 
+
+    for ( $nl = 0; $nl < 10; $nl++ ) {
+
+      if ( $sorted[$loop] == $dst[$cl][$nl] && $loop != 0 ) {
+
+        $nearest[$cl][$loop-1] = $nl;			
+
+        print ( $nearest[$cl][$loop-1] + "\n" );
+
+      }
+    }							
+  }							
+}
+
+for ( $loop = 0; $loop < 3; $loop++ ) {
+
+  select -add boids.pt[($nearest[0][$loop])] ;
+
+};

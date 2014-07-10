@@ -1,0 +1,89 @@
+// dpMakeHold.mel
+//
+// Key copier and tangent flattening script
+// By David Peers (davidp@al.com.au) 
+// 28-01-04
+
+// Updated 28-01-04 to add explicit flat tangency on paste frame
+// andrew silke slight modification
+
+
+
+
+
+
+
+global proc dpMakeHold_plus1 ()
+{
+
+//Ensure there are curves active
+string $curvesActive[] = `keyframe -query -name`;
+
+if (size($curvesActive))
+{
+	
+	// current frame init
+	int $currentTime = `currentTime -q`;
+	
+	//Current curves with a selection, registers if keys or curve are selected
+	string $selCurves[] = `keyframe -query -name -sl`;
+	int $lastKey;
+	int $nextKey;
+	
+	if (size($selCurves))
+	{
+	
+		for ($curve in $selCurves)
+		{
+			//loop to find previous key		
+			//float $keyVals[] = `keyframe -query -sl -vc -attribute $curve`;
+			
+			$lastKey = `findKeyframe -time ($currentTime + 1) -which previous $curve`;
+			$nextKey = `findKeyframe -time $currentTime -which next $curve`;
+			
+			//need customizing
+			keyTangent -time $lastKey -itt flat -ott flat $curve;
+			copyKey -time $lastKey $curve;
+			pasteKey -time $nextKey -option insert $curve;
+			keyTangent -time $nextKey -itt flat -ott flat $curve;
+			print ("Created hold on " + $curve + "\n");
+		}
+		
+	}
+		
+	else 
+	
+		{
+			$lastKey = `findKeyframe -time ($currentTime + 1) -which previous`;
+			print ("Last Key = " + $lastKey + "\n");
+			int $isLastKey;
+			
+			for($eachCurve in $curvesActive)		
+			{
+				// query to see if there is a key
+				$isLastKey = `keyframe -time $lastKey -query -keyframeCount $eachCurve`;
+				
+				if ($isLastKey==1)
+				{
+				//if there is, run proc
+				keyTangent -time $lastKey -itt flat -ott flat $eachCurve;
+				copyKey -time $lastKey $eachCurve;
+
+				$nextKey = `findKeyframe -time $currentTime -which next $eachCurve`;
+				pasteKey -time $nextKey -option insert $eachCurve;
+				keyTangent -time $nextKey -itt flat -ott flat $eachCurve;
+				print ("Created hold on " + $eachCurve + "\n");
+				}
+
+				else 
+				{
+				print ("No hold on " + $eachCurve + ", no source key on frame " + $lastKey + "\n");
+				}
+			}
+		}		
+
+}
+
+else	{print "No curves active!";} 	
+	
+}
