@@ -11,7 +11,7 @@ else
 	export PATH="${PATH}:/usr/local/rush/bin"
 fi
 
-export MODULESHOME="/usr/local/etc/modules"
+export MODULESHOME="/usr/local/lib/modules"
 eval `tclsh ${MODULESHOME}/modulecmd.tcl sh autoinit`
 
 
