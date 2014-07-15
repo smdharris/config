@@ -1,0 +1,456 @@
+// ////////////////////////////////////////////////////////
+// ////		pixie 			/////////
+// ///////////////////////////////////////////////////////
+// FileName		: pxCameraDome 
+// Author		: Xteo
+// CreationDate		: 27/05/2000
+// LastUpdate		: 27/05/2000
+// Comment :
+// 
+// -
+// -
+// -
+// -
+// EndComment
+// ///////////////////////////////////////////////////////
+/*[endNfo]*/
+
+
+//------------------------------------------------------------------------//
+
+global proc string padZero(float $value, int $nr)
+{
+	string $valStr = $value;
+	int $i;
+	int $zeroNr = $nr-size($valStr);
+	for ($i=0;$i<$zeroNr;$i++)
+		$valStr = "0"+$valStr;
+	return $valStr;
+}
+
+/// [NEWFONC]
+// ///// MainInterface 				/////////  
+// ///////////////////////////////////////////////////////
+// Function Parameter	: 
+// Author		: Xteo
+// Creation Date	: 29/05/2000
+// Last Update		: 29/05/2000
+// Comment :
+// -
+// -
+// -
+// -
+// -
+// EndComment
+// ///////////////////////////////////////////////////////
+
+
+global proc pxCreateCamera(string $cameraName , float $offset[] , float $direction[] , float $radius )
+{
+	
+	camera -n $cameraName;
+	move -a ( $offset[0]-$radius*$direction[0]) ( $offset[0]-$radius*$direction[1]) ( $offset[0]-$radius*$direction[2]);
+	
+	float $rotation[]  =`angleBetween -euler -v1 0.0 0.0 -1.0 -v2 $direction[0] $direction[1] $direction[2]`;
+	
+	rotate -eu $rotation[0] $rotation[1] $rotation[2];
+	
+}
+
+
+/// [NEWFONC]
+// ///// MainInterface 				/////////  
+// ///////////////////////////////////////////////////////
+// Function Parameter	: 
+// Author		: Xteo
+// Creation Date	: 29/05/2000
+// Last Update		: 29/05/2000
+// Comment :
+// -
+// -
+// -
+// -
+// -
+// EndComment
+// ///////////////////////////////////////////////////////
+
+
+global proc pxCreateCameraOnLocator(string $domeName ,string $locatorName , int $pitch , int $yaw )
+{
+	string $baseTurnAroundCamSystemName 	= ($domeName+"_TurnAroundSystemCamera");	
+	string $baseTurnAroundName 				= ($domeName+"_TurnAroundSystem");
+	
+	if (!`objExists $baseTurnAroundCamSystemName`)
+		{
+			group -em -n  $baseTurnAroundCamSystemName;
+			parent $baseTurnAroundCamSystemName $baseTurnAroundName;
+		}
+	
+	string $cameraName[] =`camera -n ($domeName+"_TurnAround_P"+$pitch+"_Y"+$yaw+"_Cam")`;
+	setAttr ($cameraName[0]+".filmFit") 0;
+	scale 3 3 3;
+	camera -e -displayFilmGate off -displayResolution on -overscan 1.3 $cameraName[0];	
+	pointConstraint  $locatorName $cameraName[0];
+	aimConstraint -aimVector 0 0 (-1) ($domeName+"_TurnAroundLoc") $cameraName[0];
+	parent $cameraName[0] $baseTurnAroundCamSystemName;
+}
+
+
+/// [NEWFONC]
+// ///// MainInterface 				/////////  
+// ///////////////////////////////////////////////////////
+// Function Parameter	: 
+// Author		: Xteo
+// Creation Date	: 29/05/2000
+// Last Update		: 29/05/2000
+// Comment :
+// -
+// -
+// -
+// -
+// -
+// EndComment
+// ///////////////////////////////////////////////////////
+
+
+global proc pxCreateCameraDome(string $domeName , float $offset[] , float $radius  , int $nbPitch , int $nbYaw)
+{
+//	float $PI = 3.14159265358;
+	float $PI = 180;
+	float $pitchStep = $PI/(2.0*$nbPitch);
+	float $yawStep 	 = -(2.0*$PI)/$nbYaw;
+	
+	string $baseTurnAroundName 			= ($domeName+"_TurnAroundSystem");
+	string $baseTurnAroundPositionName 	= ($domeName+"_TurnAroundPositionGrp");
+	string $baseTurnAroundLocName 		= ($domeName+"_TurnAroundLoc");
+	string $baseTurnAroundDefaultLoc	= ($domeName+"_defaultLocator");
+	string $baseTurnAroundCamLocName	= ($domeName+"_cameraLocator");
+	
+	
+	if (`objExists $baseTurnAroundName`) delete $baseTurnAroundName;
+	
+	group -em -n $baseTurnAroundName;
+	
+	group -em -n $baseTurnAroundPositionName;
+	parent $baseTurnAroundPositionName $baseTurnAroundName;
+	// create Targetlocator
+	spaceLocator -n $baseTurnAroundLocName;
+	parent $baseTurnAroundLocName $baseTurnAroundPositionName;
+	// create Default Locator 
+	spaceLocator -n $baseTurnAroundCamLocName;
+	addAttr -ln "pitch" -at short $baseTurnAroundCamLocName;
+	addAttr -ln "yaw" -at short $baseTurnAroundCamLocName;
+	
+	move 0 0 (-$radius);
+	group -n $baseTurnAroundDefaultLoc;
+	xform -os -piv 0 0 0;
+	parent $baseTurnAroundDefaultLoc $baseTurnAroundPositionName;
+
+	for ( $pitchIndex = 0 ; $pitchIndex <  $nbPitch ; $pitchIndex++ )
+	{
+		float $pitchRotation = ($pitchIndex*$pitchStep*1.0);	
+		rotate $pitchRotation 0 0 $baseTurnAroundDefaultLoc;
+
+		for ( $yawIndex = 0 ; $yawIndex <  $nbYaw ; $yawIndex++ )
+		{
+			string $currentTarget[] =`duplicate -rc $baseTurnAroundDefaultLoc`;
+			setAttr ($currentTarget[1]+".pitch") $pitchIndex;
+			setAttr ($currentTarget[1]+".yaw") $yawIndex;
+						
+			float $rotation = ($yawIndex*$yawStep*1.0);
+			rotate -r 0 $rotation 0 $currentTarget[0];
+			pxCreateCameraOnLocator( $domeName ,$currentTarget[1] ,  $pitchIndex ,  $yawIndex );
+	
+		}
+
+	}
+	
+	setAttr ($baseTurnAroundPositionName+".t") $offset[0] $offset[1] $offset[2];
+}
+
+/// [NEWFONC]
+// ///// MainInterface 				/////////  
+// ///////////////////////////////////////////////////////
+// Function Parameter	: 
+// Author		: Xteo
+// Creation Date	: 29/05/2000
+// Last Uate		: 29/05/2000
+// Comment :
+// -
+// -
+// -
+// -
+// -
+// EndComment
+// ///////////////////////////////////////////////////////
+
+
+global proc pxcdLaunchRManRender(string $domeName ,string $prefix , string $folderPath , int $res[], int $nbFrame , int $byFrame,  int $nbPitch , int $nbYaw)
+{
+
+	for ( $pitchIndex = 0 ; $pitchIndex <  $nbPitch ; $pitchIndex++ )
+	{
+		for ( $yawIndex = 0 ; $yawIndex <  $nbYaw ; $yawIndex++ )
+		{	
+			// set the parameter for each camera 
+			mtor control setvalue -rg "camName" -value ($domeName+"_TurnAround_P"+$pitchIndex+"_Y"+$yawIndex+"_CamShape2");
+
+			mtor control setvalue -rg "dspyName" -value ($prefix+"."+padZero($pitchIndex,4)+"."+padZero($yawIndex,4)+"."+padZero($yawIndex,4));
+			mtor control setvalue -rg "dspyFormatX" -value $res[0];
+			mtor control setvalue -rg "dspyFormatY" -value $res[1];
+
+			mtor control setvalue -rg "doAnim" -value true;
+
+			mtor control setvalue -rg "computeStart" -value 0;
+			mtor control setvalue -rg "computeStop" -value $nbFrame;
+			mtor control setvalue -rg "computeBy" -value $byFrame;
+
+			mtor control setvalue -rg "sequenceStart" -value 0;
+			mtor control setvalue -rg "sequenceStop" -value $nbFrame;
+			
+			slimcmd workspace SetDir "torImgs" $folderPath ;	
+			
+			// launch the rendering
+			mtor control renderspool;
+		}
+	}
+
+
+}	
+
+/// [NEWFONC]
+// ///// MainInterface 				/////////  
+// ///////////////////////////////////////////////////////
+// Function Parameter	: 
+// Author		: Xteo
+// Creation Date	: 29/05/2000
+// Last Update		: 29/05/2000
+// Comment :
+// -
+// -
+// -
+// -
+// -
+// EndComment
+// ///////////////////////////////////////////////////////
+
+
+global proc pxCreateBatchRenderFile(string $domeName ,string $prefix , string $folderPath , int $res[], int $nbFrame , int $byFrame,  int $nbPitch , int $nbYaw)
+{
+	
+	int $fileId = OpenInternalFileWriteMode($folderPath +"renderTurnAround.bat");
+	
+
+	for ( $pitchIndex = 0 ; $pitchIndex <  $nbPitch ; $pitchIndex++ )
+	{
+		for ( $yawIndex = 0 ; $yawIndex <  $nbYaw ; $yawIndex++ )
+		{	
+			string $cmd = "render -cam "+$domeName+"_TurnAround_P"+$pitchIndex+"_Y"+$yawIndex+"_Cam1 ";
+			$cmd += " -s 0 -e "+ $nbFrame;
+			$cmd += " -b "+$byFrame+" -pad 4";
+			$cmd += " -im "+$prefix+"."+padZero($pitchIndex,4)+"."+padZero($yawIndex,4);
+			$cmd += " -x "+$res[0]+" -y " +$res[1];
+			$cmd += " -rd \""+$folderPath+"\"";
+			$cmd += " \""+$folderPath +$prefix+".ma\"\n";
+			fprint $fileId $cmd;  
+		}
+	}
+	
+	fclose ($fileId );
+	
+}
+
+
+global proc pxCreateQuickPxiFile(string $pxiName , string $folderPath , string $extension ,int $nbFrame , int $byFrame,  int $nbPitch , int $nbYaw )
+{
+	string $newPxiFilePath = `optionVar -q pxiFilePath`+$pxiName+".pxi";
+	pxCreatePxiFile($newPxiFilePath ,$pxiName,$folderPath ,$extension ,$nbFrame ,$byFrame,$nbPitch ,$nbYaw );
+
+}
+
+/// [NEWFONC]
+// ///// MainInterface 				/////////  
+// ///////////////////////////////////////////////////////
+// Function Parameter	: 
+// Author		: Xteo
+// Creation Date	: 29/05/2000
+// Last Update		: 29/05/2000
+// Comment :
+// -
+// -
+// -
+// -
+// -
+// EndComment
+// ///////////////////////////////////////////////////////
+
+
+global proc pxCreatePxiFile(string $fullPixiePath , string $pxiName , string $folderPath , string $extension ,int $nbFrame , int $byFrame,  int $nbPitch , int $nbYaw )
+{
+	
+	int $pxiFileID = OpenInternalFileWriteMode($fullPixiePath);
+	fprint $pxiFileID ($folderPath+"\n");
+	fprint $pxiFileID ($pxiName+" "+$extension+"\n");
+	fprint $pxiFileID ($nbPitch +" "+$nbYaw+" "+$nbFrame+" "+$byFrame+"\n");
+
+	fclose($pxiFileID);
+	
+}
+
+
+global proc pxCreateQuickPxiFile(string $pxiName , string $folderPath , string $extension ,int $nbFrame , int $byFrame,  int $nbPitch , int $nbYaw )
+{
+	string $newPxiFilePath = `optionVar -q pxiFilePath` +$pxiName+".pxi";
+	pxCreatePxiFile($newPxiFilePath ,$pxiName,$folderPath ,$extension ,$nbFrame ,$byFrame,$nbPitch ,$nbYaw );
+
+}
+
+
+/// [NEWFONC]
+// ///// MainInterface 				/////////  
+// ///////////////////////////////////////////////////////
+// Function Parameter	: 
+// Author		: Xteo
+// Creation Date	: 29/05/2000
+// Last Update		: 29/05/2000
+// Comment :
+// -
+// -
+// -
+// -
+// -
+// EndComment
+// ///////////////////////////////////////////////////////
+
+
+global proc pxSetSequenceWithPxiFileOnArmy(string $armyName , string $pxiFileName )
+{
+	string $buffer[];
+	tokenize $pxiFileName "/" $buffer;
+	
+	string $fullPlugName = $armyName +"_pxiShape.image[0]";
+	
+	if (size($buffer) > 1)
+	{
+		pxSetsequenceWithPxiFile($fullPlugName ,$pxiFileName );
+	}
+	else
+	{
+		pxSetsequenceWithPxiFileQuick($fullPlugName ,$pxiFileName );
+	}
+
+}
+/// [NEWFONC]
+// ///// MainInterface 				/////////  
+// ///////////////////////////////////////////////////////
+// Function Parameter	: 
+// Author		: Xteo
+// Creation Date	: 29/05/2000
+// Last Update		: 29/05/2000
+// Comment :
+// -
+// -
+// -
+// -
+// -
+// EndComment
+// ///////////////////////////////////////////////////////
+
+
+global proc pxSetsequenceWithPxiFileQuick(string $fullPlugName , string $pxiFileName )
+{
+	string $pxiFilePath =  `optionVar -q pxiFilePath` +$pxiFileName;
+	pxSetsequenceWithPxiFile($fullPlugName , $pxiFilePath);
+}
+/// [NEWFONC]
+// ///// MainInterface 				/////////  
+// ///////////////////////////////////////////////////////
+// Function Parameter	: 
+// Author		: Xteo
+// Creation Date	: 29/05/2000
+// Last Update		: 29/05/2000
+// Comment :
+// -
+// -
+// -
+// -
+// -
+// EndComment
+// ///////////////////////////////////////////////////////
+
+
+global proc pxSetsequenceWithPxiFile(string $fullPlugName , string $pxiFileName )
+{
+	
+//	string $pxiFilePath = `internalVar -usd` +"pixie/pxiFiles/"+$pxiFileName+".pxi";
+	
+	int $pxiFileID = OpenInternalFileReadMode($pxiFileName );	
+	
+	string $folderPath = StringCleener(`fgetline $pxiFileID`);
+	
+	string $currentLine =StringCleener(`fgetline $pxiFileID`);
+	string $pxiName = stringBeforeFirstApperance($currentLine," ");
+	string $extension = stringAfterFirstApperance($currentLine," ");
+
+	string $buffer[];
+	$currentLine = StringCleener(`fgetline $pxiFileID`);
+	tokenize $currentLine $buffer;
+	
+	int $nbPitch = $buffer[0];
+	int $nbYaw	 = $buffer[1];	
+	int $nbFrame = $buffer[2];
+	int $byFrame = $buffer[3];
+	
+	string $nodeName = stringBeforeFirstApperance( $fullPlugName,".");
+	string $currentFolderPath = `getAttr ($nodeName +".imageMainPath")`;
+	if ($folderPath != $currentFolderPath)
+	{
+		string $result = `confirmDialog -t "oups" 
+			-m "current Path is diferent from the One in the Pixie file \n, do you still want to update it ?\mnote : all you pixie folder should share the same base folder"
+			-button  "update" -button  "leave" -button  "discard Loading"`;
+			
+		if ($result == "update") setAttr -type "string" ($nodeName +".imageMainPath") $folderPath ;
+		if ($result == "discard Loading") return;
+	}
+	
+	setAttr -type "string" ($fullPlugName+".prefix") $pxiName;
+	
+	if ($extension== "iff")
+		setAttr ($fullPlugName+".extension") 0;
+	else
+		setAttr ($fullPlugName+".extension") 1;
+	
+	
+	setAttr ($fullPlugName+".pitchFrames") $nbPitch;
+	setAttr ($fullPlugName+".yawFrames") $nbYaw;
+	setAttr ($fullPlugName+".timeFrames") $nbFrame;
+	setAttr ($fullPlugName+".timeFramesStep") $byFrame;
+
+	select $nodeName;
+	//force Reload 
+	setAttr ($nodeName + ".forceReload") 1;
+	getAttr ($nodeName + ".reload");
+	
+}
+
+/// [NEWFONC]
+// ///// MainInterface 				/////////  
+// ///////////////////////////////////////////////////////
+// Function Parameter	: 
+// Author		: Xteo
+// Creation Date	: 29/05/2000
+// Last Update		: 29/05/2000
+// Comment :
+// -
+// -
+// -
+// -
+// -
+// EndComment
+// ///////////////////////////////////////////////////////
+
+
+global proc pxSetsequenceWithPxiFileExt(string $fullPlugName , string $pxiFileName ,string $extension)
+{
+ pxSetsequenceWithPxiFile( $fullPlugName , $pxiFileName );
+}

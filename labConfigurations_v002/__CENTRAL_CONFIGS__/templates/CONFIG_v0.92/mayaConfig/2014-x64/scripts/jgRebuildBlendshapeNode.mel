@@ -1,0 +1,173 @@
+//Rebuilds A Blendshape Node With Selected Targets From Channel Box
+/*
+<NAME> jgRebuildBlendshapeNode.mel </NAME>
+<VERSION> v1.0 </VERSION>
+<AUTHORS> Jay Grenier (jay@jaygrenier.com) </AUTHORS>
+
+<DESCRIPTION>
+
+	Deletes unused targets and rebuilds a new blendshape with only the targets you want.
+	
+	Maya doesn't give you any way of doing this without using a script,	which is exactly what this is.
+
+	Maintains all incoming and outgoing connections on the current targets that you want to keep.
+	
+	Puts blendshape node in the same spot in the Input stack as it was before.	
+
+</DESCRIPTION>
+
+<TO_USE>
+
+	1. Select the blendShape node.
+	2. Highlight the targets you want to keep in the Channel Box
+	3. Source jgRebuildBlendshapeNode.mel
+
+<HISTORY>
+
+	v1.0 (Tuesday, September 21, 2010)
+		o Release
+
+</HISTORY>
+
+*/
+
+// **********************************************************
+// Rebuilds A Blendshape Node With Selected Targets
+global proc jgRebuildBlendshapeNode () {
+	
+	// Get Blendshape Node
+	string $bsNode = jgArrToStr(`ls -sl -type "blendShape"`,0) ;
+	if($bsNode == "") error "Select the blendshape node and then the attributes you want to keep from the Channel Box." ;
+	
+	//Get Highlighted Targets From Channel Box
+	string $channels[] = `channelBox -q -selectedMainAttributes mainChannelBox`;
+	if (`size $channels` == 0) error "Highlight the targets you want to keep in the Channel Box.";	
+
+	// Get Mesh
+	string $meshShape = jgArrToStr(`blendShape -q -geometry $bsNode`,0) ;
+	string $mesh = jgArrToStr(`listRelatives -p $meshShape`,0) ;
+
+	// Get Current Deformers
+	string $originalDeformers[] = `jgReturnMeshDeformers $mesh` ;	
+	
+	// Rename Blendshape Node
+	string $tmpNode = "tmp_bsNode1" ;
+	rename $bsNode $tmpNode ;
+
+	// Make New Blendshape Node
+	blendShape -n $bsNode $mesh ;
+
+	// Duplicate Targets, Get Connections, Add To New Node, Reconnect
+	string $newBlendShapes[] ;
+	for($i = 0; $i < size($channels); $i++) {
+
+		/** Duplicate Target **/
+		
+			// Turn On Target
+			setAttr -lock false ($tmpNode+"."+$channels[$i]) ;
+			setAttr ($tmpNode+"."+$channels[$i]) 1 ;
+	
+			// Duplicate Mesh
+			string $blendshapeName = $channels[$i] ;
+			int $meshExisted ;
+			if(`objExists $blendshapeName`) {		
+				$meshExisted = true ;
+				rename $blendshapeName ($blendshapeName+"_jgTmp") ;
+			}					
+			string $newMesh[] = `duplicate -rr -n $blendshapeName $mesh` ;
+				
+			jrStringAppend $newBlendShapes $newMesh[0] ;
+	
+			// Turn Off Target
+			setAttr ($tmpNode+"."+$channels[$i]) 0 ;
+
+		/** Get Connections **/
+		
+			// Incoming
+			string $incConns[] = `listConnections -p true -d false ($tmpNode+"."+$channels[$i])` ;
+			for($conn in $incConns) disconnectAttr $conn ($tmpNode+"."+$channels[$i]) ;
+
+			// Outgoing
+			string $outConns[] = `listConnections -p true -s false ($tmpNode+"."+$channels[$i])` ;
+			for($conn in $outConns) disconnectAttr $conn ($tmpNode+"."+$channels[$i]) ;
+
+		/** Add To New Node **/
+		
+			// Add Target To New Blendshape Node
+			blendShape -e -t $mesh $i $newMesh[0] 1 $bsNode ;
+
+		/** Reconnect **/
+		
+			// Reconnect Incoming And Outgoing Connections
+			for($conn in $incConns) connectAttr $conn ($bsNode+"."+$blendshapeName) ;
+			for($conn in $outConns) connectAttr $conn ($bsNode+"."+$blendshapeName) ;
+
+		/** Cleanup **/
+			
+			// Delete New Meshes
+			delete $newMesh[0] ;
+
+			// Rename Old Mesh Back
+			if($meshExisted) if(`objExists ($blendshapeName+"_jgTmp")`) rename ($blendshapeName+"_jgTmp") $blendshapeName ;
+
+	}
+
+	// Delete Temp BlendShape Node
+	delete $tmpNode ;
+			
+	// Reorder Deformers
+	select -r $mesh ;
+	string $evalReorderComm = "reorderDeformers" ;
+	for($item in $originalDeformers) $evalReorderComm = ($evalReorderComm+" \""+$item+"\"") ;
+	$evalReorderComm = ($evalReorderComm+" "+$mesh+" ;") ;
+	eval $evalReorderComm ;
+	select -cl ;
+	
+} jgRebuildBlendshapeNode ;
+
+
+// **********************************************************
+// Returns All Deformers On A Mesh
+global proc string[] jgReturnMeshDeformers (string $mesh) {
+
+	// List History
+	string $history[] = `listHistory $mesh` ;
+
+	// Loop And Check If It's A Deformer
+	string $deformers[] ;
+	for($node in $history) {
+		string $types[] = `nodeType -inherited $node`;
+		if(stringArrayContains("geometryFilter",$types)) {
+			stringArrayInsertAtIndex(size($deformers),$deformers,$node) ;
+		}
+	}
+
+	return $deformers ;
+
+}
+
+
+// **********************************************************
+// Returns An Index From A String Array
+global proc string jgArrToStr (string $array[], int $index) {
+
+		// Get Index From Array
+		string $obj = $array[$index] ;
+	
+		// Return
+		return $obj ;
+	
+}
+
+
+// **********************************************************   
+// Appends An Item To A String Array
+global proc int jrStringAppend (string $array[], string $value){
+    
+    $array[`size($array)`] = $value;
+    if ($array[(`size($array)` - 1)] == $value) {
+    return 1;
+    } 
+    return 0;
+
+}
