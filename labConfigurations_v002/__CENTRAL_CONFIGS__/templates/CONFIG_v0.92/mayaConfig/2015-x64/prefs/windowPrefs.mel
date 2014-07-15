@@ -10,7 +10,7 @@ windowPref -topLeftCorner 250 200 -widthHeight 524 470 -maximized false devicePa
 windowPref -topLeftCorner 250 200 -widthHeight 700 400 -maximized false hyperShadePanel1Window;
 windowPref -topLeftCorner 250 200 -widthHeight 700 400 -maximized false dynPaintScriptedPanelWindow;
 windowPref -topLeftCorner 250 200 -widthHeight 550 562 -maximized false blindDataEditor1Window;
-windowPref -topLeftCorner 238 209 -widthHeight 1649 924 -maximized false MayaWindow;
+windowPref -topLeftCorner 104 31 -widthHeight 1649 924 -maximized false MayaWindow;
 windowPref -topLeftCorner 364 562 -widthHeight 440 42 -maximized false greasePencilFloatingWindow;
 windowPref -topLeftCorner 493 853 -widthHeight 778 572 -maximized false RRM_Window;
 windowPref -topLeftCorner 210 390 -widthHeight 665 500 -maximized false PreferencesWindow;

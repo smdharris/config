@@ -76,7 +76,7 @@ module load renderman/18.0
 set RMS "RenderManStudio-18.0-maya2014"
 setenv RMS_VERSION RMS
 append-path MAYA_MODULE_PATH /Applications/Pixar/$RMS/etc
-set RMANTREE $env(RMANTREE)
+#set RMANTREE $env(RMANTREE)
 set RMSTREE /Applications/Pixar/$RMS
 setenv RMSTREE $RMSTREE
 append-path MAYA_PLUG_IN_PATH $RMSTREE/plug-ins

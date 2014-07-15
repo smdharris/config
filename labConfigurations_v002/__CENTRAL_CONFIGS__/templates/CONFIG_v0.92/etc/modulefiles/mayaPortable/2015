@@ -28,7 +28,7 @@ setenv MAYA_INSTALL_PATH $MAYA_INSTALL_PATH
 
 ######################################  set by user configs 
 
-
+set USER $env(USER)
 set CONFIG $env(CONFIG)
 set STARTD $env(STARTD)
 set MAYA_APP_DIR $CONFIG/mayaConfig
@@ -66,24 +66,6 @@ setenv DYLD_LIBRARY_PATH $MAYA_LOCATION/MacOS
 ###  so to avoid the nag warning I am setting rather than appending this
 
 
-#########################################################
-# 	Renderman Studio Setup
-#
-
-module load renderman/18.0
-
-set RMS "RenderManStudio-18.0-maya2014"
-setenv RMS_VERSION RMS
-append-path MAYA_MODULE_PATH /Applications/Pixar/$RMS/etc
-set RMANTREE $env(RMANTREE)
-set RMSTREE /Applications/Pixar/$RMS
-setenv RMSTREE $RMSTREE
-append-path MAYA_PLUG_IN_PATH $RMSTREE/plug-ins
-append-path MAYASCRIPT_PATH $RMSTREE/scripts
-#append-path RMS_SCRIPT_PATHS
-append-path PYTHONPATH $RMSTREE/scripts:$RMSTREE/bin
-setenv PIXAR_LICENSE_FILE /Applications/Pixar/pixar.license
-#########################################################
 	
 # for Tcl script use only
 set     version      "@VERSION@"
