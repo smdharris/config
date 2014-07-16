@@ -1,0 +1,6 @@
+# System-wide .logout file for csh(1).
+
+####  look to the /usr/local/etc/... config files
+if ( -e /usr/local/etc/csh.logout ) then
+	source /usr/local/etc/csh.logout
+endif
