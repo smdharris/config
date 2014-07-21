@@ -6,6 +6,6 @@
 	Messages =
 	{
 		start = "Mounting local file server";
-		stop = "Unmounting local file server";
+		stop  = "Unmounting local file server";
 	};
 }

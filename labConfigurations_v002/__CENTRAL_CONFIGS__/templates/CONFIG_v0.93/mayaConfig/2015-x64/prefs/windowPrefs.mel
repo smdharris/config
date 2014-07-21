@@ -1,0 +1,27 @@
+//Maya Preference 2015 (Release 1)
+//
+//
+windowPref -topLeftCorner 225 150 -widthHeight 250 400 -maximized false outlinerPanel1Window;
+windowPref -topLeftCorner 250 200 -widthHeight 700 400 -maximized false hyperGraphPanel1Window;
+windowPref -topLeftCorner 250 200 -widthHeight 660 400 -maximized false graphEditor1Window;
+windowPref -topLeftCorner 250 200 -widthHeight 660 400 -maximized false dopeSheetPanel1Window;
+windowPref -topLeftCorner 250 200 -widthHeight 660 400 -maximized false clipEditorPanel1Window;
+windowPref -topLeftCorner 250 200 -widthHeight 524 470 -maximized false devicePanel1Window;
+windowPref -topLeftCorner 250 200 -widthHeight 700 400 -maximized false hyperShadePanel1Window;
+windowPref -topLeftCorner 250 200 -widthHeight 700 400 -maximized false dynPaintScriptedPanelWindow;
+windowPref -topLeftCorner 250 200 -widthHeight 550 562 -maximized false blindDataEditor1Window;
+windowPref -topLeftCorner 37 10 -widthHeight 1649 924 -maximized false MayaWindow;
+windowPref -topLeftCorner 364 562 -widthHeight 440 42 -maximized false greasePencilFloatingWindow;
+windowPref -topLeftCorner 493 853 -widthHeight 778 572 -maximized false RRM_Window;
+windowPref -topLeftCorner 210 390 -widthHeight 665 500 -maximized false PreferencesWindow;
+windowPref -topLeftCorner 661 937 -widthHeight 919 746 -maximized false pluginManagerWindow;
+windowPref -topLeftCorner 493 853 -widthHeight 305 605 -maximized false dpAutoRigWindow;
+windowPref -topLeftCorner 493 853 -widthHeight 340 280 -maximized false PluginInfoWin;
+windowPref -topLeftCorner 609 832 -widthHeight 1177 740 -maximized false scriptEditorPanel1Window;
+windowPref -topLeftCorner 493 853 -widthHeight 406 400 -maximized false zooShotsWindow;
+windowPref -topLeftCorner 493 853 -widthHeight 180 275 -maximized false cgmLocinatorWindow;
+windowPref -topLeftCorner 493 853 -widthHeight 275 400 -maximized false cgmSetToolsWindow;
+windowPref -topLeftCorner 493 853 -widthHeight 375 450 -maximized false xferAnim;
+windowPref -topLeftCorner 493 853 -widthHeight 305 165 -maximized false zooKeymasterUI;
+windowPref -topLeftCorner 493 853 -widthHeight 300 300 -maximized false cgmToolbox;
+windowPref -topLeftCorner 313 562 -widthHeight 754 715 -maximized false HotkeyEditor;

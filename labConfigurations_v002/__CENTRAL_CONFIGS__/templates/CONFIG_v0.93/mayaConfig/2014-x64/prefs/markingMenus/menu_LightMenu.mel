@@ -1,0 +1,228 @@
+
+    menuItem
+        -label "Directional Light" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performDirectionalLight(0)" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "E" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Directional Light" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem1;
+
+    menuItem
+        -label "Spotlight" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performSpotLight(0)" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "S" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Spotlight" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem2;
+
+    menuItem
+        -label "Area Light" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performAreaLight(0)" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "SE" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Area Light" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem3;
+
+    menuItem
+        -label "Point Light" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performPointLight(0)" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "NE" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Point Light" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem4;
+
+    menuItem
+        -label "Viewport2 Lighting" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "int $RenderLayerQuery;\nstring $activeWindow;\n$activeWindow=`getPanel -underPointer`;\nif ( $RenderLayerQuery == \"1\") {\nsetRendererInModelPanel base_OpenGL_Renderer $activeWindow;\n//editRenderLayerGlobals -currentRenderLayer low_RL;\nmodelEditor -e -shadows false $activeWindow;\nmodelEditor -e -dl \"default\" $activeWindow;\nmodelEditor -e -displayTextures false $activeWindow;\n$RenderLayerQuery = 0;\n}\nelse {\nsetRendererInModelPanel ogsRenderer $activeWindow;\n//editRenderLayerGlobals -currentRenderLayer defaultRenderLayer;\nmodelEditor -e -shadows true $activeWindow;\nmodelEditor -e -dl \"all\" $activeWindow;\nmodelEditor -e -displayTextures true $activeWindow;\n$RenderLayerQuery = 1;\n}\n//int $Viewport2Query;\n//string $ViewRendererSwitch;\n//string $activeWindow;\n//if ( $Viewport2Query == \"1\") {\n// setRendererInModelPanel base_OpenGL_Renderer $activeWindow;\n// $Viewport2Query = 0;\n//}\n//else {\n// setRendererInModelPanel ogsRenderer $activeWindow;\n// $Viewport2Query = 1;\n//}" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -checkBox 1
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "N" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Viewport2 Lighting" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem5;
+
+    menuItem
+        -label "Link Lights" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "lightlink -make -useActiveLights -useActiveObjects" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "NW" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Link Lights" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem6;
+
+    menuItem
+        -label "Break Light Links" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "lightlink -break -useActiveLights -useActiveObjects" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "W" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Break Light Links" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem7;
+
+    menuItem
+        -label "Break Shadow Links" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "lightlink -break -shadow -useActiveLights -useActiveObjects" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "SW" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Break Shadow Links" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem8;
+
+    menuItem
+        -label "Make Shadow Links" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "lightlink -make -shadow -useActiveLights -useActiveObjects" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Make Shadow Links" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem9;
+
+setParent -m ..;
+

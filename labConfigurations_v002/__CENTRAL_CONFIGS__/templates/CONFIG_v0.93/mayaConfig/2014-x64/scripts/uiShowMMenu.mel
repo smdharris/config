@@ -1,0 +1,95 @@
+// Show Menu - Marking Menu
+//
+// Created by Andrew Silke www.cane-toad.com
+// andrewsilke@hotmail.com
+// Created : 29 October 2001
+// Last Updated: 29 October 2001
+// Tested only: V4 win2k
+//
+// Description:
+// A simple marking menu that mimicks the functionality of the "show menu".
+// Basically it's a much quicker interface than the "show menu" (which I've always found annoyingly slow) 
+// Thanks to Hamish McKenzie for the help!
+//
+// Install:
+// Place this script uiShowMenu.mel in the maya folder - eg. documents path \maya\4.0\scripts
+// Usage:
+//  assign this function to a key press in the Hotkey Editor:
+//	uiShowMMenu;
+//
+//  assign this function to the release;
+//	zzShowMMenuKillUI;
+//
+// NOTE: if using "ctrl" "shift" or "alt" in the Hotkey Editor see below!
+
+global proc uiShowMMenu () {
+	if( `popupMenu -ex tempMM` ){
+		deleteUI tempMM;
+		}
+//NOTE: change alt, ctl (ctrl) or sh (shift) to 1 if used with the coresponding modifier (below)
+	popupMenu -alt 0 -ctl 0 -sh 0 -mm 1 -b 1 -aob 0 -p viewPanes -pmc "zzDoShowMMenu" tempMM;
+}
+
+global proc zzDoShowMMenu () {
+	if( `popupMenu -ex tempMM` ){menu -e -deleteAllItems tempMM;}
+	setParent -m tempMM;
+
+	$currentPanel = `getPanel -up`;
+	int $entry01 = !(`modelEditor -q -polymeshes $currentPanel`);
+	int $entry02 = !(`modelEditor -q -nurbsSurfaces $currentPanel`);
+	int $entry03 = !(`modelEditor -q -nurbsCurves $currentPanel`);
+	int $entry04 = !(`modelEditor -q -cameras $currentPanel`);
+	int $entry05 = !(`modelEditor -q -subdivSurfaces $currentPanel`);
+	int $entry06 = !(`modelEditor -q -handles $currentPanel`);
+	int $entry07 = !(`modelEditor -q -joints $currentPanel`);
+	int $entry08 = !(`modelEditor -q -locators $currentPanel`);
+	int $entry09 = !(`modelEditor -q -grid $currentPanel`);
+	int $entry10 = !(`modelEditor -q -lights $currentPanel`);
+	int $entry11 = !(`modelEditor -q -ikHandles $currentPanel`);
+	int $entry12 = !(`modelEditor -q -deformers $currentPanel`);
+	int $entry13 = !(`modelEditor -q -dynamics $currentPanel`);
+	int $entry14 = !(`modelEditor -q -strokes $currentPanel`);
+
+	
+	//These lines build the menu items.  
+	//The -rp flag specifies the position of each item.
+	//passes out display type to zzShowHide
+	//bold (bld) is displayed from the above code
+
+	menu -e -deleteAllItems tempMM;
+		menuItem -l "Polygons" -command ( "zzShowHide (\"-polymeshes\") " ) -bld $entry01 -rp "W";
+		menuItem -l "Nurbs" -command ( "zzShowHide (\"-nurbsSurfaces\") " ) -bld $entry02 -rp "E";
+		menuItem -l "Curves" -command ( "zzShowHide (\"-nurbsCurves\") " ) -bld $entry03 -rp "S";
+		menuItem -l "Cameras" -command ( "zzShowHide (\"-cameras\") " ) -bld $entry04 -rp "N";
+		menuItem -l "SubDs" -command ( "zzShowHide (\"-subdivSurfaces\") " ) -bld $entry05 -rp "SW";
+		menuItem -l "Handles" -command ( "zzShowHide (\"-handles\") " ) -bld $entry06 -rp "NW";
+		menuItem -l "Joints" -command ( "zzShowHide (\"-joints\") " ) -bld $entry07 -rp "NE";
+		menuItem -l "Locators" -command  ( "zzShowHide (\"-locators\") " ) -bld $entry08 -rp "SE";
+		menuItem -l "All Off" -command ( "zzAllOnOff(0)" );	
+ 		menuItem -l "All On" -command ( "zzAllOnOff(1)" );
+		menuItem -divider true;	
+		menuItem -l "Grid" -command  ( "zzShowHide (\"-grid\") " ) -bld $entry09;
+		menuItem -divider true;	
+		menuItem -l "lights " -command  ( "zzShowHide (\"-lights\") " ) -bld $entry10;
+		menuItem -l "ikHandles" -command  ( "zzShowHide (\"-ikHandles\") " ) -bld $entry11;
+		menuItem -l "deformers" -command  ( "zzShowHide (\"-deformers\") " ) -bld $entry12;
+		menuItem -l "dynamics" -command  ( "zzShowHide (\"-dynamics\") " ) -bld $entry13;
+		menuItem -l "strokes" -command  ( "zzShowHide (\"-strokes\") " ) -bld $entry14;
+}
+
+global proc zzShowHide ( string $element ) {
+$currentPanel = `getPanel -up`;
+$currentStatus = !(`modelEditor -q $element $currentPanel`);
+modelEditor -e $element $currentStatus $currentPanel;	
+}
+
+global proc zzAllOnOff ( int $OnOff ) {
+$currentPanel = `getPanel -up`;
+modelEditor -e -allObjects $OnOff $currentPanel;	
+}
+
+global proc zzShowMMenuKillUI () {
+	if( `popupMenu -ex tempMM` ){
+		deleteUI tempMM;
+		}
+}

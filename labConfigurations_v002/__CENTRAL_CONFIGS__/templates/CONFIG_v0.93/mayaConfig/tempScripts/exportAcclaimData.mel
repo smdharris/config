@@ -1,0 +1,143 @@
+//
+// Written by Andrew Chapman - March 2003
+//
+// Script to export animated skeletons as Acclaim Motion Capture Data
+//
+// TODO:
+//  - only export if animated
+//  - 
+//
+
+proc writeChildBoneRotations(string $boneNameLong, string $boneNameShort, int $fileId, string $leftHandHook, string $rightHandHook)
+{
+  // we output joints and the left/right hand hooks for weapons/props
+  if ((`objectType $boneNameLong` == "joint") || ($boneNameShort == "left_hand_hook") || ($boneNameShort == "right_hand_hook")) {
+    // joint name at start of line
+    if (`objectType $boneNameLong` == "joint") {
+      fprint($fileId, $boneNameShort);
+
+
+    // output rotations
+    fprint($fileId, " " + `getAttr ($boneNameLong + ".rotateX")`);
+    fprint($fileId, " " + `getAttr ($boneNameLong + ".rotateY")`);
+    fprint($fileId, " " + `getAttr ($boneNameLong + ".rotateZ")`);
+    fprint($fileId, "\n");
+    }
+  }
+  
+  // recurse through children
+  string $children[]     = `listRelatives  -children $boneNameLong`;
+  string $childrenLong[] = `listRelatives  -children -fullPath $boneNameLong`;
+  int $i;
+  for($i=0; $i<size($children); $i++) {
+    writeChildBoneRotations($childrenLong[$i], $children[$i], $fileId, $leftHandHook, $rightHandHook);
+  }
+}
+
+proc writeChildHookXforms(string $boneNameLong, string $boneNameShort, int $fileId, string $leftHandHook, string $rightHandHook)
+{
+  // we output joints and the left/right hand hooks for weapons/props
+  if (($boneNameShort == "left_hand_hook") || ($boneNameShort == "right_hand_hook")) {
+    // joint name at start of line
+    if ($boneNameShort == "left_hand_hook") {
+      fprint($fileId, $leftHandHook);
+    } else if ($boneNameShort == "right_hand_hook") {
+      fprint($fileId, $rightHandHook);
+    }
+
+    // if it is not a joint, output translations before rotations
+    if (`objectType $boneNameLong` != "joint") {
+      fprint($fileId, " " + `getAttr ($boneNameLong + ".translateX")`);
+      fprint($fileId, " " + `getAttr ($boneNameLong + ".translateY")`);
+      fprint($fileId, " " + `getAttr ($boneNameLong + ".translateZ")`);
+    // output rotations
+    fprint($fileId, " " + `getAttr ($boneNameLong + ".rotateX")`);
+    fprint($fileId, " " + `getAttr ($boneNameLong + ".rotateY")`);
+    fprint($fileId, " " + `getAttr ($boneNameLong + ".rotateZ")`);
+    fprint($fileId, "\n");
+    }
+  }
+  
+  // recurse through children
+  string $children[]     = `listRelatives  -children $boneNameLong`;
+  string $childrenLong[] = `listRelatives  -children -fullPath $boneNameLong`;
+  int $i;
+  for($i=0; $i<size($children); $i++) {
+    writeChildHookXforms($childrenLong[$i], $children[$i], $fileId, $leftHandHook, $rightHandHook);
+  }
+}
+
+
+global proc exportAcclaimData(string $filename, int $startFrame, int $endFrame, int $transitionInFrame, int $transitionOutFrame, float $rate, int $doOffset, string $leftHandHook, string $rightHandHook)
+{
+  string $origSel[] = `ls -selection`;
+
+  // check we have the root node selected
+  string $sel[] = `ls -selection -type joint`;
+  if (size($sel) != 1) {
+    warning("Select a single root joint before exporting");
+    return;
+  }
+  string $root = $sel[0];
+  
+  // offset so that the frames going into the acclaim file
+  // are always from zero onwards
+  int $offset = 0;
+  if ($doOffset) {
+    $offset = 0 - $startFrame;
+  }
+  
+  // open the output file and write header info
+  int $fileId = `fopen $filename "w"`;
+  if ($fileId == 0) {
+    warning("Error opening output file: " + $filename);
+    select -r $origSel;
+    return;
+  }
+  
+  // insert comment to say which Maya scene this export came from - to aid reprocessing later
+  string $scene = `file -q -sceneName`;
+  if ($scene == "") {
+    $scene = "untitled";
+  }
+  fprint($fileId, "# Exported from Maya Scene: " + $scene + "\n");
+  
+  // these are custom comments to encode in/out transition points into acclaim format files
+  if (($transitionInFrame != 0) || ($transitionOutFrame != 0)) {
+    fprint($fileId, "# INPOINT:  " + ($transitionInFrame  + $offset) + "\n");
+    fprint($fileId, "# OUTPOINT: " + ($transitionOutFrame + $offset) + "\n");
+  }
+  
+  // acclaim header
+  fprint($fileId, (":SAMPLES-PER-SECOND " + $rate + "\n"));
+  fprint($fileId, ":FULLY-SPECIFIED\n");
+  fprint($fileId, ":DEGREES\n");
+  
+  // step through the frame range exporting
+  int $frame;
+  int $originalCurrentTime = `currentTime -q`;
+  for($frame = $startFrame; $frame <= $endFrame; $frame++) {
+    currentTime -e $frame;
+    fprint($fileId, ($frame + $offset) + "\n");
+    fprint($fileId, "root ");
+    float $rootPos[] = `xform -q -ws -translation ($root)`;
+    
+    fprint($fileId, $rootPos[0] + " " + $rootPos[1] + " " + $rootPos[2] + " ");
+    fprint($fileId, `getAttr ($root + ".rotateX")` + " " + `getAttr ($root + ".rotateY")` + " " + `getAttr ($root + ".rotateZ")` + "\n");
+    
+    string $children[]     = `listRelatives  -children $root`;
+    string $childrenLong[] = `listRelatives  -children -fullPath $root`;
+
+    int $i;
+    for($i=0; $i<size($children); $i++) {
+      writeChildBoneRotations($childrenLong[$i], $children[$i], $fileId, $leftHandHook, $rightHandHook);
+    }
+    for($i=0; $i<size($children); $i++) {
+      writeChildHookXforms($childrenLong[$i], $children[$i], $fileId, $leftHandHook, $rightHandHook);
+    }
+  }
+
+  // clean up
+  fclose($fileId);
+  select -r $origSel;
+}
