@@ -1,0 +1,741 @@
+//----------------------------------------------------------------------------
+// Copyright © 2005, Daniel Pook-Kolb
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+//   - Redistributions of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//
+//   - Redistributions in binary form must reproduce the above copyright
+//     notice, this list of conditions and the following disclaimer in the
+//     documentation and/or other materials provided with the distribution.
+//
+//   - Neither the name of the author nor the names of its contributors may be
+//     used to endorse or promote products derived from this software without
+//     specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//----------------------------------------------------------------------------
+//
+//
+//--------------------------------------------------------------------------//
+//  DPK_reorderAttrs.mel
+//
+//  Author:			Daniel Pook-Kolb
+//					daniel@dpk.stargrav.com
+//
+//  Version:		1.11
+//  Date:			Dec 10, 2005
+//
+//  Description:    Useful to change the order of user attrs.
+//
+//  Usage:			Type "DPK_reorderAttrs;" in the command line,
+//					or create a shelf button with this command.
+//
+//  Return:			int
+//
+//  Files Needed:   none
+//
+//--------------------------------------------------------------------------//
+
+
+//------------------------------
+//------------------------------
+//
+//  Local Worker Procedures {{{1
+//
+//------------------------------
+//------------------------------
+
+//------------------------------
+// DPK_L_isElement {{{2
+//
+// Returns true when $element is part of the $array.
+//------------------------------
+proc int DPK_L_isElement( string $array[], string $element )
+//------------------------------
+{
+//--//
+int $x, $size = size($array);
+for( $x = 0; $x < $size; ++$x ) {
+	if( $array[$x] == $element ) {
+		return 1;
+	}
+}
+return 0;
+//--//
+}
+//---- end "DPK_L_isElement" ----// }}}2
+
+
+//------------------------------
+// DPK_L_stringArrayMove {{{2
+//------------------------------
+proc string[] DPK_L_stringArrayMove (string $array[], string $items[], string $dir)
+//------------------------------
+{
+//--//
+string $sort[];
+if ($dir == "up")
+{
+    int $c1, $c2, $exch;
+    for ($x = 0; $x < size($array); $x++)
+    {
+		if ($array[$x] == $items[$c2])
+		{
+			$c2++;
+			if ($exch)
+			{
+				string $tmp = $sort[$c1-1];
+				$sort[$c1-1] = $array[$x];
+				$sort[$c1++] = $tmp;
+			}
+			else
+				$sort[$c1++] = $array[$x];
+		}
+		else
+		{
+			$exch = 1;
+			$sort[$c1++] = $array[$x];
+		}
+    }
+}
+else
+{
+    int $c1 = (size($array)-1), $c2 = (size($items)-1), $exch;
+    for ($x = size($array)-1; $x >= 0; $x--)
+    {
+		if ($c2 >= 0 && $array[$x] == $items[$c2])
+		{
+			$c2--;
+			if ($exch)
+			{
+				string $tmp = $sort[$c1+1];
+				$sort[$c1+1] = $array[$x];
+				$sort[$c1--] = $tmp;
+			}
+			else
+				$sort[$c1--] = $array[$x];
+		}
+		else
+		{
+			$exch = 1;
+			$sort[$c1--] = $array[$x];
+		}
+    }
+}
+
+return $sort;
+//--//
+}
+//---- end "DPK_L_stringArrayMove" ----// }}}2
+
+
+//------------------------------
+// DPK_L_moveAnim {{{2
+//
+// Move the animation from the $source.$sourceAttr to the $dest.$destAttr. If
+// there is no source animation, the value is copied.
+//------------------------------
+proc int DPK_L_moveAnim (string $source, string $sourceAttr, string $dest, string $destAttr)
+//------------------------------
+{
+//--//
+// Delete any animation on $dest.
+string $destAnim[] = `keyframe -q -n ($dest+"."+$destAttr)`;
+if (size($destAnim))
+    delete $destAnim;
+
+// Check if the destination is settable. If not, we return 0.
+if (!`getAttr -se ($dest+"."+$destAttr)`)
+{
+	warning ("Not settable: "+$dest+"."+$destAttr);
+	return 0;
+}
+
+// Check if there is an animation curve on $source.
+string $sourceAnim[] = `keyframe -q -n ($source+"."+$sourceAttr)`;
+if (size($sourceAnim))
+{
+    // Ok, there IS an anim curve. Copy it to the $destAttr.
+    copyKey -at $sourceAttr $source;
+	pasteKey -o "replaceCompletely" -at $destAttr $dest;
+	
+	// Now we can delete the source anim curve.
+    //delete $sourceAnim;
+}
+else
+{
+    // There is no animation on the source, so we just copy the value.
+    float $val = `getAttr ($source+"."+$sourceAttr)`;
+	setAttr ($dest+"."+$destAttr) $val;
+}
+return 1;
+//--//
+}
+//---- end "DPK_L_moveAnim" ----// }}}2
+
+
+//------------------------------
+// DPK_L_moveUdAttr {{{2
+//
+// Creates the attribute ($attr) on the destination object ($dest) and copies
+// all animations or connections it has to the newly created attr. This way,
+// the attribute gets saved so it can be restored later using this same proc.
+//------------------------------
+proc int DPK_L_moveUdAttr (string $source, string $sourceAttr,
+						   string $dest,   string $destAttr, string $sn)
+//------------------------------
+{
+//--//
+// save user attrs
+string $type = `getAttr -type ($source+"."+$sourceAttr)`;
+switch ($type)
+{
+	case "bool":
+	case "byte":
+	case "char":
+	case "double":
+	case "doubleAngle":
+	case "doubleLinear":
+	case "float":
+	case "long":
+	case "short":
+		// Declare the locked var ($l) now so that we can use it later.
+		string $l;
+		if (!`objExists ($dest+"."+$destAttr)`)
+		{
+			// Get the ln and sn and compare them. If they are equal, there is
+			// no sn. Later we set the ln to $destAttr.
+			string $ln = `addAttr -q -ln ($source+"."+$sourceAttr)`;
+			if ($ln == $sn)
+				$sn = "";
+
+			// Now we can set the $ln (longName) to $destAttr.
+			$ln = (" -ln \""+$destAttr+"\"");
+
+			// Set the sn (shortName) only if it does not exist on $dest.
+			if (size($sn) && !`objExists ($dest+"."+$sn)`)
+				$sn = (" -sn \""+$sn+"\"");
+			else
+				$sn = "";
+
+			// Get general information about the attribute.
+			string $k   = (" -k "+ `getAttr -k     ($source+"."+$sourceAttr)`);
+			       $l   = (" -l "+ `getAttr -l     ($source+"."+$sourceAttr)`);
+			string $h   = (" -h "+ `addAttr -q -h  ($source+"."+$sourceAttr)`);
+			string $dv  = (" -dv "+`addAttr -q -dv ($source+"."+$sourceAttr)`);
+			string $min = (`addAttr -q -hnv ($source+"."+$sourceAttr)`)
+								? (" -min "+`addAttr -q -min
+												($source+"."+$sourceAttr)`)
+									: "";
+			string $max = (`addAttr -q -hnv ($source+"."+$sourceAttr)`)
+								? (" -max "+`addAttr -q -max
+												($source+"."+$sourceAttr)`)
+								 : "";
+			string $hnv = (" -hnv "+`addAttr -q -hnv 
+										($source+"."+$sourceAttr)`);
+			string $hxv = (" -hxv "+`addAttr -q -hxv
+										($source+"."+$sourceAttr)`);
+			string $smn = (`addAttr -q -hsn ($source+"."+$sourceAttr)`)
+								? (" -smn "+`addAttr -q -smn
+												($source+"."+$sourceAttr)`)
+								 : "";
+			string $smx = (`addAttr -q -hsx ($source+"."+$sourceAttr)`)
+								? (" -smx "+`addAttr -q -smx
+												($source+"."+$sourceAttr)`)
+								 : "";
+			string $hsn = (" -hsn "+`addAttr -q -hsn 
+										($source+"."+$sourceAttr)`);
+			string $hsx = (" -hsx "+`addAttr -q -hsx
+										($source+"."+$sourceAttr)`);
+
+			// Now that we have collected all neccessary info, add the
+			// attribute.
+			eval("addAttr"+$ln+$sn+" -at \""+$type+"\""+
+					$k+$h+$dv+$min+$max+$hnv+$hxv+$smn+$smx+$hsn+$hsx+" "+
+					$dest);
+		}
+
+		// Copy the animation or value.
+		DPK_L_moveAnim $source $sourceAttr $dest $destAttr;
+
+		// Copy the connections.
+		if (`connectionInfo -is ($source+"."+$sourceAttr)`)
+		{
+			// sourceAttr is source of a connection.
+			string $dests[] = `listConnections -d 1 -s 0 -p 1
+									($source+"."+$sourceAttr)`;
+			for ($x = 0; $x < size($dests); ++$x)
+				connectAttr -f ($dest+"."+$destAttr) $dests[$x];
+		}
+		if (`connectionInfo -id ($source+"."+$sourceAttr)`)
+		{
+			// sourceAttr is destination of a connection.
+			string $sources[] = `listConnections -d 0 -s 1 -p 1
+									($source+"."+$sourceAttr)`;
+			connectAttr -f $sources[0] ($dest+"."+$destAttr);
+			disconnectAttr
+				$sources[0] ($source+"."+$sourceAttr);
+		}
+
+		// Lock the attr if it was originally locked.
+		eval("setAttr"+$l+" (\""+$dest+"."+$destAttr+"\")");
+
+		break;
+	case "attributeAlias":
+		break;
+	default:
+		// The $sourceAttr has the wrong type.
+		warning ("Attribute could not be preserved: "+$source+"."+$sourceAttr+
+				" - Type: "+$type);
+		return 0;
+		break;
+}
+
+return 1;
+//--//
+}
+//---- end "DPK_L_moveUdAttr" ----// }}}2
+
+
+//------------------------------
+// DPK_L_performReorder {{{2
+//------------------------------
+proc DPK_L_performReorder (string $obj, string $attrs[])
+//------------------------------
+{
+//--//
+// We're going to store all connections of each attr (including animations) or
+// values on a temporary attr. So we get a unique attribute name.
+string $tempAttr = "temp";
+int $inc = 1;
+while (`attributeExists ($tempAttr+$inc) $obj`) $inc++;
+$tempAttr += $inc;
+
+// Iterate through all attrs, create a copy on the $grp, move all values and
+// connections to it, delete the originals, and recreate the originals.
+string $attr, $type;
+for ($attr in $attrs)
+{
+	// Get the long and short name of the attr.
+	string $ln = `addAttr -q -ln ($obj+"."+$attr)`;
+	string $sn = `addAttr -q -sn ($obj+"."+$attr)`;
+	if ($ln == $sn)
+		$sn = "";
+
+	// Store the attr.
+	DPK_L_moveUdAttr $obj $attr $obj $tempAttr "";
+
+	// Delete the original.
+	if (`getAttr -l ($obj+"."+$attr)`) setAttr -l 0 ($obj+"."+$attr);
+	deleteAttr -attribute $attr $obj;
+
+	// Restore the attr.
+	DPK_L_moveUdAttr $obj $tempAttr $obj $attr $sn;
+
+	// Delete the temp attr. This is done so that it can be newly added in
+	// case the next attr is of a different type or has different settings.
+	if (`getAttr -l ($obj+"."+$tempAttr)`) setAttr -l 0 ($obj+"."+$tempAttr);
+	deleteAttr -attribute $tempAttr $obj;
+}
+//--//
+}
+//---- end "DPK_L_performReorder" ----// }}}2
+
+
+//------------------------------
+// DPK_L_getReorderableAttrs {{{2
+//------------------------------
+proc string[] DPK_L_getReorderableAttrs( string $obj, int $keyable )
+//------------------------------
+{
+//--//
+// Get all user defined scalar attrs.
+string $allUd[];
+if( $keyable ) {
+	$allUd = `listAttr -ud -s -k $obj`;
+} else {
+	$allUd = `listAttr -ud -s    $obj`;
+}
+
+// Iterate through these attrs and collect those that are of supported types.
+string $types[] = { "bool", "byte", "char", "double", "doubleAngle",
+					"doubleLinear", "float", "long", "short" };
+string $attrs[];
+int $x, $inc;
+for( $x = 0; $x < size($allUd); ++$x ) {
+	// Check whether this attr is of a supported type.
+	if( DPK_L_isElement($types, `getAttr -type ($obj+"."+$allUd[$x])`) ) {
+		// Yes, so we store it as attr to return.
+		$attrs[ $inc++ ] = $allUd[$x];
+	}
+}
+
+// Return the attrs we've collected.
+return $attrs;
+//--//
+}
+//---- end "DPK_L_getReorderableAttrs" ----// }}}2
+
+
+// }}}1
+
+
+//------------------------------
+//------------------------------
+//
+//  UI Procedures {{{1
+//
+//------------------------------
+//------------------------------
+
+//------------------------------
+// DPK_L_updateWin {{{2
+//
+// Fills the list with the attrs of the selected objects.
+//------------------------------
+proc int DPK_L_updateWin ()
+//------------------------------
+{
+//--//
+string $win = "DPK_reorderAttrs";
+string $TSL = ($win+"_TSL");
+
+// Get the state of the "Non Keyable" checkbox.
+int $nonKey = `checkBox -q -v ($win+"_nonKeyCB")`;
+
+// Get the selected objects.
+string $sels[] = `ls -sl`;
+if( !size($sels) ) {
+	// Nothing selected...
+	textScrollList -e -ra $TSL;
+	textScrollList -e -a "<nothing selected>" -en 0 $TSL;
+	return 0;
+}
+
+// Remove all items from the list so that we can fill it anew.
+textScrollList -e -ra -en 1 $TSL;
+
+// Collect all attrs of the selected objects.
+string $attrs[], $sel;
+for( $sel in $sels ) {
+	// Get the reorderable attrs and add them to the $attrs list.
+	$attrs = stringArrayCatenate(
+				DPK_L_getReorderableAttrs($sel, !$nonKey),
+				$attrs);
+}
+
+// Remove all duplicates from this array.
+$attrs = stringArrayRemoveDuplicates($attrs);
+
+// When there's no attr, inform the user.
+if( !size($attrs) ) {
+	textScrollList -e -a "<no user attributes found>" -en 0 $TSL;
+	return 0;
+}
+
+// Put them into the list.
+string $attr;
+for( $attr in $attrs ) {
+	textScrollList -e -a $attr $TSL;
+}
+return 1;
+//--//
+}
+//---- end "DPK_L_updateWin" ----// }}}2
+
+
+//------------------------------
+// DPK_L_buildUI {{{2
+//------------------------------
+proc string DPK_L_buildUI ()
+//------------------------------
+{
+//--//
+string $win = "DPK_reorderAttrs";
+if (`window -ex $win`)
+    deleteUI -wnd $win;
+$win = `window -t "Reorder User Attributes" -wh 400 400 -tlc 150 500 $win`;
+
+// layouts
+string $mainFL = `formLayout -nd 100`;
+
+// controls
+setParent $mainFL;
+string $closeB   = `button -l "Close"`;
+string $upB      = `button -l "Up"`;
+string $downB    = `button -l "Down"`;
+string $nonKeyCB = `checkBox
+						-vis 0
+						-v 0
+						-l "Show non keyable"
+						($win+"_nonKeyCB")`;
+string $TSL  = `textScrollList -ams 1 ($win+"_TSL")`;
+string $sep1 = `separator`;
+
+// callbacks
+button -e -c "DPK_reorderAttrs_call {\"up\"}"   $upB;
+button -e -c "DPK_reorderAttrs_call {\"down\"}" $downB;
+button -e -c ("deleteUI -wnd "+$win)            $closeB;
+
+// popupMenu
+popupMenu -p $TSL -b 3 -aob 0 -mm true;
+menuItem
+	-l  "Up"
+	-rp "N"
+	-c  "DPK_reorderAttrs_call {\"up\"}";
+menuItem
+	-l  "Down"
+	-rp "S"
+	-c  "DPK_reorderAttrs_call {\"down\"}";
+menuItem
+	-l  "Show non keyable"
+	-cb (`checkBox -q -v $nonKeyCB`)
+    -c  ("checkBox -e -v (!`checkBox -q -v "+$nonKeyCB+"`) "+$nonKeyCB+"; "+
+			"DPK_reorderAttrs_call {\"update\"};");
+
+// lay out
+formLayout -e
+	-af		$TSL		"top"		4
+	-af		$TSL		"left"		4
+	-af		$TSL		"right"		4
+	-af		$TSL		"bottom"    38
+
+	-af		$sep1		"left"		0
+	-af		$sep1		"right"		0
+	-af		$sep1		"bottom"    32
+
+	-aof    $closeB		"top"		-28
+	-af		$closeB		"bottom"    4
+	-af		$closeB		"right"		4
+	-aof    $closeB		"left"		-90
+
+	-aof    $upB		"top"		-28
+	-af		$upB		"bottom"    4
+	-aof    $upB		"right"		-44
+	-af		$upB		"left"		4
+
+	-aof    $downB		"top"		-28
+	-af		$downB		"bottom"    4
+	-aof    $downB		"right"		-89
+	-af		$downB		"left"		49
+	$mainFL;
+
+// fill TSL
+DPK_L_updateWin;
+
+// scriptJob
+scriptJob -p $win -e "SelectionChanged" "DPK_reorderAttrs_call {\"update\"}";
+
+return $win;
+//--//
+}
+//---- end "DPK_L_buildUI" ----// }}}2
+
+
+// }}}1
+
+
+//------------------------------
+//------------------------------
+//
+//  UI Callbacks {{{1
+//
+//  These are the procedures that are indirectly called by the UI controls
+//  through the global callback procedure at the end of this script. They
+//  retrieve UI information and call the worker procedures, which perform the
+//  actual task within the Maya scene.
+//
+//------------------------------
+//------------------------------
+
+//------------------------------
+// DPK_L_moveAttrs {{{2
+//------------------------------
+proc int DPK_L_moveAttrs (string $dir)
+//------------------------------
+{
+//--//
+string $win = "DPK_reorderAttrs";
+string $TSL = ($win+"_TSL");
+
+// Get the selected attrs.
+string $selAttrs[] = `textScrollList -q -si $TSL`;
+if (!size($selAttrs)) {
+	warning ("Please select the attributes you want to move "+$dir+".");
+}
+
+// Get the current selection.
+string $sels[] = `ls -sl`;
+
+// Get the state of the "Non Keyable" checkbox.
+int $nonKey = `checkBox -q -v ($win+"_nonKeyCB")`;
+
+// Iterate through the selected objects and reorder their attrs.
+string $obj, $attrs[], $udAttrs[];
+int $x, $y, $inc;
+for( $obj in $sels ) {
+	// Get all user attrs of this object that could be reordered.
+	$udAttrs = DPK_L_getReorderableAttrs( $obj, !$nonKey );
+
+	// Collect the attrs that should be moved and are among the $udAttrs.
+	clear $attrs;
+	$inc = 0;
+	for( $x = 0; $x < size($selAttrs); ++$x ) {
+		for( $y = 0; $y < size($udAttrs); ++$y ) {
+			if( $selAttrs[$x] == $udAttrs[$y] ) {
+				$attrs[$inc++] = $selAttrs[$x];
+			}
+		}
+	}
+
+	// Reorder the attrs array.
+	$attrs = DPK_L_stringArrayMove( $udAttrs, $attrs, $dir );
+
+	// The old method just renames the attrs which may result in problems on
+	// some OSes.
+	//for ($attr in $attrs)
+	//{
+	//	// to get them into the new order we simply rename them twice
+	//	int $suffix = 0;
+	//	while (`objExists ($obj+"."+$attr+"_"+$suffix)`)
+	//		++$suffix;
+	//	renameAttr ($obj+"."+$attr) ($attr+"_"+$suffix);
+	//	renameAttr ($obj+"."+$attr+"_"+$suffix) ($attr);
+	//}
+
+	// We'll delete and recreate all attrs to bring them into the correct
+	// order.
+	DPK_L_performReorder $obj $attrs;
+}
+
+// Update the list to show the new order.
+DPK_L_updateWin;
+
+// Select the moved attrs again. This has to be done since updating the list
+// looses its selection.
+for( $selAttr in $selAttrs ) {
+	textScrollList -e -si $selAttr $TSL;
+}
+
+return 1;
+//--//
+}
+//---- end "DPK_L_moveAttrs" ----// }}}2
+
+
+// }}}1
+
+
+//------------------------------
+//------------------------------
+//
+//  (Optional) Scripting Interface {{{1
+//
+//  This section contains global procedures which present an alternate
+//  interface to the functionality of this script. They don't use any UI but
+//  directly perform their task. These can be called from within other scripts
+//  or in batch mode.
+//
+//------------------------------
+//------------------------------
+
+// }}}1
+
+
+//------------------------------
+//------------------------------
+//
+//  Main Procedures {{{1
+//
+//  And here are the two most important global procs.
+//
+//------------------------------
+//------------------------------
+
+////////////////////////////////
+// DPK_reorderAttrs_call {{{2
+//
+// This is the "callback" procedure.
+//
+// It is called by the UI controls with one string array. The first element
+// defines the task that should be performed. The other elements are optional
+// and can be used as arguments to the called procs.
+//
+// This construct helps to minimize the use of global procs when you have many
+// buttons...
+////////////////////////////////
+global proc int DPK_reorderAttrs_call( string $args[] )
+////////////////////////////////
+{
+//--//
+// The first element of the $args array defines the task. We use a "switch"
+// construct here because there may be many different tasks.
+switch ($args[0]) {
+    case "update":
+		DPK_L_updateWin;
+		break;
+    case "up":
+		DPK_L_moveAttrs "up";
+		break;
+    case "down":
+		DPK_L_moveAttrs "down";
+		break;
+}
+return 1;
+//--//
+}
+//---- end "DPK_reorderAttrs_call" ----// }}}2
+
+
+////////////////////////////////
+//------------------------------
+// DPK_reorderAttrs {{{2
+//
+// The Main procedure
+//------------------------------
+////////////////////////////////
+global proc int DPK_reorderAttrs ()
+////////////////////////////////
+{
+//--//
+// build UI
+string $win = `DPK_L_buildUI`;
+
+// show UI
+showWindow $win;
+
+return 1;
+//--//
+}
+//---- end "DPK_reorderAttrs" ----// }}}2
+
+
+// }}}1
+
+
+//------------------------------
+// Configure Vim {{{3
+//
+// If you're wondering why there are places with three curly braces ("{" or
+// "}") with a number in comments, these are used by vim to do automatic
+// folding (hiding lines).
+//
+// If you don't know what vim is, check out:
+//    http://www.vim.org
+//
+// These settings will configure vim to display this file correctly.
+//    vim:set ts=4 tw=78 fdm=marker fdl=1 fdc=3:
