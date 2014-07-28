@@ -25,4 +25,5 @@ evalDeferred("autoLoadPlugin(\"\", \"ArubaTessellator\", \"ArubaTessellator\")")
 evalDeferred("autoLoadPlugin(\"\", \"quatNodes\", \"quatNodes\")");
 evalDeferred("autoLoadPlugin(\"\", \"mayaCharacterization\", \"mayaCharacterization\")");
 evalDeferred("autoLoadPlugin(\"\", \"extractDeltas.py\", \"extractDeltas\")");
+evalDeferred("autoLoadPlugin(\"\", \"RenderMan_for_Maya\", \"RenderMan_for_Maya\")");
 evalDeferred("autoLoadPlugin(\"\", \"sceneAssembly\", \"sceneAssembly\")");

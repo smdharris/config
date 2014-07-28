@@ -2,8 +2,8 @@
 //
 //
 evalDeferred("autoLoadPlugin(\"\", \"mayaHIK\", \"mayaHIK\")");
-evalDeferred("autoLoadPlugin(\"\", \"tiffFloatReader\", \"tiffFloatReader\")");
 evalDeferred("autoLoadPlugin(\"\", \"SHAPESTools\", \"SHAPESTools\")");
+evalDeferred("autoLoadPlugin(\"\", \"tiffFloatReader\", \"tiffFloatReader\")");
 evalDeferred("autoLoadPlugin(\"\", \"bifrostvisplugin\", \"bifrostvisplugin\")");
 evalDeferred("autoLoadPlugin(\"\", \"Mayatomr\", \"Mayatomr\")");
 evalDeferred("autoLoadPlugin(\"\", \"ikSpringSolver\", \"ikSpringSolver\")");

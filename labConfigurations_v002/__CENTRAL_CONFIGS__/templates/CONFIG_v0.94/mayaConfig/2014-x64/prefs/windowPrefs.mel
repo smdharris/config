@@ -25,7 +25,7 @@ windowPref -topLeftCorner 364 562 -widthHeight 460 500 -maximized false showHist
 windowPref -topLeftCorner 800 500 -widthHeight 520 620 -maximized false connectWindow;
 windowPref -topLeftCorner 364 562 -widthHeight 500 400 -maximized false LockingKeyable;
 windowPref -topLeftCorner 364 562 -widthHeight 340 280 -maximized false PluginInfoWin;
-windowPref -topLeftCorner 235 532 -widthHeight 778 572 -maximized false RRM_Window;
+windowPref -topLeftCorner 235 532 -widthHeight 778 645 -maximized false RRM_Window;
 windowPref -topLeftCorner 113 752 -widthHeight 660 800 -maximized false RRM_Selector;
 windowPref -topLeftCorner 364 562 -widthHeight 949 318 -maximized false SearchForRunTimeCommandWindow;
 windowPref -topLeftCorner 313 562 -widthHeight 754 715 -maximized false HotkeyEditor;
@@ -34,7 +34,7 @@ windowPref -topLeftCorner 364 562 -widthHeight 782 333 -maximized false menuSetE
 windowPref -topLeftCorner 364 562 -widthHeight 275 400 -maximized false cgmSetToolsWindow;
 windowPref -topLeftCorner 364 562 -widthHeight 300 300 -maximized false cgmToolbox;
 windowPref -topLeftCorner 364 562 -widthHeight 248 75 -maximized false jdsWnd;
-windowPref -topLeftCorner 668 90 -widthHeight 1000 660 -maximized false renderViewWindow;
+windowPref -topLeftCorner 812 1053 -widthHeight 1000 660 -maximized false renderViewWindow;
 windowPref -topLeftCorner 364 562 -widthHeight 400 445 -maximized false JTDdynParentUI;
 windowPref -topLeftCorner 500 695 -widthHeight 663 436 -maximized false TDTools;
 windowPref -topLeftCorner 364 562 -widthHeight 135 90 -maximized false zooHotkeyerWindow;
