@@ -1,0 +1,144 @@
+//
+// Written by Andrew Chapman - Feb 2003
+//
+// Script to build a custom menu for the Troy project, and make GUI windows, etc for
+// menu items as necessary
+//
+
+global proc int validateTroyEnvironment()
+{
+  int $everythingOK = true;
+
+  // commenting this out temporaily, as the defferred sourcing of MEL scripts
+  // is causing this to go bad when it shouldn't
+
+  //if (!`exists expandEnvVars`) {
+  //  warning("expandEnvVars command not found (custom script expandEnvVars.mel");
+  //  $everythingOK = false;
+  //}
+
+  return $everythingOK;
+}
+
+global proc showTroyIntranet()
+{
+  showHelp -absolute "http://sys12/troy/";
+}
+
+global proc getBoatTools()
+{
+  source "troy_boatTools.mel";
+}
+
+global proc doMTORsetupWarning() {
+	confirmDialog -t "Bad User Option" -m " \nDon't use this ...\nUse the new TroyRender Shelf instead\n...you know it makes sense\n " -b " Righty ho ";
+}
+
+global proc buildTroyMenu()
+{
+  print("Building Troy menu and checking environment\n");
+  if (!`validateTroyEnvironment`) {
+    warning("Your Maya environment is not correct for working on Troy. Please contact Andrew Chapman (andrew.chapman@framestore-cfc.com)");
+  }
+
+  global string $gMainWindow;
+  setParent $gMainWindow;
+
+  if (`menu -q -exists troyMenu`) {
+    deleteUI -menu troyMenu;
+  }
+
+  menu -label "Troy" troyMenu;
+    menuItem -subMenu true -allowOptionBoxes true -tearOff true -label "Armada" troyFleetMenu;
+      menuItem -label "bobTools - Build Sea Surface" -c waveMaker;
+      menuItem -label "bobTools - Animate" -c setWaveAnim;
+      menuItem -label "Boat Tools" -c getBoatTools;
+      menuItem -label "MRIB Controls" -c troyMribControl;
+      menuItem -label "Make Some Boats" -c "troyMakeSomeBoatsGUI 0";
+      menuItem -optionBox true -c "troyMakeSomeBoatsGUI 1";
+    setParent -menu ..;
+    menuItem -subMenu true -tearOff true -label "Rendering" troyRenderingMenu;
+      menuItem -label "Change Environment Map Base"    -c changeEnvMapBase;
+      menuItem -divider true;
+      menuItem -label "fdr Setup" -c fdrRender;
+      menuItem -label "Setup Scene for Liquid Render"  -c troyAgentsSetupLiquid;
+      menuItem -label "SlimFast"  -c slimFast;
+      menuItem -label "Arbouts GUI" -c arbOutsGUI;
+      menuItem -subMenu true -tearOff true -label "Make Troy arbouts" makeArbOutsPresetsMenu;
+        menuItem -label "Make All Presets" -c "arbOutsMakeTroy \"makeAll\"";
+        menuItem -label "Beauty" -c "arbOutsMakeTroy \"beauty\"";
+        menuItem -label "Wake" -c "arbOutsMakeTroy \"wake\"";
+        menuItem -label "Reflection" -c "arbOutsMakeTroy \"reflection\"";
+        menuItem -label "Shadow" -c "arbOutsMakeTroy \"shadow\"";
+        menuItem -label "No Arbouts" -c "arbOutsMakeTroy \"none\"";
+        menuItem -label "All Arbouts" -c "arbOutsMakeTroy \"all\"";
+      setParent -menu ..;      
+      menuItem -label "Set Arb-Outs(obsolete)"  -c setArbOuts;
+      menuItem -label "Load Arb-Outs(obsolete)"  -c troyArbOut;
+      menuItem -label "Clear Arb-Outs(obsolete)" -c clearArbOuts;
+      menuItem -divider true;
+      menuItem -label "Override MTOR shader on Agents" -c overrideOptions;
+      menuItem -divider true;
+      menuItem -label "FC Render Menu" -c FCRender -ann "Loads mtor render menu to send mtor/prman renders to the farm - Please try it out and report bugs to Alistair Mann (systems)";
+    setParent -menu ..;
+    menuItem -subMenu true -tearOff true -label "Texture Tools" troyTextureToolsMenu;
+      menuItem -label "Texture Manager" -c "textureManager 1 1 \"\" \"\" ";
+      menuItem -label "Change Texture Resolutions" -c changeTexRes;
+      menuItem -label "Texture/Attribute Tools" -c troyGeoTexTools;
+    setParent -menu ..;
+
+    menuItem -subMenu true -allowOptionBoxes true -tearOff true -label "Crowds" troyCrowdsMenu;
+    troyAgentMenu();
+    setParent -menu ..;
+
+    menuItem -subMenu true -tearOff true -label "Mocap" troyMocapMenu;
+      menuItem -label "Import C3D Mocap Data" -c "readC3D";
+      menuItem -label "Export Acclaim Mocap Data" -c showExportAcclaimWindow -ann "Select skeleton root node and any weapons locators before export";    
+    setParent -menu ..;
+    
+    menuItem -subMenu true -tearOff true -label "Density Maps" troyDensityMapMenu;
+      menuItem -label "Create Density Map" -c createDensityMap -ann "Create Density Map from a selected mesh and file node";
+      menuItem -label "Duplicate Objects using Density Map" -c "createDensityMapDuplicates(0)" -ann "Duplicate selected objects onto selected Density Map";
+      menuItem -label "Instance Objects using Density Map"  -c "createDensityMapDuplicates(1)" -ann "Instance selected objects onto selected Density Map";
+    setParent -menu ..;
+   
+    menuItem -subMenu true -tearOff true -label "Flow Nodes" troyFlowNodeMenu;
+      menuItem -label "Create new Flow Node" -c "createFlowNode" -ann "Create a new flow Node and sets it as current";
+      menuItem -divider true;
+      menuItem -label "Set Current Flow Node" -subMenu true -tearOff true  -pmc "updateFlowNodeList flowNodeListMenu" flowNodeListMenu;
+      setParent -menu ..;
+      menuItem -label "Delete Flow Node" -subMenu true  -pmc "updateFlowNodeList flowNodeListDeleteMenu" flowNodeListDeleteMenu;
+      setParent -menu ..;
+      menuItem -label "Cleanup Flow Nodes" -c "cleanupFlowNodes" -ann "Cleanup all the flow nodes";	
+      menuItem -divider true;
+      menuItem -label "Connect Selected Agents"    -c "connectAgents selected"    -ann "Connect the selected agents to the flowNode";
+      menuItem -label "Disconnect Selected Agents" -c "disconnectAgents selected" -ann "Disconnect the selected agents from the flowNode";
+      menuItem -label "Connect All Agents"         -c "connectAgents all"         -ann "Connect the selected agents to the flowNode";
+      menuItem -label "Disconnect All Agents"      -c "disconnectAgents all"      -ann "Disconnect the selected agents from the flowNode";
+      menuItem -label "Bake Agent Flow Influences" -c "troyAgentBakeFlow"         -ann "Bake the influences from the flow nodes onto the selected agents";
+      menuItem -label "Align Selected Agents to Flow" -c "alignSelectedAgentsToFlow" -ann "Rotates the selected Agents so that they are aligned with the flow at their start time";
+
+      menuItem -divider true;
+      menuItem -label "Create Point Influence"       -c "connectLocatorInfluence pointInfluence" -ann "Create a new point influence";
+      menuItem -label "Create Directional Influence" -c "connectLocatorInfluence directionalInfluence" -ann "Create a new directional influence";
+      menuItem -label "Create Curve Influence"       -c "connectNewCurves" -ann "Select one or more curves to be used as influence(s)";
+
+      menuItem -divider true;
+      menuItem -label "Select influenced agents"    -c "selectConnected agent"            -ann "Select the agents influenced by the current flowNode";
+      menuItem -label "Select connected influences" -c "selectConnected influenceLocator" -ann "Select the influences connected to the current flowNode";
+      menuItem -label "Select connected flowNode"   -c "selectConnected flowNode"         -ann "Select the flowNode to wich the selected agents or influences are connected to";
+    setParent -menu ..;
+   
+    menuItem -divider true;
+    menuItem -label "Multitude Manager" -c multitudeManager -ann "Dialog for dealing with attributes on many Nodes";
+    menuItem -divider true;
+    menuItem -label "Crop Render GUI" -c cropRenderGUI -ann "GUI to render the frame using cropRender";
+    menuItem -divider true;
+    menuItem -label "Delete Mental Ray Nodes" -c GOARemoveMentalRayNodes  -ann "Removes all trace of Mental Ray from your scene";
+    menuItem -label "Delete Unknown Nodes" -c "delete `ls -type unknown`" -ann "Removes all unknown nodes from your scene";
+    menuItem -divider true;
+    menuItem -label "Load TroyRender Shelf" -c "loadNewShelf shelf_TroyRender.mel" -ann "Loads the TroyRender shelf";
+    menuItem -divider true;
+    menuItem -divider true;
+    menuItem -label "Troy Intranet Page" -c showTroyIntranet;
+}

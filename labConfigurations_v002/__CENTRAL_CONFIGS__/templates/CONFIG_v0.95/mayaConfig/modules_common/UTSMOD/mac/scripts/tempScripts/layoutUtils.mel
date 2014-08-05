@@ -1,0 +1,1514 @@
+//
+//	function to return the username from a set of initials
+//
+
+global proc string layoutUserInitials (string $initials)
+{
+	string $XuserName;
+
+	switch ($initials)
+	{
+		case "aa":
+			$XuserName = "AMITM";
+			break;
+
+		case "af":
+			$XuserName = "AL";
+			break;
+
+		case "am":
+			$XuserName = "ANDYM";
+			break;
+
+		case "as":
+			$XuserName = "ANDREWSI";
+			break;
+
+		case "aw":
+			$XuserName = "ALEXW";
+			break;
+
+		case "bh":
+			$XuserName = "BERNIEH";
+			break;
+
+		case "cn":
+			$XuserName = "CHADN";
+			break;
+
+		case "dc":
+			$XuserName = "DANC";
+			break;
+
+		case "dp":
+			$XuserName = "DAVIDP";
+			break;
+
+		case "hf":
+			$XuserName = "HOWARD";
+			break;
+
+		case "jd":
+			$XuserName = "JIMD";
+			break;
+
+		case "jr":
+			$XuserName = "JEFFR";
+			break;
+
+		case "ka":
+			$XuserName = "KYLEA";
+			break;
+
+		case "lf":
+			$XuserName = "LINDSAY";
+			break;
+
+		case "me":
+			$XuserName = "MOEE";
+			break;
+
+		case "ms":
+			$XuserName = "MURRAYS";
+			break;
+
+		case "pg":
+			$XuserName = "PETERG";
+			break;
+
+		case "pm":
+			$XuserName = "PETERMC";
+			break;
+
+		case "sl":
+			$XuserName = "SHAWNL";
+			break;
+
+		case "sk":
+			$XuserName = "STEVEK";
+			break;
+
+		case "ns":
+			$XuserName = "NIGELS";
+			break;
+		default:
+			$XuserName = "UNKNOWN";
+			break;
+	}
+
+	return $XuserName;
+}
+
+global proc string last (string $array[])
+{
+	int $s = size( $array );
+	if( $s )
+		return $array[$s - 1];
+	else
+		return "";
+}
+
+// OBSOLETE: use fs()
+global proc string first (string $array[])
+{
+	return fs( $array );
+}
+
+// Returns first string of string array
+global proc string fs( string $s[] )
+{
+	if( size( $s ))
+		return $s[0];
+	else
+		return "";
+}
+
+// Returns first int of int array
+global proc int fi( int $i[] )
+{
+	if( size( $i ))
+		return $i[0];
+	else
+		return 0;
+}
+
+// Returns first float of float array
+global proc float ff( float $f[] )
+{
+	if( size( $f ))
+		return $f[0];
+	else
+		return 0;
+}
+
+// Returns last float of float array
+global proc float lf( float $f[] )
+{
+	int $l = size( $f );
+	if( $l )
+		return $f[$l];
+	else
+		return 0;
+}
+
+// Returns first vector of float array representing a vector(s)
+global proc vector fv( float $f[] )
+{
+	float $x, $y, $z;
+	switch( size( $f ))
+	{
+		default:
+		case 3:
+			$z = $f[2];
+		case 2:
+			$y = $f[1];
+		case 1:
+			$x = $f[0];
+		case 0:
+	}
+	return <<$x, $y, $z>>;
+}
+
+// Returns first matrix of float array representing a 4 by 4 matrix
+global proc matrix f4x4m( float $f[] )
+{
+	matrix $m[4][4];
+	if( 16 <= size( $f ))
+		$m = <<$f[0],  $f[1],  $f[2],  $f[3];
+					 $f[4],  $f[5],  $f[6],  $f[7];
+					 $f[8],  $f[9],  $f[10], $f[11];
+					 $f[12], $f[13], $f[14], $f[15]>>;
+	return $m;
+}
+
+global proc string substituteAll( string $search, string $target, string $replace )
+{
+	// Repeatedly applies substitute until no change
+	string $last;
+	do
+	{
+		$last = $target;
+		$target = `substitute $search $target $replace`;
+	}
+	while( $target != $last );
+	return $target;
+}
+
+global proc string getBobjectImporter(string $bob)
+{
+	if ( `objExists( $bob )` )
+	{
+		// if the specified node is an importer, return it
+		if ( `objectType -isType "bobjectImport" $bob` )
+			return $bob;
+
+		// otherwise, check history of this obj
+		string $history[] =  `listHistory -leaf no -pruneDagObjects yes $bob`;
+		string $bobjects[];
+
+		if ( 0 < size( $history ))
+		{
+			$bobjects = `ls -exactType bobjectImport $history`;
+			if ( 0 < size( $bobjects ))
+			{
+				return $bobjects[0];
+			}
+		}
+
+		// otherwise, get/test all children
+		string $children[] = `ls -dag -exactType transform -exactType mesh $bob`;
+		if ( 0 < size( $children ))
+		{
+			$history =	`listHistory -leaf no -pruneDagObjects yes $children`;
+			if ( 0 < size( $history ))
+			{
+				$bobjects = `ls -exactType bobjectImport $history`;
+				if ( 0 < size( $bobjects ))
+				{
+					return $bobjects[0];
+				}
+			}
+		}
+
+		// if we haven't returned yet, a bobjectImport node hasn't been found in the children, so check parents.
+		string $parents[] = `listRelatives -f -p -type transform $bob`;
+
+		while ( 0 < size( $parents[0] ))
+		{
+			string $connections[] =  `listConnections -destination no -type bobjectImport $parents[0]`;
+			if ( 0 < size( $connections ))
+			{
+				return $connections[0];
+			}
+			$parents = `listRelatives -f -p -type transform $parents[0]`;
+		}
+	}
+	return "";
+}
+
+// findFileRecursive
+//
+// procedure to recursively scan a file structure, searching for a particular file name
+//
+// arguments:
+//	filename: 		the name of the file to search for
+//	rootDirectory:	the full file path of the directory to start searching in (MUST end with "/")
+//	recurseLimit: the number of directory levels deep to search before returning
+//
+// returns a string with the full path to the required file, or nothing if no file is found
+
+global proc string findFileRecursive (string $filename, string $rootDirectory, int $recurseLimit)
+{
+	if ($recurseLimit == 0)
+	{
+		return "";
+	}
+
+	string $returnVal;
+	string $fileList[] = `getFileList -folder $rootDirectory`;
+	string $file;
+
+	if (`filetest -r ($rootDirectory + $filename)`)
+	{
+		return ($rootDirectory + $filename);
+	}
+
+	for ($file in $fileList)
+	{
+		if (`filetest -d ($rootDirectory + $file)`)
+		{
+			$returnVal = `findFileRecursive $filename ($rootDirectory + $file + "/") ($recurseLimit - 1)`;
+			if ($returnVal != "")
+			{
+				return $returnVal;
+			}
+		}
+	}
+
+	return $returnVal;
+}
+
+global proc int addAttrTag( string $node, string $attr, string $tag )
+{
+	if (!`objExists $node`)
+	{
+		warning ("addAttrTag: Node: " + $node + " cannot be found!");
+		return false;
+	}
+
+	if (!`attributeExists $attr $node`)
+	{
+		if (catchQuiet(`addAttr -longName $attr -dt "string" $node`))
+		{
+			warning ("addAttrTag: Error adding attr " + $attr + " to " + $node);
+			return false;
+		}
+	}
+
+	if (catchQuiet(`setAttr -type "string" ($node + "." + $attr) $tag`))
+	{
+		warning ("addAttrTag: Error setting " + $attr + " on " + $node + " to " + $tag);
+		return false;
+	}
+
+	return true;
+}
+
+//
+// helper function to add the ".bobjectComponent" attribute to the specified node, and set it's value
+//
+
+global proc addBobjectComponentAttr (string $node, string $tag)
+{
+	if (!`objExists $node`)
+	{
+		warning ("// addBobjectComponentAttr: Node: " + $node + " cannot be found!");
+		return;
+	}
+
+	//print ("// Adding .bobjectComponent attr to " + $node + "\n");
+	if (!`attributeExists "bobjectComponent" $node`)
+	{
+		if (catchQuiet(`addAttr -longName bobjectComponent -dt "string" $node`))
+		{
+			print ("// Error adding attr to " + $node + "\n");
+		}
+	}
+
+	//print ("// Setting .bobjectComponent attr to " + $tag + "\n");
+	if (catchQuiet(`setAttr -type "string" ($node + ".bobjectComponent") $tag`))
+	{
+		print ("// Error setting attr on " + $node + "\n");
+	}
+}
+
+
+//
+// helper function to get the ".bobjectComponent" attribute from the specified node
+//
+
+global proc string getBobjectComponentAttr(string $bobject)
+{
+		if (`objExists ($bobject + ".bobjectComponent")`)
+		{
+				return `getAttr ($bobject + ".bobjectComponent")`;
+		}
+		else
+				return "";
+}
+
+//
+// helper function to search a bobject's heirarchy for a specified component
+//
+
+global proc string findBobjectComponent(string $bobject, string $component)
+{
+	string $currentNodeType = `getBobjectComponentAttr $bobject`;
+
+	if ($currentNodeType == $component)
+		return $bobject;
+
+	string $bobs[];
+	string $currentNode;
+
+	if (`objectType -isType bobjectImport $bobject`)
+	{
+		// search the downstream dag first
+		string $mOut[] = `listConnections -source no ($bobject + ".outputMesh")`;
+		string $tOut[] = `listConnections -source no ($bobject + ".translate")`;
+		string $rOut[] = `listConnections -source no ($bobject + ".rotate")`;
+		string $sOut[] = `listConnections -source no ($bobject + ".scale")`;
+		string $downstream[];
+		if( 0 < size( $mOut ))
+			$downstream = `listHistory -future yes $mOut`;
+		$bobs = `ls -dag -noIntermediate -exactType transform -exactType mesh $downstream $tOut $rOut $sOut`;
+		for( $currentNode in $bobs )
+		{
+			$currentNodeType = `getBobjectComponentAttr $currentNode`;
+			if ($currentNodeType == $component)
+				return $currentNode;
+		}
+
+		// may be looking for a non-directly connected node: search the hierarchy of each connected mesh
+		if( 0 < size( $mOut ))
+			$bobs = `ls -dag -noIntermediate -exactType mesh $downstream`;
+	}
+	else
+	{
+		// just search for the component in the hierarchy of the passed in node
+		$bobs[0] = $bobject;
+	}
+
+	for( $currentNode in $bobs )
+	{
+		// traverse up the heirarchy until we find the root bobject node.
+		$currentNodeType = `getBobjectComponentAttr $currentNode`;
+		while ($currentNodeType != "root")
+		{
+			string $parent[] = `listRelatives -path -p $currentNode`;
+
+			if ($parent[0] == "")
+				break;
+
+			$currentNode = $parent[0];
+			$currentNodeType = `getBobjectComponentAttr $currentNode`;
+
+			//if we find the component we're after, return it.
+			if ($currentNodeType == $component)
+				return $currentNode;
+		}
+		string $rootNode;
+		if ($currentNodeType == "root")
+		{
+			$rootNode = $currentNode;
+		}
+		else
+		{
+			// If the hierarchy has no "root" don't try to search it's children
+			continue;
+		}
+
+		//now we have the root node, get it's children and find the one that matches the specified component type
+		string $bobjectNodes[] = `listRelatives -path -ad $rootNode`;
+
+		for ($currentNode in $bobjectNodes)
+		{
+			$currentNodeType = `getBobjectComponentAttr $currentNode`;
+			if ($currentNodeType == $component)
+				return $currentNode;
+		}
+	}
+	return "";
+}
+
+//
+// retruns the name of the plug on the bobjectImporter that drives the given mesh
+//
+
+global proc string getBobjectMeshPlug( string $mesh )
+{
+	string $bobjectMeshPlug;
+	if( `objectType -isType mesh $mesh` )
+	{
+		if( `connectionInfo -isDestination ($mesh + ".inMesh")`)
+		{
+			string $upStream = `connectionInfo -sourceFromDestination ($mesh + ".inMesh")`;
+			string $history[] = `listHistory -leaf no -pruneDagObjects yes $upStream`;
+			string $bobject = fs( `ls -exactType bobjectImport $history` );
+			if( 0 < size( $bobject ))
+			{
+				int $nMesh = `getAttr -size ($bobject + ".outputMesh")`;
+				int $m;
+				for( $m = 0; $m < $nMesh; $m++ )
+				{
+					$bobjectMeshPlug = $bobject + ".outputMesh[" + $m + "]";
+					string $downstream[] = `listConnections -source no -destination yes -plugs no $bobjectMeshPlug`;
+					string $dsNode;
+					for( $dsNode in $downstream )
+					{
+						string $histNode;
+						for( $histNode in $history )
+						{
+							if( $dsNode == $histNode )
+							{
+								return $bobjectMeshPlug;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return "";
+}
+
+//
+// returns the number of mesh shape frames stored in the bobject
+// does not work on transform plugs, meshes only
+// can be used to optimise calamari (if frames == 1 delete -history meshShape)
+//
+
+global proc int getBobjectMeshFrameCount( string $bobjectMeshPlug )
+{
+	string $plugParts[2];
+	tokenize $bobjectMeshPlug "." $plugParts; // [0]=object, [1]=attr
+	string $bobject = $plugParts[0];
+	string $bobjectFile = `getAttr ($bobject + ".inputFile")`;
+
+	tokenize $plugParts[1] "[]" $plugParts; // [0]=".mesh", [1]=index
+	string $cmd = "BobjectInfo -nframes \"" + $bobjectFile + "\" " + $plugParts[1];
+	int $nframes = intPluginCmd( "Bobject", $cmd );
+	return $nframes;
+}
+
+//
+//	helper function to add a string to the end of a string array (think the "push" command in perl)
+//
+
+global proc string[] pushString (string $array[], string $item)
+{
+	$array[`size($array)`] = $item;
+
+	return $array;
+}
+
+//
+//	Helper function to batch process selected objects
+//
+
+global proc applyToSelection(string $command, string $args)
+{
+	string $selection[] = `ls -sl`;
+	string $item;
+	for ($item in $selection)
+	{
+		eval($command + " " + $item + " " + $args);
+	}
+}
+
+//
+//	helper function to find the number of the last cameraMain shot camera
+//
+
+global proc int getLastCamNum()
+{
+	if (`objExists "cameraMain"` == 0)
+	{
+		return 0;
+	}
+	string $baseName = `getAttr "cameraMain.cameraBaseName"`;
+	string $cameras[] = `ls -exactType transform ($baseName + "*")`;
+	int $camNumbers[];
+	int $i = 0;
+	for ($camera in $cameras)
+	{
+		string $camBits[];
+		tokenize $camera "_" $camBits;
+		$camNumbers[$i] = `match "^[0-9]+[0-9]*" $camBits[size($camBits) - 1]`;
+		$i++;
+	}
+	$camNumbers = `sort $camNumbers`;
+
+	return $camNumbers[`size($camNumbers)` - 1];
+}
+
+//
+//	helper function to test for the existance of an object or attribute, and delete it
+//
+
+global proc deleteIfExists (string $deleteMe)
+{
+	string $delBuffer[];
+	tokenize $deleteMe "." $delBuffer;
+
+	if (`size $delBuffer` == 2)
+	{
+		if (`attributeExists $delBuffer[1] $delBuffer[0]`)
+		{
+			deleteAttr $deleteMe;
+		}
+	}
+	else if (`size $delBuffer` == 1)
+	{
+		if (`objExists $deleteMe`)
+			delete $deleteMe;
+	}
+}
+
+//
+//	helper function to convert a number to it's corresponding letter in the alphabet (i.e. 1 = A, 2 = B, 3 = C, etc.)
+//
+
+global proc string intToChar(int $number)
+{
+	if ($number > 26)
+		return "";
+
+	string $letters[] = {"", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
+	return $letters[$number];
+}
+
+//
+//	helper function to convert a string array to a token separated string (untokenize an array)
+//
+
+global proc string arrayToString(string $array[], string $spacer)
+{
+	int $i;
+	string $return = "";
+	for ($i = 0; $i < (`size($array)` - 1); $i++)
+	{
+		$return += ($array[$i] + $spacer);
+	}
+	$return += ($array[`size($array)` - 1]);
+	return $return;
+}
+
+//********	round  ********
+//
+// Procedure to use to get returned values nice and tidy!
+global proc float round( float $val, int $digits )
+{
+	int $neg = 0;
+	if ($val < 0)
+	{
+		$val = abs($val);
+		$neg = 1;
+	}
+	float $rounded = float(int(($val*pow(10,$digits))+0.5)) / pow(10,$digits);
+
+	if ($neg)
+		$rounded *= -1;
+
+		return $rounded;
+}
+
+// Strip the directory structure from a file path, returning the file name.
+
+global proc string stripFolderFromPath(string $fileName)
+{
+	string $buffer[];
+	int $tokens = `tokenize $fileName "/" $buffer`;
+	string $returnVal = $buffer[($tokens - 1)];
+	if ($tokens > 1)
+	{
+		return $returnVal;
+	}
+	else
+	{
+		return $fileName;
+	}
+}
+
+// Strip the file name from a file path, returning the directory structure.
+
+global proc string stripFileNameFromPath(string $fileName)
+{
+	string $buffer[];
+	string $returnVal;
+	int $tokens = `tokenize $fileName "/" $buffer`;
+	for ($i = 0; $i < ($tokens - 1); $i++)
+	{
+		$returnVal += ($buffer[$i] + "/");
+	}
+	return $returnVal;
+}
+
+// Find and select all bobject import nodes in a selected nodes heirarchy
+
+global proc selectAllBobjectImportNodesInHeirarchy()
+{
+	string $sel[] = `ls -sl -l`;
+	string $bob[];
+
+	$bob = `findAllBobjectImportNodesInHeirarchy $sel[0]`;
+
+	select -r $bob;
+}
+
+// Find and return all bobject import nodes in a specified nodes heirarchy
+
+global proc string[] findAllBobjectImportNodesInHeirarchy(string $rootNode)
+{
+	string $meshes[] = `listRelatives -f -ad -type mesh $rootNode`;
+	string $mesh;
+	string $bob[];
+
+	for ($mesh in $meshes)
+	{
+		string $parent[] = `listRelatives -f -p $mesh`;
+		string $conn[] = `listConnections -type bobjectImport $parent[0]`;
+		if ($conn[0] != "")
+		{
+			pushString $bob $conn[0];
+		}
+	}
+
+	return $bob;
+}
+
+//
+
+global proc string spamtastic (string $from, string $to, string $smtpServer, string $subject, string $body, string $mode)
+{
+	string $bmailPath = "T:/film/software/pcsoftware/bin/bmail.exe";
+
+	string $spamCommand = ($bmailPath + " -h -s " + $smtpServer + " -t " + $to + " -f " + $from + " -a \"" + $subject + "\"");
+
+	if ("attach" == $mode && `filetest -r $body`)
+	{
+		$spamCommand += (" -c -m " + $body);
+	}
+	else if ("text" == $mode)
+	{
+		$spamCommand += (" -b \"" + $body + "\"");
+	}
+	else
+	{
+		return "";
+	}
+
+	string $result = `system $spamCommand`;
+
+	return $result;
+}
+
+global proc float sumFloatArray (float $inArray[])
+{
+	float $returnVal = 0;
+	int $i;
+
+	for ($i = 0; $i < `size($inArray)`; $i++)
+	{
+		$returnVal += $inArray[$i];
+	}
+
+	return $returnVal;
+}
+
+// insert a value into a specified index of a float array and ripple all other values down the line
+
+global proc float[] floatArrayInsert(float $element, int $index, float $array[])
+{
+	int $j;
+	for( $j = `size($array)` - 1; $j >= $index; $j-- )
+	{
+		$array[$j + 1] = $array[$j];
+		//print ("shifted value " + $array[$j] + " from index " + $j + " to " + ($j + 1) + "\n");
+	}
+	$array[$index] = $element;
+	return $array;
+}
+
+// insert a value into a specified index of an int array and ripple all other values down the line
+
+global proc int[] intArrayInsert(int $element, int $index, int $array[])
+{
+	int $j;
+	for( $j = `size($array)` - 1; $j >= $index; $j-- )
+	{
+		$array[$j + 1] = $array[$j];
+		//print ("shifted value " + $array[$j] + " from index " + $j + " to " + ($j + 1) + "\n");
+	}
+	$array[$index] = $element;
+	return $array;
+}
+
+// insert a value into a specified index of a string array and ripple all other values down the line
+
+global proc string[] stringArrayInsert(string $element, int $index, string $array[])
+{
+	int $j;
+	for( $j = `size($array)` - 1; $j >= $index; $j-- )
+	{
+		$array[$j + 1] = $array[$j];
+		//print ("shifted value " + $array[$j] + " from index " + $j + " to " + ($j + 1) + "\n");
+	}
+	$array[$index] = $element;
+	return $array;
+}
+
+// remove the items in the first int array from the second
+global proc int[] intArrayRemove( int $items[], int $list[] )
+{
+	int $item, $listItem, $result[];
+	int $keep, $resultIndex = 0;
+
+	for ($listItem in $list)
+	{
+		$keep = 1;
+		for ($item in $items)
+		{
+			if ($item == $listItem)
+			{
+				$keep = 0;
+				break;
+			}
+		}
+		if ($keep) $result[$resultIndex++] = $listItem;
+	}
+
+	return $result;
+}
+
+//
+/*
+global proc string[] getKeyframeList()
+{
+	string $sel[] = `ls -sl -l`;
+	string $keyList[];
+	for( $obj in $sel )
+	{
+		//$keyList[`size($keyList)`] = $obj;
+
+		string $connections[] = `listConnections -s 1 -d 0 -p 1 $obj`;
+
+		for( $connection in $connections )
+		{
+			string $buffer[];
+			tokenize $connection "." $buffer;
+			string $node = $buffer[0];
+			string $attr = $buffer[1];
+			string $nodeType = `nodeType $node`;
+
+			if( $nodeType == "pairBlend" )
+			{
+				int $index = `getAttr ($node + ".currentDriver")`;
+				$keyList[`size($keyList)`] = ($node + ".inTranslate" + $index);
+				$keyList[`size($keyList)`] = ($node + ".inRotate" + $index);
+			}
+			else if( $nodeType == "choice" )
+			{
+				int $index = `getAttr ($node + ".selector")`;
+				$keyList[`size($keyList)`] = ($node + ".input[" + $index + "]");
+			}
+			else if( $nodeType == "blendWeighted" || $nodeType == "blendTwoAttr" )
+			{
+				int $index = `getAttr ($node + ".current")`;
+				$keyList[`size($keyList)`] = ($node + ".input[" + $index + "]");
+			}
+			else
+			{
+				$keyList[`size($keyList)`] = $node;
+			}
+		}
+	}
+
+	return $keyList;
+}
+*/
+
+proc string findKeysOnChannel( string $channel )
+{
+	global int $gFindKeysOnChannelCount;
+
+	string $tracedConnection;
+	string $keyList;
+	string $cycleList[];
+
+	$gFindKeysOnChannelCount++;
+	debugMsg( " findKeysOnChannel: " + $gFindKeysOnChannelCount + ": " + $channel );
+	if( $gFindKeysOnChannelCount > 100 )
+	{
+		print ("// findKeysOnChannel: think we're stuck in a cycle, breaking out of " + $channel + "\n");
+		$gFindKeysOnChannelCount = 0;
+		return "";
+	}
+
+	string $buffer[];
+	tokenize $channel "." $buffer;
+	string $node = $buffer[0];
+	string $attr = $buffer[1];
+
+	if( !`objExists $node` || `nodeType $node` == "shadingEngine" )
+	{
+		$gFindKeysOnChannelCount = 0;
+		return "";
+	}
+
+	string $connections[] = `listConnections -scn 1 -s 1 -d 0 -p 1 $channel`;
+
+	clear $buffer;
+	tokenize $connections[0] "." $buffer;
+	$node = $buffer[0];
+	$attr = $buffer[1];
+
+	if( !`objExists $node` )
+	{
+		$gFindKeysOnChannelCount = 0;
+		return "";
+	}
+
+	string $nodeType = `nodeType $node`;
+
+	if( `gmatch $nodeType "animCurve*"` )
+	{
+		$keyList = $node;
+	}
+	else
+	{
+		if( $nodeType == "pairBlend" && ( `gmatch $attr "outRotate*"` || `gmatch $attr "outTranslate*"` ) )
+		{
+			int $index = `getAttr ($node + ".currentDriver")`;
+			string $newAttr = `substitute "out" $attr "in"`;
+
+			$tracedConnection = ($node + "." + $newAttr + $index);
+		}
+		else if( $nodeType == "choice" && $attr == "output" )
+		{
+			int $index = `getAttr ($node + ".selector")`;
+			$tracedConnection = ($node + ".input[" + $index + "]");
+		}
+		else if( ($nodeType == "blendWeighted" || $nodeType == "blendTwoAttr") && $attr == "output" )
+		{
+			int $index = `getAttr ($node + ".current")`;
+			$tracedConnection = ($node + ".input[" + $index + "]");
+		}
+		else
+		{
+			$tracedConnection = ($node + "." + $attr);
+		}
+
+		if( $tracedConnection != "" )
+		{
+			$keyList = findKeysOnChannel( $tracedConnection );
+		}
+	}
+
+	$gFindKeysOnChannelCount = 0;
+
+	return $keyList;
+}
+
+global proc string[] getKeyframeList()
+{
+	string $sel[] = `ls -sl -l`;
+	string $keyframeList[];
+	for( $obj in $sel )
+	{
+		string $nodeType = `nodeType $obj`;
+
+		if( `gmatch $nodeType "animCurve*"` )
+		{
+			$keyframeList[`size($keyframeList)`] = $obj;
+			continue;
+		}
+
+		string $connections[] = `listConnections -c 1 -s 1 -d 0 -p 1 $obj`;
+		int $i;
+
+		for( $i = 0; $i < size( $connections ); $i += 2 )
+		{
+			string $keyframe = findKeysOnChannel( $connections[$i] );
+			if( `objExists $keyframe` )
+			{
+				$keyframeList[`size($keyframeList)`] = $keyframe;
+			}
+		}
+	}
+
+	return $keyframeList;
+}
+
+global proc string[] getKeyframeListFromObject( string $obj )
+{
+	string $keyframeList[];
+	if( objExists( $obj ) )
+	{
+		if( 0 != size(`match "\\..*" $obj`) )
+		{
+			string $keyframe = findKeysOnChannel( $obj );
+			if( `objExists $keyframe` )
+			{
+				$keyframeList[`size($keyframeList)`] = $keyframe;
+			}
+		}
+		else
+		{
+			string $connections[] = `listConnections -c 1 -s 1 -d 0 -p 1 $obj`;
+			int $i = 0;
+			for( $i = 0; $i < size( $connections ); $i += 2 )
+			{
+				string $keyframe = findKeysOnChannel( $connections[$i] );
+				if( `objExists $keyframe` )
+				{
+					$keyframeList[`size($keyframeList)`] = $keyframe;
+				}
+			}
+		}
+	}
+
+	return $keyframeList;
+}
+
+// returns an array of all input plugs tracing back to the animCurve driving the specified chanel
+proc string[] findKeyframePathFromChannel( string $channels[] )
+{
+	global int $gFindKeysOnChannelCount;
+
+	string $tracedConnection;
+	string $keyList;
+	string $cycleList[];
+
+	string $currentChannel = $channels[`size( $channels )` - 1];
+	$gFindKeysOnChannelCount++;
+	//print( $gFindKeysOnChannelCount + ": " + $currentChannel + "\n" );
+
+	if( $gFindKeysOnChannelCount > 100 )
+	{
+		print ("// findKeyframePathFromChannel: think we're stuck in a cycle, breaking out of " + $currentChannel + "\n");
+		$gFindKeysOnChannelCount = 0;
+		return {};
+	}
+
+	string $buffer[];
+	tokenize $currentChannel "." $buffer;
+	string $node = $buffer[0];
+	string $attr = $buffer[1];
+
+	if( !`objExists $node` || `nodeType $node` == "shadingEngine" )
+	{
+		$gFindKeysOnChannelCount = 0;
+		return {};
+	}
+
+	string $connections[] = `listConnections -s 1 -d 0 -p 1 $currentChannel`;
+
+	clear $buffer;
+	tokenize $connections[0] "." $buffer;
+	$node = $buffer[0];
+	$attr = $buffer[1];
+
+	//print( "node: " + $node + " attr: " + $attr + "\n" );
+
+	if( !`objExists $node` )
+	{
+		$gFindKeysOnChannelCount = 0;
+		return {};
+	}
+
+	string $nodeType = `nodeType $node`;
+
+	if( `gmatch $nodeType "animCurve*"` )
+	{
+		$keyList = $node;
+	}
+	else
+	{
+		if( $nodeType == "pairBlend" && ( `gmatch $attr "outRotate*"` || `gmatch $attr "outTranslate*"` ) )
+		{
+			int $index = `getAttr ($node + ".currentDriver")`;
+			string $newAttr = `substitute "out" $attr "in"`;
+
+			$tracedConnection = ($node + "." + $newAttr + $index);
+		}
+		else if( $nodeType == "choice" && $attr == "output" )
+		{
+			int $index = `getAttr ($node + ".selector")`;
+			$tracedConnection = ($node + ".input[" + $index + "]");
+		}
+		else if( ($nodeType == "blendWeighted" || $nodeType == "blendTwoAttr") && $attr == "output" )
+		{
+			int $index = `getAttr ($node + ".current")`;
+			$tracedConnection = ($node + ".input[" + $index + "]");
+		}
+		else
+		{
+			$tracedConnection = ($node + "." + $attr);
+		}
+
+		if( $tracedConnection != "" )
+		{
+			//print( "tracedConnection: " + $tracedConnection + "\n" );
+			$channels[`size( $channels )`] = $tracedConnection;
+			$channels = findKeyframePathFromChannel( $channels );
+		}
+	}
+
+	$gFindKeysOnChannelCount = 0;
+
+	//$channels[`size( $channels )`] = $keyList;
+
+	return $channels;
+}
+
+global proc string[] getKeyframePathsFromObject( string $obj )
+{
+	string $keyframeList[];
+	if( 0 != size(`match "\\..*" $obj`) )
+	{
+		$keyframeList = findKeyframePathFromChannel( { $obj } );
+	}
+	else
+	{
+		string $connections[] = `listConnections -c 1 -s 1 -d 0 -p 1 $obj`;
+		int $i = 0;
+		for( $i = 0; $i < size( $connections ); $i += 2 )
+		{
+			string $currentKeyframeList[] = findKeyframePathFromChannel( { $connections[$i] } );
+			if( `size( $currentKeyframeList )` > 0 )
+			{
+				$keyframeList = `stringArrayCatenate $currentKeyframeList $keyframeList`;
+			}
+		}
+	}
+
+	return $keyframeList;
+}
+
+global proc string[] getKeyframePaths()
+{
+	string $keyframeList[];
+	string $sel[] = `ls -sl -l`;
+	for( $obj in $sel )
+	{
+		string $currentKeyframeList[] = getKeyframePathsFromObject( $obj );
+		if( `size( $currentKeyframeList )` > 0 )
+		{
+			$keyframeList = `stringArrayCatenate $currentKeyframeList $keyframeList`;
+		}
+	}
+
+	return $keyframeList;
+}
+
+// Hey there layouteers (that's you Muz) here's some swanky new debug tools
+//	debugInit( <indent_level> ); sets the level of reporting: 0 = off
+//	debugStep( on|off ); sets a break point at each push/pop/msg
+//	debugTimer( on|off ); enables procedure timing in push/pop
+//	debugPush( "procName" ); as the first line of each proc
+//	debugPop( "" ); just before the return(s) - a null message will repeat the push message
+
+global proc debugInit( int $enable )
+{
+	global int $layoutDebugEnable;
+	global int $layoutDebugIndent;
+	global int $layoutDebugStep;
+	global int $layoutDebugTimer;
+
+	$layoutDebugEnable = $enable;
+	$layoutDebugIndent = 0;
+	$layoutDebugStep = false;
+	$layoutDebugTimer = false;
+}
+
+global proc debugStep( int $enable )
+{
+	global int $layoutDebugStep;
+	$layoutDebugStep = $enable;
+}
+
+global proc debugTimer( int $enable )
+{
+	global int $layoutDebugTimer;
+	$layoutDebugTimer = $enable;
+}
+
+proc debugContinue()
+{
+	global int $layoutDebugStep;
+
+	string $action = `confirmDialog -title "Debug Break"
+		-message "Continue?" -messageAlign "center"
+		-button "Next" -defaultButton  "Next"
+		-button "Run" -dismissString "Run"
+		-button "Stop" -cancelButton "Stop"`;
+
+	if( $action == "Run" )
+	{
+		$layoutDebugStep = off;
+	}
+	else if( $action == "Stop" )
+	{
+		error( "Exception thrown by user from debugStep mode dialog." );
+	}
+}
+
+global proc debugPush( string $message )
+{
+	global int $layoutDebugEnable;
+	global int $layoutDebugIndent;
+	global int $layoutDebugTimer;
+
+	global string $layoutDebugPushMsg[];
+	global float $layoutDebugExecTime[];
+
+	global int $layoutDebugStep;
+
+	if( $layoutDebugEnable )
+	{
+		if( $layoutDebugIndent < $layoutDebugEnable )
+		{
+			if( $layoutDebugStep ) debugContinue;
+			print( "// " );
+			int $i;
+			for( $i = 0; $i < $layoutDebugIndent; $i++ )
+			{
+				print( "	" );
+			}
+			print( ($layoutDebugIndent % 10) + ">" + $message + " //\n" );
+			$layoutDebugPushMsg[ $layoutDebugIndent ] = $message;
+			if( $layoutDebugTimer )
+			{
+				$layoutDebugExecTime[ $layoutDebugIndent ] = `timerX`;
+			}
+		}
+		$layoutDebugIndent ++;
+	}
+}
+
+global proc debugMsg( string $message )
+{
+	global int $layoutDebugEnable;
+	global int $layoutDebugIndent;
+	global int $layoutDebugStep;
+
+	if( $layoutDebugIndent < $layoutDebugEnable )
+	{
+		if( $layoutDebugStep ) debugContinue;
+		if( 0 < size( $message ))
+		{
+			print( "// " );
+			int $i;
+			for( $i = 0; $i < $layoutDebugIndent; $i++ )
+			{
+				print( "	" );
+			}
+			print( $message + " //\n" );
+		}
+	}
+}
+
+global proc debugMsgFloatArray( string $message, float $msgArray[] )
+{
+	global int $layoutDebugEnable;
+	global int $layoutDebugIndent;
+	global int $layoutDebugStep;
+
+	if( $layoutDebugIndent < $layoutDebugEnable )
+	{
+		if( $layoutDebugStep ) debugContinue;
+		if( 0 < size( $message ))
+		{
+			print( "// " );
+			int $i;
+			for( $i = 0; $i < $layoutDebugIndent; $i++ )
+			{
+				print( "	" );
+			}
+			print( $message + " " );
+			for( $message in $msgArray )
+			{
+				print( $message + ", " );
+			}
+			print( " //\n" );
+		}
+	}
+}
+
+global proc debugPop( string $message )
+{
+	global int $layoutDebugEnable;
+	global int $layoutDebugIndent;
+	global int $layoutDebugTimer;
+
+	global string $layoutDebugPushMsg[];
+	global float $layoutDebugExecTime[];
+	global int $layoutDebugStep;
+
+	if( $layoutDebugEnable )
+	{
+		if( $layoutDebugIndent ) $layoutDebugIndent --;
+		if( $layoutDebugIndent < $layoutDebugEnable )
+		{
+			if( $layoutDebugStep ) debugContinue;
+			if( 0 == size( $message ))
+			{
+				$message = $layoutDebugPushMsg[ $layoutDebugIndent ];
+			}
+			print( "// " );
+			int $i;
+			for( $i = 0; $i < $layoutDebugIndent; $i++ )
+			{
+				print( "	" );
+			}
+			string $execTime = " ";
+			if( $layoutDebugTimer )
+			{
+				$execTime = (" [" + `timerX -st $layoutDebugExecTime[ $layoutDebugIndent ]` + "] ");
+			}
+			print( ($layoutDebugIndent % 10) + "<" + $message + $execTime + "//\n" );
+		}
+	}
+}
+
+global proc reloadShelfFromFile( string $shelfName, string $shelfFile )
+{
+	rehash;
+	string $shelfScriptName = `basename $shelfFile ".mel"`;
+	evalDeferred("deleteShelfTab(\"" + $shelfName + "\")");
+	evalDeferred("print \"\"");
+	evalDeferred("loadNewShelf \"" + $shelfFile + "\"");
+	string $userShelfPath = `internalVar -ush`;
+	$userShelfPath = `match "^[^;]*" $userShelfPath`;
+	evalDeferred -lp ("saveShelf \"" + $shelfName + "\" \"" + $userShelfPath + $shelfScriptName + "\"");
+}
+
+
+global proc copyChannelVals()
+{
+	global string $gChannelBoxName;
+	global string $copyChannelValsBuffer[];
+	clear $copyChannelValsBuffer;
+
+	// get attrs from channel box
+	string $objects[] = `channelBox -q -mainObjectList $gChannelBoxName`;
+	string $channels[] = `channelBox -q -selectedMainAttributes $gChannelBoxName`;
+	for($channel in $channels)
+	{
+		if( `attributeExists $channel $objects[0]` )
+		{
+			$copyChannelValsBuffer[`size($copyChannelValsBuffer)`] = $channel;
+			$copyChannelValsBuffer[`size($copyChannelValsBuffer)`] = getAttr($objects[0] + "." + $channel);
+		}
+	}
+}
+
+global proc pasteChannelVals()
+{
+	global string $gChannelBoxName;
+	global string $copyChannelValsBuffer[];
+
+	// get attrs from channel box
+	string $objects[] = `channelBox -q -mainObjectList $gChannelBoxName`;
+	int $i;
+
+	for( $object in $objects )
+	{
+		for($i = 0; $i < size($copyChannelValsBuffer); $i+=2)
+		{
+			if( `attributeExists $copyChannelValsBuffer[$i] $object` )
+			{
+				float $val = $copyChannelValsBuffer[($i+1)];
+				//print("setAttr (" + $objects[0] + "." + $copyChannelValsBuffer[$i] + ") " + $copyChannelValsBuffer[($i+1)] + "\n");
+				setAttr ($object + "." + $copyChannelValsBuffer[$i]) $val;
+			}
+		}
+	}
+}
+
+// Replacement for `xform -q -ws -t $obj` at time $frame
+// Returns a vector!
+global proc vector getObjPosition( string $obj, float $frame )
+{
+	debugPush( "getObjPosition: $frame: " + $frame );
+	vector $pos;
+
+	float $pm[16] = `getAttr -t $frame ($obj + ".parentMatrix")`;
+	matrix $pmr[3][3] = <<$pm[0], $pm[1], $pm[2];
+	                      $pm[4], $pm[5], $pm[6];
+	                      $pm[8], $pm[9], $pm[10]>>;
+
+	vector $t   = fv( `getAttr -t $frame ($obj + ".translate")` );
+	vector $rp  = fv( `getAttr -t $frame ($obj + ".rotatePivot")` );
+	vector $rpt = fv( `getAttr -t $frame ($obj + ".rotatePivotTranslate")` );
+
+	$pos = (($t + $rp + $rpt) * $pmr) + <<$pm[12], $pm[13], $pm[14]>>;
+
+	debugPop( "$pos: " + $pos );
+	return $pos;
+}
+
+// Cached version of above: don't use unless you manage the global var externally
+// Replacement for `xform -q -ws -t $obj` at time $frame
+// Returns a vector!
+global proc vector getObjPositionCached( string $obj, float $frame )
+{
+	global vector $pmpObjPosn[]; // position cache, cleared at main entry
+
+	debugPush( "getObjPosition: $frame: " + $frame );
+	vector $pos;
+
+	int $f = floor( $frame );
+	if( 0 < $frame && equivalent($frame, $f) && 0 != mag( $pmpObjPosn[$f] ))
+		$pos = $pmpObjPosn[$f];
+	else
+	{
+		$pos = getObjPosition( $obj, $frame );
+
+		if( 0 < $frame && equivalent($frame, $f))
+			$pmpObjPosn[$f] = $pos;
+	}
+	debugPop( "$pos: " + $pos );
+	return $pos;
+}
+
+global proc selectAllBobjectCheatNodesInHierarchy()
+{
+	string $sel[] = `ls -sl`;
+	string $cheatNodes[];
+	for( $obj in $sel )
+	{
+		int $cheatNodeCount = 0;
+		string $nodes[] = `ls -dag -type "transform" $obj`;
+		for( $node in $nodes )
+		{
+			if( getBobjectComponentAttr( $node ) == "combinedCheat" )
+			{
+				$cheatNodes[size($cheatNodes)] = $node;
+				$cheatNodeCount++;
+			}
+		}
+		if( $cheatNodeCount == 0 ) // we found no cheat nodes in the hierarchy below the selected node, attempt to search up the DAG...
+		{
+			string $cheat = findBobjectComponent( $obj, "combinedCheat" );
+			if( `objExists $cheat` )
+			{
+				$cheatNodes[size($cheatNodes)] = $cheat;
+			}
+		}
+	}
+	
+	if( size($cheatNodes) > 0 )
+	{
+		select -r $cheatNodes;
+	}
+	else
+	{
+		print( "// No bobject cheat nodes found!\n" );
+	}
+}
+
+proc string getTimeStamp()
+{
+	string $time = `about -currentTime`;
+	string $date = `about -currentDate`;
+	string $dateBits[];
+	$date = substituteAllString( $date, "/", "" );
+	$date = endString( $date, size($date) - 2 );
+	$time = substituteAllString( $time, ":", "" );
+	
+	string $timeStamp = $date + $time;
+	return $timeStamp;
+}
+
+// Saves the current scene directly to the users temp directory
+global proc paranoidSave()
+{
+	string $sceneFile = `file -q -sn`;
+	string $sceneName = basenameEx(`file -q -shn -sn`);
+	if( $sceneName == "" )
+	{
+		$sceneName = "untitled";
+		$sceneFile = "untitled";
+	}
+	
+	string $timeStamp = getTimeStamp();
+	string $tempDir = getenv("TEMP");
+	if( $tempDir == "" || !`filetest -d $tempDir` )
+	{
+		error( "The environment variable $TEMP is undefined, or temp directory not found" );
+	}
+	
+	string $tempFile = $tempDir + "/" + $sceneName + "." + $timeStamp + ".ma";
+	
+	file -rename $tempFile;
+	file -f -save -type "mayaAscii";
+	print("// scene saved to: " + $tempFile + "\n");
+	file -rename $sceneFile;
+}
+
+global proc string getLayoutSceneNumber( int $prompt )
+{
+	string $sceneFile = `file -q -sn`;
+	
+	string $kingdomSceneNumber = match( ".+job_data/king/sc[^/]+", $sceneFile );
+	$kingdomSceneNumber = match( "[^/]+$", $kingdomSceneNumber );
+	
+	string $sceneName = basenameEx( $sceneFile );
+	string $mayaSceneNumber = match( "^sc[^_]+", $sceneName );
+	
+	string $cameraMainBaseName;
+	if( `objExists "cameraMain"` )
+	{
+		if( `attributeExists "cameraBaseName" "cameraMain"` )
+		{
+			$cameraMainBaseName = getAttr( "cameraMain.cameraBaseName" );
+			$cameraMainBaseName = match( "^[^_]+", $cameraMainBaseName );
+		}
+	}
+	
+	if( size( $kingdomSceneNumber ) > 0 )
+	{
+		if( $kingdomSceneNumber != $mayaSceneNumber )
+		{
+			print( "// getLayoutSceneNumber: kingdom scene: (" + $kingdomSceneNumber + ") does not match maya scene: (" + $mayaSceneNumber + ")\n" );
+		}
+		if( $kingdomSceneNumber != $cameraMainBaseName )
+		{
+			print( "// getLayoutSceneNumber: kingdom scene: (" + $kingdomSceneNumber + ") does not match cameraMain.cameraBaseName: (" + $cameraMainBaseName + ")\n" );
+		}
+		
+		return $kingdomSceneNumber;
+	}
+	else if( size( $mayaSceneNumber ) > 0 )
+	{
+		print( "// getLayoutSceneNumber: kingdom scene number not found, using maya scene number\n" );
+		if( $mayaSceneNumber != $cameraMainBaseName )
+		{
+			print( "// getLayoutSceneNumber: maya scene: (" + $mayaSceneNumber + ") does not match cameraMain.cameraBaseName: (" + $cameraMainBaseName + ")\n" );
+		}
+		
+		return $mayaSceneNumber;
+	}
+	else if( size( $cameraMainBaseName ) > 0 )
+	{
+		print( "// getLayoutSceneNumber: unable to detect scene number in file path, using \"cameraMain.cameraBaseName\"\n" );
+		
+		return $cameraMainBaseName;
+	}
+	
+	warning( "getLayoutSceneNumber: no scene number detected!" );
+	
+	return "";
+}

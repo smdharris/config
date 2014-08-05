@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<RenderManLookFile Version="1" Format="RenderMan Look Data" AssemblyName="perspShape_Final">
+    <InjectablePayloads>
+        <Payload Id="initialShadingGroup" Label="" Source="1" Content="1"><![CDATA[##RenderMan RIB
+version 3.04
+IfBegin "!defined(user:shader_bindingstrength) || $user:shader_bindingstrength <= 0" 
+	Displacement "null" 
+	Matte 0
+	Surface "renderman/untitled/shaders/lambert1_rfm" "color lambert1_c" [0.214041 0.214041 0.214041] "float lambert1_dc" [0.8] "string lambert1_SSPassid" [""] "string lambert1_SSConversionClass" [""] "string lambert1_rman__SSOutputFile" [""] "string lambert1_rman__SSMap" [""] "string rfmSurface__bakeMap" [""] "__instanceid" ["lambert1_0"]
+	VPInterior "null" 
+	Interior "null" 
+	Attribute "user" "int shader_bindingstrength" [0]
+IfEnd 
+]]></Payload>
+        <Payload Id="phong1SG" Label="" Source="1" Content="1"><![CDATA[##RenderMan RIB
+version 3.04
+IfBegin "!defined(user:shader_bindingstrength) || $user:shader_bindingstrength <= 0" 
+	Displacement "null" 
+	Matte 0
+	Surface "renderman/untitled/shaders/phong1_rfm" "float phong1_cosinePower" [20] "color phong1_specularColor" [0.214041 0.214041 0.214041] "float phong1_dc" [0.8] "string phong1_SSPassid" [""] "string phong1_SSConversionClass" [""] "string phong1_rman__SSOutputFile" [""] "string phong1_rman__SSMap" [""] "string file1_fileTextureName" ["renderman/textures/job/SaccadePattern.jpg.tex"] "float file1_frameExtension" [1] "float file1_frameOffset" [0] "string rfmSurface__bakeMap" [""] "__instanceid" ["phong1_0"]
+	VPInterior "null" 
+	Interior "null" 
+	Attribute "user" "int shader_bindingstrength" [0]
+IfEnd 
+]]></Payload>
+        <Payload Id="RMSGlass1SG" Label="" Source="1" Content="1"><![CDATA[##RenderMan RIB
+version 3.04
+IfBegin "!defined(user:shader_bindingstrength) || $user:shader_bindingstrength <= 0" 
+	Displacement "null" 
+	Surface "renderman/untitled/shaders/RMSGlass1_rfm" "color surfaceColor" [1 1 1] "float computeBeers" [1] "float beersUnitScale" [1] "float roughness" [0.0001] "float specularGain" [1] "color specularColor" [1 1 1] "float anisotropy" [0] "float ior" [1.5] 
+		"float internalReflectionLimit" [2] "float internalReflectionAttenuation" [0.9] "float minSpecularSamples" [1] "float maxSpecularSamples" [8] "float specularClamp" [100] "float dispMode" [1] "float compositionRule" [1] "float __computesOpacity" [0] "string specularMap" [""] "string surfaceMap" [""] "string roughnessMap" [""] "string displacementMap" [""] "string[1] lightGroups" [""] "__instanceid" ["RMSGlass1_0"]
+	VPInterior "null" 
+	Interior "null" 
+	Attribute "user" "int shader_bindingstrength" [0]
+IfEnd 
+]]></Payload>
+    </InjectablePayloads>
+    <TightBindings>
+        <Binding Key="pPlane1/pPlaneShape1" PayloadId="phong1SG"/>
+        <Binding Key="nurbsSphere1/nurbsSphereShape1" PayloadId="initialShadingGroup"/>
+        <Binding Key="pCube1/pCubeShape1" PayloadId="RMSGlass1SG"/>
+    </TightBindings>
+</RenderManLookFile>

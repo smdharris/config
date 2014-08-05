@@ -1,0 +1,53 @@
+  // This procedure removes the blendShape targets from blendShape node (even when targets are already deleted)
+  // usage: type following after sourcing the script (name of blendShape and name of blendShape attribute)
+  // scPurgeShapes blendShape1 blendAttribute;
+  
+   global proc scPurgeShapes( string $bsnode ,string $attrName )
+  {
+         int $indexNum,$indexName;	
+         string $weightSize[] =`aliasAttr -q $bsnode`;
+         	for ($i=0;$i<=`size $weightSize`;$i+=2)
+            {
+                   int $cmp = `strcmp $weightSize[$i] $attrName`;
+                   if ($cmp == 0) {$indexName = $i; 
+                   break;}
+            }
+            int $indexNum = `match "[0-9]+" $weightSize[$indexName+1]`;
+            if(! size (`listConnections -d 1 ($bsnode + "." + $attrName) `))
+						{
+                               removeMultiInstance -b 1 ( $bsnode + "." + $attrName);
+                               removeMultiInstance -b 1 ( $bsnode + "." + $weightSize[ $indexName + 1 ] );
+                               removeMultiInstance ( $bsnode + ".inputTarget[0].inputTargetGroup[" + $indexNum + "]" );
+                        }
+			
+  		}
+  // This procedure removes the blendShape targets from blendShape node (even when targets are already deleted) which are not connected.
+  // good for final cleanup of file.
+  // usage: type following after sourcing the script (name of blendShape)
+  // scPurgeAllShapes blendShape1;
+  
+    global proc scPurgeAllShapes( string $bsnode )
+  {
+	  // different ways of calculating multi weight index.
+  	//string $att[] = `listAttr -m -st "inputGeomTarget" ( $bsnode + ".inputTarget[0].inputTargetGroup" )`;
+  	//string $weights[] = `listAttr -m ( $bsnode + ".w" )`;
+	string $weightSize[] =`aliasAttr -q $bsnode`;
+	int $weightNumb;
+	int $remWeight;
+	for ($i = 0; $i < `size($weightSize)`; $i+=2)
+  		{
+  			if(! size (`listConnections -d 1 ($bsnode + "." + $weightSize[$i]) `))
+			{
+ 			//string $target = substitute( ".inputTargetItem\\[6000\\].inputGeomTarget", $weightSize[$i], "" );
+  			removeMultiInstance ( $bsnode + "." + $weightSize[ $i] );
+  			removeMultiInstance ( $bsnode + "." + $weightSize[ $i + 1 ] );
+			$remWeight = `match "[0-9]+"  $weightSize[ $i + 1 ] `;
+  			removeMultiInstance ( $bsnode + ".inputTarget[0].inputTargetGroup[" + $remWeight + "]" );
+  			}
+			
+  		}
+  }
+
+  
+//sunny C.
+//sunny@3drigger.com

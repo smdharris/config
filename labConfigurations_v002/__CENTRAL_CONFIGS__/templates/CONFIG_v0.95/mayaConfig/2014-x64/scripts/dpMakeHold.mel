@@ -1,0 +1,151 @@
+// dpMakeHold.mel
+//
+// Key copier and tangent flattening script
+// By David Peers (davidp@al.com.au) 
+
+// Updated 28-01-04 to add explicit flat tangency on paste frame
+
+// Updated by AS slight modification to offset time
+
+// Updated by DP 26-03-04 to add offsets on holds if objects have been moved but
+// 	fcurve is different.  Also removed redundant code.
+
+// Updated by DP 8-04-04 to stop need for scene update and remove comparisons of attributes
+
+
+
+global proc dpMakeHold ()
+{
+
+// ********** ENSURE THERE ARE ACTIVE CURVES
+
+	print "\n ***dpMakeHold***\n"; 
+
+	string $curvesActive[] = `keyframe -query -name`;
+
+	if (size($curvesActive)) 
+	{
+		
+		// current frame init
+		int $currentTime = `currentTime -q`;
+		
+		//Current curves with a selection, registers if keys or curve are selected
+		string $selCurves[] = `keyframe -query -name -sl`;
+		int $lastKey;
+		int $nextKey;
+		float $tempAttrVal;
+		float $tempCurveVal;
+		string $tempAttr;
+	
+		// New Declarations
+		string $selectedCurveAtts[];
+		float $modifiedAttrVals[];
+		float $curveAttrVals[];
+		float $tempArray[];
+		int $i = 0;
+		int $isLastKey;
+		string $attBits[];
+		int $attBitsNum;
+		string $curveConnection[];
+	
+		if (!size($selCurves)) 
+		{
+			$selCurves = $curvesActive;
+		}	
+
+				
+		$lastKey = `findKeyframe -time ($currentTime + 1) -which previous`;
+		print ("Last Key = " + $lastKey + "\n");
+	
+		
+		// Turn curve name into attribute format
+						
+		for($curve in $selCurves)		
+		{
+			$curveConnection = `listConnections -plugs yes -source no $curve`;
+			$selectedCurveAtts[$i] = $curveConnection[0];
+			$i++;
+		}				
+
+		$i=0;
+
+		// BUILD ARRAY OF CURRENT ATTR VALS
+		for($curve in $selCurves)		
+		{
+			$modifiedAttrVals[$i] =  `getAttr $selectedCurveAtts[$i]`;
+			$i++;		
+		}				
+
+		
+//LOSE				
+		// JUMP ATTRS back to key values
+		//currentTime ($currentTime-1);
+		//currentTime $currentTime;
+
+		$i=0;
+
+		// BUILD ARRAY OF ATTRS ON CURVES	
+		for($curve in $selCurves)		
+		{		
+			//$curveAttrVals[$i] =  `getAttr $selectedCurveAtts[$i]`;
+			$tempArray =  `keyframe -q -eval $curve`;
+			$curveAttrVals[$i] = $tempArray[0];
+			clear $tempArray;
+			$i++;	
+		}				
+		
+		$i=0;
+				
+		//  ********************
+		//  *** MAIN ROUTINE ***
+		//  ********************			
+		
+		int $equivTest;
+		
+		for ($curve in $selCurves)
+		{
+	
+			// query to see if there is a key
+			$isLastKey = `keyframe -time $lastKey -query -keyframeCount $curve`;
+				
+			if ($isLastKey==1)
+			{
+														
+				//COMPARE MOD ATTS to KEY ATTS
+				
+				$equivTest = equivalentTol($modifiedAttrVals[$i], $curveAttrVals[$i], 0.001);
+
+					if (!$equivTest)
+					{
+						//if there's an unkeyed change in the scene, set first key to new position
+						setKeyframe -itt "linear" -ott "linear" -time $lastKey -v $modifiedAttrVals[$i] $curve;
+						print ("Created offset key on " + $curve + "\n");
+					}
+						
+			
+			//loop to find previous key		
+			//float $keyVals[] = `keyframe -query -sl -vc -attribute $curve`;
+			
+			$lastKey = `findKeyframe -time ($currentTime + 1) -which previous $curve`;
+			$nextKey = `findKeyframe -time $currentTime -which next $curve`;
+			
+			//need customizing
+			keyTangent -time $lastKey -itt flat -ott flat $curve;
+			copyKey -time $lastKey $curve;
+			pasteKey -time $nextKey -option insert $curve;
+			keyTangent -time $nextKey -itt flat -ott flat $curve;
+			print ("Created hold on " + $curve + "\n");
+			}
+			
+			else
+			{
+				print ("No hold set on " + $curve + ", no source key on frame " + $lastKey + "\n");
+			}
+		
+			$i++;
+		}
+	}
+
+	else	{print "No curves active!";} 	
+	
+}
