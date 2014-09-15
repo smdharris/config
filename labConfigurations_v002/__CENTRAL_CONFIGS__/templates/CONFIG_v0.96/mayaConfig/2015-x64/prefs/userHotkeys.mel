@@ -1,0 +1,6 @@
+//Maya Preference 2015 (Release 1)
+//
+//
+
+hotkey -keyShortcut "d" -alt -name ("dR_quadDrawToolNameCommand");
+hotkey -keyShortcut "m" -ctl -name ("mirrorMeReadKeyNameCommand");

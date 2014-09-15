@@ -1,0 +1,840 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>files</key>
+	<dict>
+		<key>Resources/Adobe After Effects CS 6 Project.aep</key>
+		<data>
+		8k8ZpYWM3NE3pPbwjz2ZyzhBsO8=
+		</data>
+		<key>Resources/Adobe Premiere Pro CC Project.prproj</key>
+		<data>
+		N6DsRLNQUWGFLFWCxl2TncfUQVw=
+		</data>
+		<key>Resources/Adobe Premiere Pro CS 6 Project.prproj</key>
+		<data>
+		Rlspj29ZYiWRm5KV/Kydx7I9/n4=
+		</data>
+		<key>Resources/Bug Reporter.app/Contents/Info.plist</key>
+		<data>
+		iAoducvr4X2dzsqkrCMkV//qliY=
+		</data>
+		<key>Resources/Bug Reporter.app/Contents/MacOS/Bug Reporter</key>
+		<data>
+		f0NtQcC5UgPBKsuqlrzD+sojYVU=
+		</data>
+		<key>Resources/Bug Reporter.app/Contents/PkgInfo</key>
+		<data>
+		n57qDP4tZfLD1rCS43W0B4LQjzE=
+		</data>
+		<key>Resources/Bug Reporter.app/Contents/Resources/BugReporter.icns</key>
+		<data>
+		oXvVQnVn9LDa2f6jnAb9XxbzVVw=
+		</data>
+		<key>Resources/Bug Reporter.app/Contents/Resources/English.lproj/InfoPlist.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			MiLKDDnrUKr4EmuvhS5VQwxHGK8=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Bug Reporter.app/Contents/Resources/English.lproj/MainMenu.nib</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			Lpvk4M/KHNmt7ReQ52+b6BwGahM=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Bug Reporter.app/Contents/_CodeSignature/CodeResources</key>
+		<data>
+		R6YxeHlMunqiAZ6BJ3qzCU9FOWA=
+		</data>
+		<key>Resources/DRShortcutKeyConfig.nib</key>
+		<data>
+		QS5THIK6Yxf+QSwamUDmnh05vvQ=
+		</data>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/Info.plist</key>
+		<data>
+		jFSdN4ITc58+bMqU+3VY2wdDb9s=
+		</data>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/MacOS/Digital Rebellion Software Update</key>
+		<data>
+		E4lkx9LpqcrO+vs7SSyTd0/BTcU=
+		</data>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/PkgInfo</key>
+		<data>
+		n57qDP4tZfLD1rCS43W0B4LQjzE=
+		</data>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/Resources/English.lproj/InfoPlist.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			MiLKDDnrUKr4EmuvhS5VQwxHGK8=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/Resources/English.lproj/MainMenu.nib</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			GdYEFl+xea/OCJT8AMVdRg+jM2w=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/Resources/SoftwareUpdate.icns</key>
+		<data>
+		2iPUjcxR+yloP5mWnqZttpZNWZ0=
+		</data>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/Resources/icon-18.png</key>
+		<data>
+		Hyjea2CPqXMMbtKSbv0D047vLx8=
+		</data>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/_CodeSignature/CodeResources</key>
+		<data>
+		x+wPT84Hp87FYDVtX1UQ14PqHFk=
+		</data>
+		<key>Resources/English.lproj/InfoPlist.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			MiLKDDnrUKr4EmuvhS5VQwxHGK8=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/English.lproj/MainMenu.nib</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			VbK1YU1ZBXQ30RX+SNUbegJMsuI=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/English.lproj/Prefs_Dialog.nib</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			9pKwhXOXFzcJ8ZWKqi6ggKmiDnk=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Filename_Defaults.plist</key>
+		<data>
+		fKLnmpbGAL1YFYN3Oag8X7BukmY=
+		</data>
+		<key>Resources/Growl Registration Ticket.growlRegDict</key>
+		<data>
+		R0yZ3WJU1uN6NYhKLHW/jjiAi+M=
+		</data>
+		<key>Resources/Keyboard.png</key>
+		<data>
+		yzGBNfPkcgpjQuKGdJ7VRpt0OHY=
+		</data>
+		<key>Resources/Kollab_Icon-64.png</key>
+		<data>
+		BnuIIqQo7epZZU8j7KSstkdN6+Q=
+		</data>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/Info.plist</key>
+		<data>
+		Y0xHndW596m6RtyHgvLz7w5IclI=
+		</data>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/MacOS/Kollaborate Preference Sync</key>
+		<data>
+		CSfimqYVwxj3y0pjPy06IV1Yt1U=
+		</data>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/PkgInfo</key>
+		<data>
+		n57qDP4tZfLD1rCS43W0B4LQjzE=
+		</data>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/Resources/Kollab_Pref_Sync.icns</key>
+		<data>
+		j31Na9ch2wt30kWXjYaVfnZcJco=
+		</data>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/Resources/en.lproj/Credits.rtf</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			YKJIFIsxneJuNkJNJQIcJIjiPOg=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/Resources/en.lproj/InfoPlist.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			MiLKDDnrUKr4EmuvhS5VQwxHGK8=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/Resources/en.lproj/MainMenu.nib</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			QTGdF3nps1xw26L3GCrbKOz1d+0=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/_CodeSignature/CodeResources</key>
+		<data>
+		ghb34L6PmMyhllHLt4iX8XfN9Lk=
+		</data>
+		<key>Resources/PHT-icon.icns</key>
+		<data>
+		S/YH4shA7JydbV3q7gfacFmxwAI=
+		</data>
+		<key>Resources/Param-icon.png</key>
+		<data>
+		S+uN4aGXmeV70BDxcQKk8bEsnEE=
+		</data>
+		<key>Resources/Post Haste User Manual.pdf</key>
+		<data>
+		Xd9CKuAHc7JgV1bf5AjI17VFH9k=
+		</data>
+		<key>Resources/Post_Haste.icns</key>
+		<data>
+		Dxcmf/Zi27wDwIJBmGqzgcgqKSE=
+		</data>
+		<key>Resources/Pro_Media_Tools_Logo-64.png</key>
+		<data>
+		2UcPgJ66u5MSiIIaq6jT1ucjGFk=
+		</data>
+		<key>Resources/Project-icon.png</key>
+		<data>
+		8wK7xypFVeh21R5AbYc2qn5ocl8=
+		</data>
+		<key>Resources/Projects/Adobe After Effects CC Project.aep</key>
+		<data>
+		W3Aqavt0HnHhpqYBwc3TiVNMKOA=
+		</data>
+		<key>Resources/Projects/Adobe After Effects CS 5 Project.aep</key>
+		<data>
+		qSYdAnBJqvpKmJPTzCppre+JTD8=
+		</data>
+		<key>Resources/Projects/Adobe After Effects CS 5.5 Project.aep</key>
+		<data>
+		jE101wgy1slGRUzQnjHRlKozChY=
+		</data>
+		<key>Resources/Projects/Adobe After Effects CS 6 Project.aep</key>
+		<data>
+		8k8ZpYWM3NE3pPbwjz2ZyzhBsO8=
+		</data>
+		<key>Resources/Projects/Adobe Illustrator CS 5 File.ai</key>
+		<data>
+		AfthQZjmLRHy4x0840U3OjiQ2FE=
+		</data>
+		<key>Resources/Projects/Adobe Illustrator File.ai</key>
+		<data>
+		AfthQZjmLRHy4x0840U3OjiQ2FE=
+		</data>
+		<key>Resources/Projects/Adobe Photoshop File.psd</key>
+		<data>
+		Pbp/CBZJDwNE077mE+76zMID1fA=
+		</data>
+		<key>Resources/Projects/Adobe Premiere Pro CC Project.prproj</key>
+		<data>
+		N6DsRLNQUWGFLFWCxl2TncfUQVw=
+		</data>
+		<key>Resources/Projects/Adobe Premiere Pro CS 5 Project.prproj</key>
+		<data>
+		4zIdsrkFrK7OBGEpOYxPlOe1ZJQ=
+		</data>
+		<key>Resources/Projects/Adobe Premiere Pro CS 5.5 Project.prproj</key>
+		<data>
+		edsJoIX5XiMjDxDdi/0eR+aNwQc=
+		</data>
+		<key>Resources/Projects/Adobe Premiere Pro CS 6 Project.prproj</key>
+		<data>
+		Rlspj29ZYiWRm5KV/Kydx7I9/n4=
+		</data>
+		<key>Resources/Projects/Cinema 4D Project.c4d</key>
+		<data>
+		B5uhvBc3eUbpkOjd9xHyjtscyO8=
+		</data>
+		<key>Resources/Projects/Final Cut Pro 6.0.6 Project.fcp</key>
+		<data>
+		8LlBHfPh6E7dkzsopAXBdBiKGLQ=
+		</data>
+		<key>Resources/Projects/Final Cut Pro 7.0.3 Project.fcp</key>
+		<data>
+		oU9s1nSr7ca/goWmJfqKGUHbpgc=
+		</data>
+		<key>Resources/Projects/Motion 4 Project.motn</key>
+		<data>
+		S988wuPOCKiG9VAhvUK1sxCJyMU=
+		</data>
+		<key>Resources/Projects/Motion 5 Project.motn</key>
+		<data>
+		0pUSlu0O73rPOtn5fzhP/5l2OJE=
+		</data>
+		<key>Resources/Projects/RTF Document.rtf</key>
+		<data>
+		ZdlqAOYQ8NO2z8RNRxw3OBmSiNc=
+		</data>
+		<key>Resources/Projects/Text Document.txt</key>
+		<data>
+		2jmj7l5rSw0yVb/vlWAYkK/YBwk=
+		</data>
+		<key>Resources/Template-icon.png</key>
+		<data>
+		M6dNFEhpLPcz3OjbgYFlTa/iUjY=
+		</data>
+		<key>Resources/Templates/Motion Graphics Template.zip</key>
+		<data>
+		ipk3TOSG81WXH40thykHR6xywdw=
+		</data>
+		<key>Resources/Templates/Photography Template.zip</key>
+		<data>
+		UZzNQ+A+i+p8wRAx85bfmP3DgEw=
+		</data>
+		<key>Resources/Templates/Video Editing Template.zip</key>
+		<data>
+		UoqbQ66ARTzpGunMwLWTi01NJ1M=
+		</data>
+		<key>Resources/Templates/Visual Effects Template.zip</key>
+		<data>
+		usMAyuaQaz9s9eKcgf5wPT5Q4Q8=
+		</data>
+		<key>Resources/Templates/Web Design Template.zip</key>
+		<data>
+		AqOTWsJFkZ0445J46A/DJtPRwOQ=
+		</data>
+		<key>Resources/phparam-icon.icns</key>
+		<data>
+		Y25vbPHiHRfpr/XZGsPmveYK66M=
+		</data>
+		<key>Resources/star.png</key>
+		<data>
+		PA0M88U0CepqveQmsgJvCcUUVZs=
+		</data>
+		<key>Resources/swatch_blue.png</key>
+		<data>
+		t6ex28pbRrKPnyofz7Fyj9h4VPQ=
+		</data>
+		<key>Resources/swatch_gray.png</key>
+		<data>
+		9rKOqc4TChKI7Jp784+O1lfYMs8=
+		</data>
+		<key>Resources/swatch_green.png</key>
+		<data>
+		pYlKLq1vMpf2Z2ij+WYpSvpaahk=
+		</data>
+		<key>Resources/swatch_orange.png</key>
+		<data>
+		I3BJRv0RAPevy47VlhPfzhFliH0=
+		</data>
+		<key>Resources/swatch_purple.png</key>
+		<data>
+		ohkP8FCqHc3cHeyY+QlkD69CBeY=
+		</data>
+		<key>Resources/swatch_red.png</key>
+		<data>
+		dcQyDfer+odmjJz58k2K9XAs/9A=
+		</data>
+		<key>Resources/swatch_yellow.png</key>
+		<data>
+		ArKsn5PV/dYxRRp24oYr3zV/zYQ=
+		</data>
+		<key>Resources/warn_icon.png</key>
+		<data>
+		sc/bhJt3XjyGe4fykIgsT59X1Fk=
+		</data>
+	</dict>
+	<key>files2</key>
+	<dict>
+		<key>DRApp.plist</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			WhwVtaNSJNCNhqKZJGwZ94R4xfA=
+			</data>
+			<key>requirement</key>
+			<string>identifier DRApp and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "7F8QJ989JE"</string>
+		</dict>
+		<key>DRKeys.plist</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			ZfVAmDjBb89f3kKZ6DfT7KqyupE=
+			</data>
+			<key>requirement</key>
+			<string>identifier DRKeys and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "7F8QJ989JE"</string>
+		</dict>
+		<key>DRUpdates.plist</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			1pv0Nu/xplp1ehbmd40e2D5PDk8=
+			</data>
+			<key>requirement</key>
+			<string>identifier DRUpdates and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "7F8QJ989JE"</string>
+		</dict>
+		<key>Frameworks/Growl.framework</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			3Kh+5N9a+tdXa9tHqP8q1jp3Sr4=
+			</data>
+			<key>requirement</key>
+			<string>identifier "com.growl.growlframework" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "7F8QJ989JE"</string>
+		</dict>
+		<key>Resources/Adobe After Effects CS 6 Project.aep</key>
+		<data>
+		8k8ZpYWM3NE3pPbwjz2ZyzhBsO8=
+		</data>
+		<key>Resources/Adobe Premiere Pro CC Project.prproj</key>
+		<data>
+		N6DsRLNQUWGFLFWCxl2TncfUQVw=
+		</data>
+		<key>Resources/Adobe Premiere Pro CS 6 Project.prproj</key>
+		<data>
+		Rlspj29ZYiWRm5KV/Kydx7I9/n4=
+		</data>
+		<key>Resources/Bug Reporter.app/Contents/CodeResources</key>
+		<dict>
+			<key>symlink</key>
+			<string>_CodeSignature/CodeResources</string>
+		</dict>
+		<key>Resources/Bug Reporter.app/Contents/Info.plist</key>
+		<data>
+		iAoducvr4X2dzsqkrCMkV//qliY=
+		</data>
+		<key>Resources/Bug Reporter.app/Contents/MacOS/Bug Reporter</key>
+		<data>
+		f0NtQcC5UgPBKsuqlrzD+sojYVU=
+		</data>
+		<key>Resources/Bug Reporter.app/Contents/PkgInfo</key>
+		<data>
+		n57qDP4tZfLD1rCS43W0B4LQjzE=
+		</data>
+		<key>Resources/Bug Reporter.app/Contents/Resources/BugReporter.icns</key>
+		<data>
+		oXvVQnVn9LDa2f6jnAb9XxbzVVw=
+		</data>
+		<key>Resources/Bug Reporter.app/Contents/Resources/English.lproj/InfoPlist.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			MiLKDDnrUKr4EmuvhS5VQwxHGK8=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Bug Reporter.app/Contents/Resources/English.lproj/MainMenu.nib</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			Lpvk4M/KHNmt7ReQ52+b6BwGahM=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Bug Reporter.app/Contents/_CodeSignature/CodeResources</key>
+		<data>
+		R6YxeHlMunqiAZ6BJ3qzCU9FOWA=
+		</data>
+		<key>Resources/DRShortcutKeyConfig.nib</key>
+		<data>
+		QS5THIK6Yxf+QSwamUDmnh05vvQ=
+		</data>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/Info.plist</key>
+		<data>
+		jFSdN4ITc58+bMqU+3VY2wdDb9s=
+		</data>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/MacOS/Digital Rebellion Software Update</key>
+		<data>
+		E4lkx9LpqcrO+vs7SSyTd0/BTcU=
+		</data>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/PkgInfo</key>
+		<data>
+		n57qDP4tZfLD1rCS43W0B4LQjzE=
+		</data>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/Resources/English.lproj/InfoPlist.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			MiLKDDnrUKr4EmuvhS5VQwxHGK8=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/Resources/English.lproj/MainMenu.nib</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			GdYEFl+xea/OCJT8AMVdRg+jM2w=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/Resources/SoftwareUpdate.icns</key>
+		<data>
+		2iPUjcxR+yloP5mWnqZttpZNWZ0=
+		</data>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/Resources/icon-18.png</key>
+		<data>
+		Hyjea2CPqXMMbtKSbv0D047vLx8=
+		</data>
+		<key>Resources/Digital Rebellion Software Update.app/Contents/_CodeSignature/CodeResources</key>
+		<data>
+		x+wPT84Hp87FYDVtX1UQ14PqHFk=
+		</data>
+		<key>Resources/English.lproj/InfoPlist.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			MiLKDDnrUKr4EmuvhS5VQwxHGK8=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/English.lproj/MainMenu.nib</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			VbK1YU1ZBXQ30RX+SNUbegJMsuI=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/English.lproj/Prefs_Dialog.nib</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			9pKwhXOXFzcJ8ZWKqi6ggKmiDnk=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Filename_Defaults.plist</key>
+		<data>
+		fKLnmpbGAL1YFYN3Oag8X7BukmY=
+		</data>
+		<key>Resources/Growl Registration Ticket.growlRegDict</key>
+		<data>
+		R0yZ3WJU1uN6NYhKLHW/jjiAi+M=
+		</data>
+		<key>Resources/Keyboard.png</key>
+		<data>
+		yzGBNfPkcgpjQuKGdJ7VRpt0OHY=
+		</data>
+		<key>Resources/Kollab_Icon-64.png</key>
+		<data>
+		BnuIIqQo7epZZU8j7KSstkdN6+Q=
+		</data>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/Info.plist</key>
+		<data>
+		Y0xHndW596m6RtyHgvLz7w5IclI=
+		</data>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/MacOS/Kollaborate Preference Sync</key>
+		<data>
+		CSfimqYVwxj3y0pjPy06IV1Yt1U=
+		</data>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/PkgInfo</key>
+		<data>
+		n57qDP4tZfLD1rCS43W0B4LQjzE=
+		</data>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/Resources/Kollab_Pref_Sync.icns</key>
+		<data>
+		j31Na9ch2wt30kWXjYaVfnZcJco=
+		</data>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/Resources/en.lproj/Credits.rtf</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			YKJIFIsxneJuNkJNJQIcJIjiPOg=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/Resources/en.lproj/InfoPlist.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			MiLKDDnrUKr4EmuvhS5VQwxHGK8=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/Resources/en.lproj/MainMenu.nib</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			QTGdF3nps1xw26L3GCrbKOz1d+0=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/Kollaborate Preference Sync.app/Contents/_CodeSignature/CodeResources</key>
+		<data>
+		ghb34L6PmMyhllHLt4iX8XfN9Lk=
+		</data>
+		<key>Resources/PHT-icon.icns</key>
+		<data>
+		S/YH4shA7JydbV3q7gfacFmxwAI=
+		</data>
+		<key>Resources/Param-icon.png</key>
+		<data>
+		S+uN4aGXmeV70BDxcQKk8bEsnEE=
+		</data>
+		<key>Resources/Post Haste User Manual.pdf</key>
+		<data>
+		Xd9CKuAHc7JgV1bf5AjI17VFH9k=
+		</data>
+		<key>Resources/Post_Haste.icns</key>
+		<data>
+		Dxcmf/Zi27wDwIJBmGqzgcgqKSE=
+		</data>
+		<key>Resources/Pro_Media_Tools_Logo-64.png</key>
+		<data>
+		2UcPgJ66u5MSiIIaq6jT1ucjGFk=
+		</data>
+		<key>Resources/Project-icon.png</key>
+		<data>
+		8wK7xypFVeh21R5AbYc2qn5ocl8=
+		</data>
+		<key>Resources/Projects/Adobe After Effects CC Project.aep</key>
+		<data>
+		W3Aqavt0HnHhpqYBwc3TiVNMKOA=
+		</data>
+		<key>Resources/Projects/Adobe After Effects CS 5 Project.aep</key>
+		<data>
+		qSYdAnBJqvpKmJPTzCppre+JTD8=
+		</data>
+		<key>Resources/Projects/Adobe After Effects CS 5.5 Project.aep</key>
+		<data>
+		jE101wgy1slGRUzQnjHRlKozChY=
+		</data>
+		<key>Resources/Projects/Adobe After Effects CS 6 Project.aep</key>
+		<data>
+		8k8ZpYWM3NE3pPbwjz2ZyzhBsO8=
+		</data>
+		<key>Resources/Projects/Adobe Illustrator CS 5 File.ai</key>
+		<data>
+		AfthQZjmLRHy4x0840U3OjiQ2FE=
+		</data>
+		<key>Resources/Projects/Adobe Illustrator File.ai</key>
+		<data>
+		AfthQZjmLRHy4x0840U3OjiQ2FE=
+		</data>
+		<key>Resources/Projects/Adobe Photoshop File.psd</key>
+		<data>
+		Pbp/CBZJDwNE077mE+76zMID1fA=
+		</data>
+		<key>Resources/Projects/Adobe Premiere Pro CC Project.prproj</key>
+		<data>
+		N6DsRLNQUWGFLFWCxl2TncfUQVw=
+		</data>
+		<key>Resources/Projects/Adobe Premiere Pro CS 5 Project.prproj</key>
+		<data>
+		4zIdsrkFrK7OBGEpOYxPlOe1ZJQ=
+		</data>
+		<key>Resources/Projects/Adobe Premiere Pro CS 5.5 Project.prproj</key>
+		<data>
+		edsJoIX5XiMjDxDdi/0eR+aNwQc=
+		</data>
+		<key>Resources/Projects/Adobe Premiere Pro CS 6 Project.prproj</key>
+		<data>
+		Rlspj29ZYiWRm5KV/Kydx7I9/n4=
+		</data>
+		<key>Resources/Projects/Cinema 4D Project.c4d</key>
+		<data>
+		B5uhvBc3eUbpkOjd9xHyjtscyO8=
+		</data>
+		<key>Resources/Projects/Final Cut Pro 6.0.6 Project.fcp</key>
+		<data>
+		8LlBHfPh6E7dkzsopAXBdBiKGLQ=
+		</data>
+		<key>Resources/Projects/Final Cut Pro 7.0.3 Project.fcp</key>
+		<data>
+		oU9s1nSr7ca/goWmJfqKGUHbpgc=
+		</data>
+		<key>Resources/Projects/Motion 4 Project.motn</key>
+		<data>
+		S988wuPOCKiG9VAhvUK1sxCJyMU=
+		</data>
+		<key>Resources/Projects/Motion 5 Project.motn</key>
+		<data>
+		0pUSlu0O73rPOtn5fzhP/5l2OJE=
+		</data>
+		<key>Resources/Projects/RTF Document.rtf</key>
+		<data>
+		ZdlqAOYQ8NO2z8RNRxw3OBmSiNc=
+		</data>
+		<key>Resources/Projects/Text Document.txt</key>
+		<data>
+		2jmj7l5rSw0yVb/vlWAYkK/YBwk=
+		</data>
+		<key>Resources/Template-icon.png</key>
+		<data>
+		M6dNFEhpLPcz3OjbgYFlTa/iUjY=
+		</data>
+		<key>Resources/Templates/Motion Graphics Template.zip</key>
+		<data>
+		ipk3TOSG81WXH40thykHR6xywdw=
+		</data>
+		<key>Resources/Templates/Photography Template.zip</key>
+		<data>
+		UZzNQ+A+i+p8wRAx85bfmP3DgEw=
+		</data>
+		<key>Resources/Templates/Video Editing Template.zip</key>
+		<data>
+		UoqbQ66ARTzpGunMwLWTi01NJ1M=
+		</data>
+		<key>Resources/Templates/Visual Effects Template.zip</key>
+		<data>
+		usMAyuaQaz9s9eKcgf5wPT5Q4Q8=
+		</data>
+		<key>Resources/Templates/Web Design Template.zip</key>
+		<data>
+		AqOTWsJFkZ0445J46A/DJtPRwOQ=
+		</data>
+		<key>Resources/phparam-icon.icns</key>
+		<data>
+		Y25vbPHiHRfpr/XZGsPmveYK66M=
+		</data>
+		<key>Resources/star.png</key>
+		<data>
+		PA0M88U0CepqveQmsgJvCcUUVZs=
+		</data>
+		<key>Resources/swatch_blue.png</key>
+		<data>
+		t6ex28pbRrKPnyofz7Fyj9h4VPQ=
+		</data>
+		<key>Resources/swatch_gray.png</key>
+		<data>
+		9rKOqc4TChKI7Jp784+O1lfYMs8=
+		</data>
+		<key>Resources/swatch_green.png</key>
+		<data>
+		pYlKLq1vMpf2Z2ij+WYpSvpaahk=
+		</data>
+		<key>Resources/swatch_orange.png</key>
+		<data>
+		I3BJRv0RAPevy47VlhPfzhFliH0=
+		</data>
+		<key>Resources/swatch_purple.png</key>
+		<data>
+		ohkP8FCqHc3cHeyY+QlkD69CBeY=
+		</data>
+		<key>Resources/swatch_red.png</key>
+		<data>
+		dcQyDfer+odmjJz58k2K9XAs/9A=
+		</data>
+		<key>Resources/swatch_yellow.png</key>
+		<data>
+		ArKsn5PV/dYxRRp24oYr3zV/zYQ=
+		</data>
+		<key>Resources/warn_icon.png</key>
+		<data>
+		sc/bhJt3XjyGe4fykIgsT59X1Fk=
+		</data>
+	</dict>
+	<key>rules</key>
+	<dict>
+		<key>^Resources/</key>
+		<true/>
+		<key>^Resources/.*\.lproj/</key>
+		<dict>
+			<key>optional</key>
+			<true/>
+			<key>weight</key>
+			<real>1000</real>
+		</dict>
+		<key>^Resources/.*\.lproj/locversion.plist$</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>1100</real>
+		</dict>
+		<key>^version.plist$</key>
+		<true/>
+	</dict>
+	<key>rules2</key>
+	<dict>
+		<key>.*\.dSYM($|/)</key>
+		<dict>
+			<key>weight</key>
+			<real>11</real>
+		</dict>
+		<key>^(.*/)?\.DS_Store$</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>2000</real>
+		</dict>
+		<key>^(Frameworks|SharedFrameworks|PlugIns|Plug-ins|XPCServices|Helpers|MacOS|Library/(Automator|Spotlight|LoginItems))/</key>
+		<dict>
+			<key>nested</key>
+			<true/>
+			<key>weight</key>
+			<real>10</real>
+		</dict>
+		<key>^.*</key>
+		<true/>
+		<key>^Info\.plist$</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>20</real>
+		</dict>
+		<key>^PkgInfo$</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>20</real>
+		</dict>
+		<key>^Resources/</key>
+		<dict>
+			<key>weight</key>
+			<real>20</real>
+		</dict>
+		<key>^Resources/.*\.lproj/</key>
+		<dict>
+			<key>optional</key>
+			<true/>
+			<key>weight</key>
+			<real>1000</real>
+		</dict>
+		<key>^Resources/.*\.lproj/locversion.plist$</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>1100</real>
+		</dict>
+		<key>^[^/]+$</key>
+		<dict>
+			<key>nested</key>
+			<true/>
+			<key>weight</key>
+			<real>10</real>
+		</dict>
+		<key>^embedded\.provisionprofile$</key>
+		<dict>
+			<key>weight</key>
+			<real>20</real>
+		</dict>
+		<key>^version\.plist$</key>
+		<dict>
+			<key>weight</key>
+			<real>20</real>
+		</dict>
+	</dict>
+</dict>
+</plist>

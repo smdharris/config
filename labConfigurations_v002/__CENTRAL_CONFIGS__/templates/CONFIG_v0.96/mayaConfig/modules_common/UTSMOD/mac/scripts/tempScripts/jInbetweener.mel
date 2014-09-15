@@ -1,0 +1,169 @@
+/*
+  :beginHead
+  :author     			:julian 
+  :support     			:julian 
+  :type     			:mel
+  :title     			:jInbetweener
+  :description			:make world space controls for a skeleton
+  :category
+  :usage
+  :return
+  :url
+  :endHead
+
+  Copyright (C) 2003 The Moving Picture Company
+*/
+
+
+
+global proc string[] getBetweenJoints (string $startJoint, string $endJoint) {
+	string $result[];
+	string $ad[] = `listRelatives -ad -typ "joint" -path $startJoint`;
+	
+	// result array is back to front
+	int $siz = `size $ad`;
+	//print ($siz + "\n");
+	int $i = $siz-1;
+	while ($i > -1){
+		if ($ad[$i] !=  $endJoint) {
+			$result[`size $result`] = $ad[$i];
+		} else {
+			break;
+		}
+		$i --;
+	}
+	if ($i < 0) clear($result);
+	return $result;
+}
+
+proc string constrainToAlignedLocator(string $joint, float $radius, string $parent){
+	// if there is already a cyl setup at this joint then just return it's name 
+	int $hasCylinder = 0;
+	string $result;
+	string $future[] = `listHistory -f 1 -lv 1 $joint`;
+	if (`size $future`) {
+		$future = `ls -type "pointConstraint" $future`;
+		if (`size $future`) {
+			$future = `listConnections -d 1 -type "transform" $future`;
+			//$future = `ls -dag -leaf -type "mesh"`;
+			//$future = `listRelatives -p $future` ;
+			if (`size $future`) {
+				 $hasCylinder = 1;
+				 $result = $future[0];
+			}
+		}
+	}
+	
+
+ 
+ 	int $axis = `radioButtonGrp -q -sl jInbetweenerAxisRB`;
+ 	int $geom = `radioButtonGrp -q -sl jInbetweenerGeomRB`;
+	
+	float $pos[] = `xform -q -ws -rp $joint`;
+	float $rot[] = `xform -q -a -ro -ws  $joint`;
+
+	if (!$hasCylinder) {
+		string $cyl[];
+		if ($radius) {
+			if ($geom == 1) { // nurbs
+				$cyl = `cylinder  -ax ($axis==1) ($axis==2) ($axis==3)  -s 4 -ssw 0 -esw 360 -nsp 1 -d 1  -hr 2  -r $radius  -ch 0`;
+				nurbsPrimitiveCap 3 1 0;
+			} else { // polys
+				$cyl = `polyCylinder -r $radius -h 0.5 -sx 3 -sy 1 -sz 1 -ax ($axis==1) ($axis==2) ($axis==3) -tx 1 -ch 0`;
+			}
+			xform -a -ro  $rot[0] $rot[1] $rot[2] $cyl[0] ;
+			if (!($parent == "") ){
+				parent -a $cyl[0] $parent;
+			}
+			makeIdentity -apply true $cyl[0];
+		} else { // cyl is a null node
+			$cyl[0] =  `group -em`;
+			if (!($parent == "") ) parent -r $cyl[0] $parent;
+		}
+				
+		string $loc[] = `spaceLocator -p 0 0 0 `;
+		xform -a -ro  $rot[0] $rot[1] $rot[2]  $loc[0];
+		
+		parent -a $loc[0]  $cyl[0]; 
+		if (!$radius) setAttr  ($loc[0]+".t") 0 0 0;
+		// xform -t $pos[0] $pos[1] $pos[2] $cyl[0] ;
+		orientConstraint -weight 1 $loc[0] $joint;
+		// if ($radius) 
+		pointConstraint -weight 1   $joint $cyl[0] ;
+		$result = $cyl[0];
+		
+	}
+	return  $result;
+}
+
+global proc jDoInbetweener(){
+
+	string $parent = `nameField -q -object  jInbetweenerParentField`;
+	
+
+	string $joints[] = `ls -sl -type "joint"`;
+	// print $joints;
+	//string $cyls[];
+	int $sizJoints = `size  $joints`;
+
+	for ($i = 0 ;$i <($sizJoints - 1); $i++ ) {
+		string $startCyl = constrainToAlignedLocator($joints[$i], 2,$parent);
+		string $endCyl = constrainToAlignedLocator($joints[($i+1)], 2,$parent);
+		select -cl;
+		string $betweens[] = getBetweenJoints($joints[$i], $joints[($i+1)]);
+		// print $betweens;
+		string $cyls[];
+		clear($cyls);
+		for ($b in $betweens) {
+			$cyls[`size $cyls`] = constrainToAlignedLocator($b, 0.5,$parent);
+		}
+		//print  " -------------\n" ;
+		//print ($startCyl + " --\n");
+		//print $cyls;
+		//print ($endCyl + " --\n\n");
+		//select -r $startCyl;
+		//select -add $endCyl;
+		//select -add $cyls;
+		refresh;
+		 jMultiBlend($startCyl ,$endCyl, $cyls );
+		
+	}
+}
+global proc jInbetweenerPickParent(){
+	string $sel[] = `ls -sl -type "transform"`; 
+	if (`size $sel` > 1 ) {
+		error ("Pick one or zero objects");
+		return;
+	}
+	if (`size $sel`  ) {
+		nameField -e -object $sel[0] jInbetweenerParentField;
+	} else {
+		nameField -e -object "" jInbetweenerParentField;
+	}
+}
+global proc jInbetweener(){
+	if (!`pluginInfo -q  -l  "jMultiBlend"`) loadPlugin "jMultiBlend";
+	source jMultiBlend;
+
+	if (`window -exists jInbetweenerWindow`) deleteUI jInbetweenerWindow;
+
+	window -wh 422 670 -t "Inbetweener" jInbetweenerWindow;
+	frameLayout;
+		columnLayout -adjustableColumn true ;
+			radioButtonGrp -numberOfRadioButtons 3
+    		     -label "primary axis" -labelArray3 "X" "Y" "Z" jInbetweenerAxisRB;	
+			radioButtonGrp -numberOfRadioButtons 2
+    		     -label "control geometry" -labelArray2 "Nurbs" "Polys" jInbetweenerGeomRB;	
+			nameField 	-w 200  -en 0 jInbetweenerParentField;
+			button -label "Pick parent" -rs 1 -c "jInbetweenerPickParent";
+			button -label "Go" -rs 1 -c "jDoInbetweener";
+			
+	showWindow;
+
+}
+
+
+
+
+
+

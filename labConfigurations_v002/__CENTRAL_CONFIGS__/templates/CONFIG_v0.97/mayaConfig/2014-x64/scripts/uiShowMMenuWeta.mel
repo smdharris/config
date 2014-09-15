@@ -1,0 +1,138 @@
+// Show Menu - Marking Menu - weta version
+//
+// Created by Andrew Silke www.cane-toad.com
+// andrewsilke@gmail.com
+// Created : 1 April 2008
+// Last Updated: 1 April 2008
+// Tested only: V4 win2k
+//
+// Description:
+// A simple marking menu that mimicks the functionality of the "show menu".
+// Basically it's a much quicker interface than the "show menu" (which I've always found annoyingly slow) 
+// Thanks to Hamish McKenzie for the help!
+//
+// Install:
+// Place this script uiShowMenu.mel in the maya folder - eg. documents path \maya\4.0\scripts
+// Usage:
+//  assign this function to a key press in the Hotkey Editor:
+//	uiShowMMenu;
+//
+//  assign this function to the release;
+//	zzShowMMenuKillUI;
+//
+// NOTE: if using "ctrl" "shift" or "alt" in the Hotkey Editor see below!
+
+global proc uiShowMMenuWeta () {
+	global int $zzIsClicked;
+	$zzIsClicked = 0;
+
+	if( `popupMenu -ex tempMM` ){
+		deleteUI tempMM;
+		}
+//NOTE: change alt, ctl (ctrl) or sh (shift) to 1 if used with the coresponding modifier (below)
+	popupMenu -alt 0 -ctl 0 -sh 0 -mm 1 -b 1 -aob 0 -p viewPanes -pmc "zzDoShowMMenu" tempMM;
+	
+}
+
+global proc zzDoShowMMenu () {
+	
+	global int $zzIsClicked;
+	
+
+	if( `popupMenu -ex tempMM` ){menu -e -deleteAllItems tempMM;}
+	setParent -m tempMM;
+
+	$zzIsClicked = 1;
+
+	$currentPanel = `getPanel -wf`;
+	int $entry01 = !(`modelEditor -q -polymeshes $currentPanel`);
+	int $entry02 = !(`modelEditor -q -dimensions $currentPanel`);
+	int $entry03 = !(`modelEditor -q -nurbsCurves $currentPanel`);
+	int $entry04 = !(`modelEditor -q -cameras $currentPanel`);
+	int $entry05 = !(`modelEditor -q -subdivSurfaces $currentPanel`);
+	int $entry06 = !(`modelEditor -q -handles $currentPanel`);
+	int $entry07 = !(`modelEditor -q -joints $currentPanel`);
+	int $entry08 = !(`modelEditor -q -locators $currentPanel`);
+	int $entry09 = !(`modelEditor -q -grid $currentPanel`);
+	int $entry10 = !(`modelEditor -q -lights $currentPanel`);
+	int $entry11 = !(`modelEditor -q -ikHandles $currentPanel`);
+	int $entry12 = !(`modelEditor -q -deformers $currentPanel`);
+	int $entry13 = !(`modelEditor -q -dynamics $currentPanel`);
+	int $entry14 = !(`modelEditor -q -strokes $currentPanel`);
+	int $entry15 = !(`modelEditor -q -nurbsSurfaces $currentPanel`);
+
+	
+	//These lines build the menu items.  
+	//The -rp flag specifies the position of each item.
+	//passes out display type to zzShowHide
+	//bold (bld) is displayed from the above code
+
+	menu -e -deleteAllItems tempMM;
+		menuItem -l "Dimensions" -command ( "zzShowHide (\"-dimensions\") " ) -bld (!$entry02) -rp "W";
+		menuItem -l "Polygons" -command ( "zzShowHide (\"-polymeshes\") " ) -bld (!$entry01) -rp "E";
+		menuItem -l "WetaCntrls" -command ( "zzShowHideWetaCntrls (\"-nurbsCurves\") " ) -bld (!$entry03) -rp "S";
+		menuItem -l "Cameras" -command ( "zzShowHide (\"-cameras\")" ) -bld (!$entry04) -rp "N";
+		menuItem -l "Curves" -command ( "zzShowHide (\"-nurbsCurves\") " ) -bld (!$entry03) -rp "SW";
+		menuItem -l "Handles" -command ( "zzShowHide (\"-handles\") " ) -bld (!$entry06) -rp "NW";
+		menuItem -l "Joints" -command ( "zzShowHide (\"-joints\") " ) -bld (!$entry07) -rp "NE";
+		menuItem -l "Locators" -command  ( "zzShowHide (\"-locators\") " ) -bld (!$entry08) -rp "SE";
+		menuItem -l "All Off" -command ( "zzAllOnOff(0)" );	
+ 		menuItem -l "All On" -command ( "zzAllOnOff(1)" );
+		menuItem -divider true;	
+		menuItem -l "Grid" -command  ( "zzShowHide (\"-grid\") " ) -bld (!$entry09);
+		menuItem -divider true;	
+		menuItem -l "nurbs " -command  ( "zzShowHide (\"-nurbsSurfaces\") " ) -bld (!$entry15);
+		menuItem -l "subDs " -command  ( "zzShowHide (\"-nurbsSurfaces\") " ) -bld (!$entry05);
+		menuItem -l "lights " -command  ( "zzShowHide (\"-lights\") " ) -bld (!$entry10);
+		menuItem -l "ikHandles" -command  ( "zzShowHide (\"-ikHandles\") " ) -bld (!$entry11);
+		menuItem -l "deformers" -command  ( "zzShowHide (\"-deformers\") " ) -bld (!$entry12);
+		menuItem -l "dynamics" -command  ( "zzShowHide (\"-dynamics\") " ) -bld (!$entry13);
+		menuItem -l "strokes" -command  ( "zzShowHide (\"-strokes\") " ) -bld (!$entry14);
+}
+
+global proc zzShowHide ( string $element ) {
+$currentPanel = `getPanel -up`;
+$currentStatus = !(`modelEditor -q $element $currentPanel`);
+modelEditor -e $element $currentStatus $currentPanel;	
+}
+
+global proc zzAllOnOff ( int $OnOff ) {
+$currentPanel = `getPanel -up`;
+modelEditor -e -allObjects $OnOff $currentPanel;	
+}
+
+global proc zzShowHideWetaCntrls ( string $element ) {
+$currentPanel = `getPanel -up`;
+$currentStatus = !(`modelEditor -q $element $currentPanel`);
+modelEditor -e $element $currentStatus $currentPanel;	
+print "curves";
+print $currentStatus;
+modelEditor -e -handles $currentStatus $currentPanel;
+print "handles";
+print $currentStatus;
+modelEditor -e -dimensions $currentStatus $currentPanel;
+print "handles";
+print $currentStatus;
+
+
+}
+
+global proc zzShowMMenuKillUIWeta () {
+	global int $zzIsClicked;	
+	print $zzIsClicked;
+	if( `popupMenu -ex tempMM` ){
+		deleteUI tempMM;	
+		
+	}
+	
+	if ( !$zzIsClicked) {	
+			$currentPanel = `getPanel -wf`;
+			$currentStatus = !(`modelEditor -q -nurbsCurves $currentPanel`);
+			modelEditor -e -nurbsCurves $currentStatus $currentPanel;	
+			modelEditor -e -handles $currentStatus $currentPanel;
+			modelEditor -e -dimensions $currentStatus $currentPanel;
+	$zzIsClicked = 0;
+	}
+
+
+}

@@ -1,0 +1,34 @@
+global proc string[] cleanGeometries(int $delete)
+{
+	string $unusedGeom[];
+	string $geomTypes[] = {"mesh", "nurbsSurface", "nurbsCurve"};
+	string $type, $s;
+	for($type in $geomTypes) {
+
+		string $list[] = `ls -l  -io -type $type`;
+		for($s in $list) {
+			string $plugs[] = `listConnections -s 0  -p 1 $s`;
+			string $p;
+			int $foundGeomPlug = 0;
+			for($p in $plugs) {
+				if(`getAttr -type $p` == $type) {
+					$foundGeomPlug = 1;
+					break;
+
+				}
+
+			}
+			if(!$foundGeomPlug ) {
+				$unusedGeom[`size $unusedGeom`] = $s;
+				if($delete) {
+					print ("\n..deleting "+$s);
+					delete $s;
+				}
+
+			}
+
+		}
+	}
+
+	return $unusedGeom;
+}

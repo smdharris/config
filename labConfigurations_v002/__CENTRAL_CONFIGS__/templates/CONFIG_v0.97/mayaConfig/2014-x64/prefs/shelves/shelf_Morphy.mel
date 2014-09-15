@@ -1,0 +1,424 @@
+global proc shelf_Morphy () {
+    global string $gBuffStr;
+    global string $gBuffStr0;
+    global string $gBuffStr1;
+
+
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Morphy Head Connect - provided a Morphy head has been imported and the placement objects exist" 
+        -enableBackground 0
+        -align "center" 
+        -label "Morphy Head Connect - provided a Morphy head has been imported and the placement objects exist" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "jbMorpheusHeadConnect.xpm" 
+        -image1 "jbMorpheusHeadConnect.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "jbMorpheusHeadConnect;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Bakes custom facial geo - 1) Select the custom geo 2) then any control on the Morphy you want it connected to 3) run script" 
+        -enableBackground 0
+        -align "center" 
+        -label "Bakes custom facial geo - 1) Select the custom geo 2) then any control on the Morphy you want it connected to 3) run script" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "jbMorpheusFacialCustomGeoBaker.xpm" 
+        -image1 "jbMorpheusFacialCustomGeoBaker.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "jbMorpheusFacialCustomGeoBaker;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Skins in new hair geo - 1 select any control on the morphy you wanna connect to 2) select hair to connect 3) run script" 
+        -enableBackground 0
+        -align "center" 
+        -label "Skins in new hair geo - 1 select any control on the morphy you wanna connect to 2) select hair to connect 3) run script" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "jbMorpheusAddHair.xpm" 
+        -image1 "jbMorpheusAddHair.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "jbMorpheusAddHair;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Skin in a new body mesh and copy the skin weights from the previous" 
+        -enableBackground 0
+        -align "center" 
+        -label "Skin in a new body mesh and copy the skin weights from the previous" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "jbMorpheusAddBodyGeo.xpm" 
+        -image1 "jbMorpheusAddBodyGeo.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "jbMorpheusAddBodyGeo;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Bakes body geo - 1) Select custom geo 2) select any control of the Morphy you want to connect go 3) run script" 
+        -enableBackground 0
+        -align "center" 
+        -label "Bakes body geo - 1) Select custom geo 2) select any control of the Morphy you want to connect go 3) run script" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "jbMorpheusBodyCustomGeoBaker.xpm" 
+        -image1 "jbMorpheusBodyCustomGeoBaker.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "jbMorpheusBodyCustomGeoBaker;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Updates the skin weights of the mesh by querrying stored values from the adding scripts" 
+        -enableBackground 0
+        -align "center" 
+        -label "Updates the skin weights of the mesh by querrying stored values from the adding scripts" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "jbMorpheusUpdateCustomGeoWeights.xpm" 
+        -image1 "jbMorpheusUpdateCustomGeoWeights.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "jbMorpheusUpdateCustomGeoWeights;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Select the quick select sets you wanna export and run script" 
+        -enableBackground 0
+        -align "center" 
+        -label "Select the quick select sets you wanna export and run script" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "jbExportQss.XPM" 
+        -image1 "jbExportQss.XPM" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "jbExportQSS;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "abSymMesh;" 
+        -enableBackground 0
+        -align "center" 
+        -label "abSymMesh;" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "abSymMesh.xpm" 
+        -image1 "abSymMesh.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "abSymMesh;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "source JTDDynParentUI;" 
+        -enableBackground 0
+        -align "center" 
+        -label "source JTDDynParentUI;" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "JTDDynParentUI.xpm" 
+        -image1 "JTDDynParentUI.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "source JTDDynParentUI;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "boTriggers;" 
+        -enableBackground 0
+        -align "center" 
+        -label "boTriggers;" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "boTriggers.xpm" 
+        -image1 "boTriggers.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "boTriggers;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "zooToolBox;" 
+        -enableBackground 0
+        -align "center" 
+        -label "zooToolBox;" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "zooToolBox.xpm" 
+        -image1 "zooToolBox.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "zooToolBox;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Snap first selection to second" 
+        -enableBackground 0
+        -align "center" 
+        -label "Snap first selection to second" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "pointSnap.xpm" 
+        -image1 "pointSnap.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "\r\nglobal proc jpSnapObjects ()\r\n\r\n{\r\n\r\n\r\n//check the objects that are selected\r\nstring $sel[]=`ls -sl`;\r\n\r\n//the first object in the array\r\nstring $firstObject = $sel[0];\r\n\r\n//the second object in the array\r\nstring $secondObject = $sel[1];\r\n\r\n\r\n//Get the translation values of second object\r\nfloat $trans[]=`xform -q -ws -rp $secondObject`;\r\n\r\n//Assign the translation values on to the first Object\r\nmove -rpr $trans[0] $trans[1] $trans[2] $firstObject;\r\n\r\n//Print the done Work\r\nprint \"Done: The objects are in same place now!\";\r\n\r\n\r\n}\r\njpSnapObjects" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Snap first selection to second" 
+        -enableBackground 0
+        -align "center" 
+        -label "Snap first selection to second" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "orientSnap.xpm" 
+        -image1 "orientSnap.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "\r\nglobal proc jpSnapObjects ()\r\n\r\n{\r\n\r\n\r\n//check the objects that are selected\r\nstring $sel[]=`ls -sl`;\r\n\r\n//the first object in the array\r\nstring $firstObject = $sel[0];\r\n\r\n//the second object in the array\r\nstring $secondObject = $sel[1];\r\n\r\n//Get the rotation values of second object\r\nfloat $rot[]=`xform -q -ws -rotation $secondObject`;\r\n\r\n//Assign the rotation values on to the first object\r\nxform -ws -rotation $rot[0] $rot[1] $rot[2]  $firstObject;\r\n\r\n\r\n//Print the done Work\r\nprint \"Done: The objects are in same place now!\";\r\n\r\n\r\n}\r\njpSnapObjects" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Snap first selection to second" 
+        -enableBackground 0
+        -align "center" 
+        -label "Snap first selection to second" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.2 
+        -image "parentSnap.xpm" 
+        -image1 "parentSnap.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "\nglobal proc jpSnapObjects ()\n\n{\n\n\n//check the objects that are selected\nstring $sel[]=`ls -sl`;\n\n//the first object in the array\nstring $firstObject = $sel[0];\n\n//the second object in the array\nstring $secondObject = $sel[1];\n\n//Get the rotation values of second object\nfloat $rot[]=`xform -q -ws -rotation $secondObject`;\n\n//Assign the rotation values on to the first object\nxform -ws -rotation $rot[0] $rot[1] $rot[2]  $firstObject;\n\n//Get the translation values of second object\nfloat $trans[]=`xform -q -ws -rp $secondObject`;\n\n//Assign the translation values on to the first Object\nmove -rpr $trans[0] $trans[1] $trans[2] $firstObject;\n\n//Print the done Work\nprint \"Done: The objects are in same place now!\";\n\n\n}\njpSnapObjects" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Auto Tangent - go download it if it doesn't work" 
+        -enableBackground 0
+        -align "center" 
+        -label "Auto Tangent - go download it if it doesn't work" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "autoTangent.XPM" 
+        -image1 "autoTangent.XPM" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "autoTangent;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "tweenMachine - go download it" 
+        -enableBackground 0
+        -align "center" 
+        -label "tweenMachine - go download it" 
+        -labelOffset 0
+        -font "tinyBoldLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "tweenMachine.xpm" 
+        -image1 "tweenMachine.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "ntweenMachine;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+
+} 

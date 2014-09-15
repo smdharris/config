@@ -1,0 +1,40 @@
+// cleanTexturePlacements.mel  v1.0   (28 September 1998)
+//
+// MEL script for Maya
+//
+// by Bryan Ewert
+//    http://www.cadvision.com/ewertb/ 
+//    ewertb@cadvision.com
+//
+//    H2O Entertainment Corporation
+//    Calgary, Canada
+//    http://www.h2oent.com
+
+// PURPOSE
+//   Retrieves a list of all 'place2dTexture' and 'place3dTexture' nodes
+//   in the scene.  Determines which of those placement nodes are connected
+//   only to the 'defaultRenderUtilityList' -- in other words, not actually
+//   used for texture placement.  Deletes all of these unused nodes.
+
+// All items are disposed with a single delete command; a single Undo after
+// this function will bring everything back.
+ 
+global proc cleanTexturePlacements()
+{
+	string $placeAll[] = `ls -type "place3dTexture" -type "place2dTexture"`;
+	string $connections[];
+	string $deleteMe[];
+	int $deletedItems = 0;
+	
+	for ( $place in $placeAll )
+	{
+		$connections = `listConnections $place`;
+		
+		if ( ( size( $connections ) == 1 ) && ( `objectType -isType "defaultRenderUtilityList" $connections[0]` ) )
+		{
+			$deleteMe[ $deletedItems++ ] = $place;
+		}
+	}
+	
+	delete $deleteMe;	
+}

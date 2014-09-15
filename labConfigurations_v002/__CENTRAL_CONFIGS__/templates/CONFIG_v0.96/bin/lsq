@@ -1,0 +1,301 @@
+#!/usr/bin/perl
+
+use Cwd qw/abs_path getcwd/;
+
+########################################
+# Justen Marshall's "lsq" script       #
+# Animal Logic (c) 1999                #
+#                                      #
+# This script is a replacement for lsf #
+# (a custom list-frames script). This  #
+# does the same thing but is geared to #
+# handle any numbering format. It will #
+# show missing frames and calculate    #
+# clip sizes.                          #
+########################################
+
+# This has to be something that'll NEVER be used in real file names.
+my $SPLITSTR = "@@%--%@@";
+
+# Variable declarations.
+my @thedirs = ();
+my $checkcomplete;
+my $checksize;
+my $showmissing;
+my $totalsize = 0;
+
+my $useage =<<EOF;
+Useage: lsq [-h] [-s] [-i|-m] [PATH [PATH...]] 
+
+  -h
+    Show this help message.
+
+  -s
+    Calculate the size of the sequences in the given
+    path(s). If more than one path was given, totals
+    will be shown for individual paths. A grand total
+    is also displayed.
+
+  -i
+    Indicate which clips are complete or incomplete.
+    Won't be able to identify missing frames at the
+    start or end of clips, though. Examine the frame
+    numbers to be sure.
+
+  -m
+    The same as -i, but it actually shows which frames
+    are missing. Can be slower.
+
+  PATH
+    Specify one or more directories to look in. If you
+    don't specify at least one, the current directory
+    is assumed.
+
+EOF
+
+# This sub formats an integer size as a nice number of bytes/kb/Mb/Gb.
+sub formatsize {
+  my ($size) = @_;
+
+  if ( $size>1073741824 ) {
+    return sprintf( "%4.2f G", $size/1073741824 );
+  }
+  if ( $size>1048576 ) {
+    return sprintf( "%4.1f M", $size/1048576 );
+  }
+  if ( $size>1024 ) {
+    return sprintf( "%4.0f k", $size/1024 );
+  }
+  return "$size b";
+}
+
+# A sub to parse any command-line args.
+sub ParseArgs {
+ arg:
+  while ( $#ARGV>=0 && ($ARGV[0] =~ /^\-/)) {
+    my $arg = shift(@ARGV);
+    if ( $arg =~ /^-i$/ ) {
+      $checkcomplete = 1;
+      next arg;
+    }
+    if ( $arg =~ /^-s$/ ) {
+      $checksize = 1;
+      next arg;
+    }
+    if ( $arg =~ /^-m$/ ) {
+      $checkcomplete = 1;
+      $showmissing = 1;
+      next arg;
+    }
+    if ( $arg =~ /^-h$/ || $arg =~ /^--help$/ ) {
+      die $useage;
+    }
+    die "Unknown argument: $arg\n";
+  }
+
+  while ( $#ARGV>=0 ) {
+    push( @thedirs, shift(@ARGV) );
+  }
+}
+
+# Given a list of integers, will remove the first contiguous block and
+# return a string represending the min/max of that block. The range in
+# the list is assumed to be in ascending order. This routine is used
+# to condense a list of missing frames into a shorter representation.
+sub eatchunk {
+  my $vals = shift;
+  my ($max,$min);
+
+  $max = $min = shift( @$vals );
+  while ( ($#{$vals}>=0)  && 
+	  (@$vals[0]==$max+1)  ) {
+    $max = shift( @$vals );
+    $last = $max;
+  }
+  if ($min == $max) {
+    return "$min";
+  }
+  return "$min-$max";
+}
+
+# This does the actual lsq thang, for one given directory...
+sub lsq {
+  my ($thedir) = @_;
+  my @flist;
+  my @dlist;
+  my %seqs;
+  my $dirsize = 0;
+
+  $thedir = abs_path($thedir);
+
+  # Print the banner.
+  print( "\n",
+	 $thedir,
+	 "\n\n",
+       );
+
+  # Start by opening the current directory.
+  opendir( DIR, $thedir ) || die "Couldn't open directory: $thedir\n";
+
+  # Read the list of file names.
+  @dlist = grep { !/^\./ && -d "$thedir/$_" } sort(readdir(DIR));
+  rewinddir(DIR);
+  @flist = grep { !/^\./ && -f "$thedir/$_" } sort(readdir(DIR));
+
+  print( "\t",
+	 join("/\n\t", @dlist ),
+	 "/\n",
+       ) if $#dlist>=0;
+
+  # Process each file name...
+  foreach ( @flist ) {
+    # ...find if it has a number embedded in it... The first pattern
+    # will find the right-most number in most normal filename
+    # patterns, including those that have no extensions. The second
+    # pattern will match names that start with numbers.
+    if ( /(^.*\D)(\d+)(\D*)$/ || /(^)(\d+)(\D*)/ ) {
+      # ...if so, split it apart and save it with a special string
+      # replacing the number. File names must never have this string in
+      # them.
+      my $key = ${1}.$SPLITSTR.${3};
+
+      # Save the number for later use.
+      push( @{$seqs{$key}}, ${2} );
+    } else {
+      push( @{$seqs{$_}}, undef );
+    }
+  }
+
+  foreach $k ( sort(keys(%seqs)) ) {
+
+    # Split this filename up, removing the special splitting token, and
+    # keep the start and end sections.
+    my ($start,$end) = split($SPLITSTR, $k );
+
+    # Retrieve the stored frame list. Extract the minimum and maximum
+    # values (note we need to do something special to do a numerical
+    # sort).
+    my (@frames) = sort {$a <=> $b} @{$seqs{$k}};
+    my $min = $frames[0];
+    my $max = $frames[$#frames];
+
+    # Figure out required zero-padding.
+    my $numdigits = ($min =~ /^0/ ? length($min) : 1);
+
+    # The list of missing frames.
+    my @missing = ();
+
+    # The total size of the sequence.
+    my $seqsize = 0;
+    my ($msg,$out,$extra) = "";
+
+    # Loop over the numbers (if there are any).
+    my $fn;
+    if ( $#frames>0 ) {
+      for ( $fn=$min ; $fn<=$max ; ++$fn ) {
+	my $ffn = sprintf("%0${numdigits}d", ${fn});
+
+	if ( $checkcomplete && (! -f "$thedir/${start}${ffn}${end}") ) {
+	  push( @missing, $ffn );
+	} else {
+	  $seqsize += -s "$thedir/${start}${ffn}${end}" if $checksize;
+	}
+      }
+    } else {
+      $seqsize += -s "$thedir/$k" if $checksize;
+    }
+
+    # If there's more than 1 frame (counting from 0 remember!) then we
+    # want to replace the frame number with the right pattern of #
+    # signs (as per renseq).
+    if ( $#frames > 0 ) {
+      # This builds the name of the clip as shown in lsq output.
+      $out = ( $start.
+	       "#" x $numdigits.
+	       $end );
+
+      # This displays the completeness state of the clip.  Note that
+      # it will be overridded later if the clip is incomplete and we
+      # need to display the missing frame list.
+      $msg = ($#missing>=0 ? "(Incomplete)" : "(Complete)") if $checkcomplete;
+
+      # If we want to show missing frames...
+      if ( $showmissing && $#missing>=0 ) {
+	# ...we don't want to just list them, there could be thousands
+	# of them and it could get very messy. Instead, we want to
+	# break it into ranges of missing chunks. @ml holds each
+	# chunk.
+	my @ml;
+	while ( $#missing>=0 ) {
+	  # The eatchunk routine actually removes a block of
+	  # increasing missing frame numbers from the @missing array,
+	  # and returns a short string describing the range, for
+	  # example "10..500". Much nicer than listing hundreds of
+	  # missing frame numbers individually.  Note that it doesn't
+	  # handle steps other than 1. If you had a clip rendered
+	  # every second frame, this list would be miserable. Oh well,
+	  # that's an un-handled case at this time.
+ 	  push( @ml, eatchunk( \@missing ));
+	}
+
+	# Override the completeness message with our new list.
+	$msg = "(Missing ".join(', ', @ml).")";
+      }
+    } else {
+      # Only one frame, so just reassemble the original frame name.
+      $out = ( $start.
+	       $min.
+	       $end );
+    }
+
+    # Do some stuff with the sequence size. Format it, and also adjust
+    # the dir and grand total values. We only need to do this if we're
+    # checking sizes at all..
+    my $fmtsize;
+    if ( $checksize ) {
+      $fmtsize = formatsize($seqsize);
+      $dirsize += $seqsize;
+      $totalsize += $seqsize;
+    }
+
+    # Print the row. Single frames shouldn't have a frame count. All
+    # other fields will be filled in before we get this far.
+    printf( "\t%-36s  %5s  %5s  %8s %s\n",
+	    $out,
+	    ($#frames>0 ? $min : undef),
+	    ($#frames>0 ? $max : undef),
+	    $fmtsize,
+	    $msg,
+	  );
+  }
+  
+
+  # Print the per-directory total summary, if required.
+  printf( "\t%s\n\t%60s\n",
+	  "-" x 60,
+	  formatsize($dirsize),
+	) if $checksize;
+}
+
+# Parse the users command-line args.
+ParseArgs();
+
+# If no dirs were given, assume local pwd.
+push( @thedirs, getcwd ) if $#thedirs<0;
+
+# Run the lsq on the directories...
+my $d;
+foreach $d ( @thedirs ) {
+  lsq( $d );
+}
+
+# If we're checking sizes, and there was more than one directory
+# listed, then we should print the grand totals.
+if ( $checksize && $#thedirs>0 ) {
+  printf( "\n\t%s\n\t%60s\n\n",
+	  "=" x 60,
+	  "Total: ".formatsize($totalsize),
+	);
+} else {
+  print "\n\n";
+}
