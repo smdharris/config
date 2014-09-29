@@ -1,0 +1,21 @@
+//
+// Written by Andrew Chapman - May 2003
+//
+
+global proc alignRotations()
+{
+  string $sel[] = `ls -selection -type transform`;
+  if (size($sel) != 2) {
+    warning("You must select your object to align then the object to align the rotations to before running this function");
+    return;
+  }
+  
+  string $alignMe   = $sel[0];
+  string $alignToMe = $sel[1];
+  
+  float $targetRotate[] = `getAttr ($alignToMe + ".rotate")`;
+  
+  select -replace $alignMe;
+  
+  setFrozenRotations($targetRotate[0], $targetRotate[1], $targetRotate[2]);
+}

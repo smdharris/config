@@ -1,0 +1,1290 @@
+//-------------------------------------------------------------------------------------------------
+//
+//  Copyright   (c)   2005    Lucasfilm    Animation,    Ltd.
+//  All   rights   reserved.    Used   under   authorization.
+//  This material contains the confidential  and  proprietary
+//  information   of    Lucasfilm    Animation,   Ltd.    and
+//  may not be copied in whole or in part without the express
+//  written   permission   of   Lucasfilm   Animation,   Ltd.
+//  This  copyright  notice  does  not   imply   publication.
+//
+//-------------------------------------------------------------------------------------------------
+
+//=================================================================================================
+//
+//  = FILENAME
+//      lasAnimTools_utils.mel
+//
+//  = HISTORY
+//      1. 27 Oct 2006 
+//      Created by Shih Ming.
+//
+//	2. 15 Nov 2006 
+//	- Function to create UI to transfer animation specifically
+//		> All keyframed attributes/translation/rotation/scaling/extra attrs
+//
+//	3. 23 Nov 2006 
+//	- Change the way animation is imported in current rig
+//		> To look for the controller under the "controls" node rather than by naming
+//
+//	4. 20 Dec 2006
+//	- Add in functions for use in Prop Attachment System
+//
+//	5. 15 Jan 2007
+//	- Add in ability to upload info on rig version for Animation Library
+//	- Retrieve that info and display it during download for Animation Library
+//
+//  = AUTHOR(S)
+//      Tay Shih Ming
+//
+//  = COMMENTS
+//      Utility and helper functions for animTools
+//
+//=================================================================================================
+
+
+// **********************************************************************
+//		UI Function:
+//			Create UI for transfer animation script
+// **********************************************************************
+global proc lasAnimTools_transAnimUI()
+{
+	string $transAnimWin = "transAnimWin";
+	
+	// if the window is already created, delete it
+	if (`window -exists $transAnimWin`)
+		deleteUI $transAnimWin;
+	
+	string $sTitle = "Transfer Animation Tool v 0.1";
+	$transAnimWin = `window -width 550 -height 330 -title $sTitle -sizeable false -rtf 1 $transAnimWin`;
+
+	string $sMainLayout = ` formLayout -parent $transAnimWin -width 540 -height 330 lasTransAnimToolMainLayout`;
+	
+		// create all the required UIs
+		string $txtTransAnimToolKeys = ` text -l "Keys" -fn "boldLabelFont" -w 100 -align "right" txtTransAnimToolKeys `;
+		string $rbgTransAnimToolKeys = ` radioButtonGrp -nrb 3 -la3 "All Keys" "Timeline" "Range" -sl 1 
+											   -on1 "textFieldGrp -edit -en 0 tfgTransAnimToolRangeFrom; textFieldGrp -edit -en 0 tfgTransAnimToolRangeTo;"
+											   -on2 "textFieldGrp -edit -en 0 tfgTransAnimToolRangeFrom; textFieldGrp -edit -en 0 tfgTransAnimToolRangeTo;"
+											   -on3 "textFieldGrp -edit -en 1 tfgTransAnimToolRangeFrom; textFieldGrp -edit -en 1 tfgTransAnimToolRangeTo;"
+											   rbgTransAnimToolKeys `;
+		string $tfgTransAnimToolRangeFrom = ` textFieldGrp -l "From: " -tx "" -cw2 50 50 -en 0 tfgTransAnimToolRangeFrom `;
+		string $tfgTransAnimToolRangeTo = ` textFieldGrp -l "To: " -tx "" -cw2 50 50 -en 0 tfgTransAnimToolRangeTo `;
+		string $sepTransAnimTool1 = ` separator `;
+		
+		string $txtTransAnimToolTime = ` text -l "Time" -fn "boldLabelFont" -w 100 -align "right" txtTransAnimToolTime `;
+		string $cbTransAnimToolStartTime = ` checkBox -v 0 -l ""
+											-onc "textFieldGrp -edit -en 1 tfgTransAnimToolStartTime;"
+											-ofc "textFieldGrp -edit -en 0 tfgTransAnimToolStartTime;"
+											cbTransAnimToolStartTime `;
+		string $tfgTransAnimToolStartTime = ` textFieldGrp -l "Start Time:" -tx "" -cw2 100 50 -en 0 tfgTransAnimToolStartTime `;
+		string $sepTransAnimTool2 = ` separator `;
+		
+		string $txtTransAnimToolAttrs = ` text -l "Attributes" -fn "boldLabelFont" -w 100 -align "right" txtTransAnimToolAttrs `;
+		string $txtTransAnimToolTranslate = ` text -l "Translate" -align "right" -w 75  txtTransAnimToolTranslate `;
+		string $cbTransAnimToolTranslateAll = ` checkBox -l "All" -v 1 
+											  -onc "checkBox -edit -v 0 cbTransAnimToolTranslateX; checkBox -edit -v 0 cbTransAnimToolTranslateY; checkBox -edit -v 0 cbTransAnimToolTranslateZ;"
+											  cbTransAnimToolTranslateAll `;
+		string $cbTransAnimToolTranslateX = ` checkBox -l "X" -w 50 -v 0 
+											  -onc "checkBox -edit -v 0 cbTransAnimToolTranslateAll;"
+											  cbTransAnimToolTranslateX `;
+		string $cbTransAnimToolTranslateY = ` checkBox -l "Y" -w 50 -v 0 
+											  -onc "checkBox -edit -v 0 cbTransAnimToolTranslateAll;"
+											  cbTransAnimToolTranslateY `;
+		string $cbTransAnimToolTranslateZ = ` checkBox -l "Z" -w 50 -v 0 
+											  -onc "checkBox -edit -v 0 cbTransAnimToolTranslateAll;"
+											  cbTransAnimToolTranslateZ `;
+		string $txtTransAnimToolRotate = ` text -l "Rotate" -align "right" -w 75 txtTransAnimToolRotate `;
+		string $cbTransAnimToolRotateAll = ` checkBox -l "All" -v 1 
+											  -onc "checkBox -edit -v 0 cbTransAnimToolRotateX; checkBox -edit -v 0 cbTransAnimToolRotateY; checkBox -edit -v 0 cbTransAnimToolRotateZ;"
+											  cbTransAnimToolRotateAll `;
+		string $cbTransAnimToolRotateX = ` checkBox -l "X" -w 50 -v 0 
+											  -onc "checkBox -edit -v 0 cbTransAnimToolRotateAll;"
+											  cbTransAnimToolRotateX `;
+		string $cbTransAnimToolRotateY = ` checkBox -l "Y" -w 50 -v 0 
+											  -onc "checkBox -edit -v 0 cbTransAnimToolRotateAll;"
+											  cbTransAnimToolRotateY `;
+		string $cbTransAnimToolRotateZ = ` checkBox -l "Z" -w 50 -v 0 
+											  -onc "checkBox -edit -v 0 cbTransAnimToolRotateAll;"
+											  cbTransAnimToolRotateZ `;
+		string $txtTransAnimToolScale = ` text -l "Scale" -align "right" -w 75 txtTransAnimToolScale `;
+		string $cbTransAnimToolScaleAll = ` checkBox -l "All" -v 0 
+											  -onc "checkBox -edit -v 0 cbTransAnimToolScaleX; checkBox -edit -v 0 cbTransAnimToolScaleY; checkBox -edit -v 0 cbTransAnimToolScaleZ;"
+											  cbTransAnimToolScaleAll `;
+		string $cbTransAnimToolScaleX = ` checkBox -l "X" -w 50 -v 0 
+											  -onc "checkBox -edit -v 0 cbTransAnimToolScaleAll;"
+											  cbTransAnimToolScaleX `;
+		string $cbTransAnimToolScaleY = ` checkBox -l "Y" -w 50 -v 0 
+											  -onc "checkBox -edit -v 0 cbTransAnimToolScaleAll;"
+											  cbTransAnimToolScaleY `;
+		string $cbTransAnimToolScaleZ = ` checkBox -l "Z" -w 50 -v 0 
+											  -onc "checkBox -edit -v 0 cbTransAnimToolScaleAll;"
+											  cbTransAnimToolScaleZ `;
+		string $txtTransAnimToolExtraAttrs = ` text -l "Extra Attrs" -align "right" -w 75 txtTransAnimToolExtraAttrs `;
+		string $cbTransAnimToolExtraAttrsAll = ` checkBox -l "All" -v 1
+											  cbTransAnimToolExtraAttrsAll `;
+		string $sepTransAnimTool3 = ` separator `;
+		
+		string $btnTransAnimToolTransfer = ` button -h 50 -l "Go go go!" -c "lasAnimTools_transAnimCheck" btnTransAnimToolTransfer `;
+		
+	formLayout	-edit
+				-af $txtTransAnimToolKeys "top" 7
+				-af $txtTransAnimToolKeys "left" 10
+				
+				-af $rbgTransAnimToolKeys "top" 5
+				-ac $rbgTransAnimToolKeys "left" 5 $txtTransAnimToolKeys
+				
+				-ac $tfgTransAnimToolRangeFrom "top" 5 $rbgTransAnimToolKeys
+				-ac $tfgTransAnimToolRangeFrom "left" 225 $txtTransAnimToolKeys
+				
+				-ac $tfgTransAnimToolRangeTo "top" 5 $rbgTransAnimToolKeys
+				-ac $tfgTransAnimToolRangeTo "left" 0 $tfgTransAnimToolRangeFrom
+				
+				-ac $sepTransAnimTool1 "top" 5 $tfgTransAnimToolRangeTo
+				-af $sepTransAnimTool1 "left" 0
+				-af $sepTransAnimTool1 "right" 0
+				
+				-ac $txtTransAnimToolTime "top" 7 $sepTransAnimTool1
+				-af $txtTransAnimToolTime "left" 10
+				
+				-ac $cbTransAnimToolStartTime "top" 5 $sepTransAnimTool1
+				-ac $cbTransAnimToolStartTime "left" 5 $txtTransAnimToolTime
+				
+				-ac $tfgTransAnimToolStartTime "top" 5 $sepTransAnimTool1
+				-ac $tfgTransAnimToolStartTime "left" -30 $cbTransAnimToolStartTime
+				
+				-ac $sepTransAnimTool2 "top" 5 $tfgTransAnimToolStartTime
+				-af $sepTransAnimTool2 "left" 0
+				-af $sepTransAnimTool2 "right" 0
+				
+				-ac $txtTransAnimToolAttrs "top" 7 $sepTransAnimTool2
+				-af $txtTransAnimToolAttrs "left" 10
+				
+				-ac $txtTransAnimToolTranslate "top" 7 $sepTransAnimTool2
+				-ac $txtTransAnimToolTranslate "left" -10 $txtTransAnimToolAttrs
+				
+				-ac $cbTransAnimToolTranslateAll "top" 5 $sepTransAnimTool2
+				-ac $cbTransAnimToolTranslateAll "left" 5 $txtTransAnimToolTranslate
+				
+				-ac $cbTransAnimToolTranslateX "top" 0 $cbTransAnimToolTranslateAll
+				-ac $cbTransAnimToolTranslateX "left" 5 $txtTransAnimToolTranslate
+				
+				-ac $cbTransAnimToolTranslateY "top" 0 $cbTransAnimToolTranslateAll
+				-ac $cbTransAnimToolTranslateY "left" 5 $cbTransAnimToolTranslateX
+				
+				-ac $cbTransAnimToolTranslateZ "top" 0 $cbTransAnimToolTranslateAll
+				-ac $cbTransAnimToolTranslateZ "left" 5 $cbTransAnimToolTranslateY
+				
+				-ac $txtTransAnimToolRotate "top" 5 $cbTransAnimToolTranslateZ
+				-ac $txtTransAnimToolRotate "left" -10 $txtTransAnimToolAttrs
+				
+				-ac $cbTransAnimToolRotateAll "top" 5 $cbTransAnimToolTranslateZ
+				-ac $cbTransAnimToolRotateAll "left" 5 $txtTransAnimToolRotate
+				
+				-ac $cbTransAnimToolRotateX "top" 0 $cbTransAnimToolRotateAll
+				-ac $cbTransAnimToolRotateX "left" 5 $txtTransAnimToolRotate
+				
+				-ac $cbTransAnimToolRotateY "top" 0 $cbTransAnimToolRotateAll
+				-ac $cbTransAnimToolRotateY "left" 5 $cbTransAnimToolRotateX
+				
+				-ac $cbTransAnimToolRotateZ "top" 0 $cbTransAnimToolRotateAll
+				-ac $cbTransAnimToolRotateZ "left" 5 $cbTransAnimToolRotateY
+				
+				-ac $txtTransAnimToolScale "top" 5 $cbTransAnimToolRotateZ
+				-ac $txtTransAnimToolScale "left" -10 $txtTransAnimToolAttrs
+				
+				-ac $cbTransAnimToolScaleAll "top" 5 $cbTransAnimToolRotateZ
+				-ac $cbTransAnimToolScaleAll "left" 5 $txtTransAnimToolScale
+				
+				-ac $cbTransAnimToolScaleX "top" 0 $cbTransAnimToolScaleAll
+				-ac $cbTransAnimToolScaleX "left" 5 $txtTransAnimToolScale
+				
+				-ac $cbTransAnimToolScaleY "top" 0 $cbTransAnimToolScaleAll
+				-ac $cbTransAnimToolScaleY "left" 5 $cbTransAnimToolScaleX
+				
+				-ac $cbTransAnimToolScaleZ "top" 0 $cbTransAnimToolScaleAll
+				-ac $cbTransAnimToolScaleZ "left" 5 $cbTransAnimToolScaleY
+				
+				-ac $txtTransAnimToolExtraAttrs "top" 5 $cbTransAnimToolScaleZ
+				-ac $txtTransAnimToolExtraAttrs "left" -10 $txtTransAnimToolAttrs
+				
+				-ac $cbTransAnimToolExtraAttrsAll "top" 5 $cbTransAnimToolScaleZ
+				-ac $cbTransAnimToolExtraAttrsAll "left" 5 $txtTransAnimToolExtraAttrs
+				
+				-ac $sepTransAnimTool3 "top" 5 $cbTransAnimToolExtraAttrsAll
+				-af $sepTransAnimTool3 "left" 0
+				-af $sepTransAnimTool3 "right" 0
+				
+				-ac $btnTransAnimToolTransfer "top" 5 $sepTransAnimTool3
+				-af $btnTransAnimToolTransfer "left" 0
+				-af $btnTransAnimToolTransfer "right" 0
+				$sMainLayout;
+	
+	// display the window
+	showWindow $transAnimWin;
+}
+
+
+// **********************************************************************
+//		Function to check the options and transfer anim
+// **********************************************************************
+global proc lasAnimTools_transAnimCheck()
+{
+	// Check selection
+	string $sel[] = ` ls -sl `;
+	if (size($sel) < 2)
+	{
+		warning "Please select the source, then the target object(s).";
+		return;
+	}
+	
+	// Get the options
+	// ========= KEYS ==========
+	int $keys = ` radioButtonGrp -q -sl rbgTransAnimToolKeys `;
+	string $range = ":";
+	if ($keys == 2)
+	{
+		float $fFrom = ` playbackOptions -q -min `;
+		float $fTo = ` playbackOptions -q -max `;
+		string $sFrom = $fFrom;
+		string $sTo = $fTo;
+		$range = $sFrom + ":" + $sTo;
+	}
+	else if ($keys == 3)
+	{
+		string $sFrom = ` textFieldGrp -q -tx tfgTransAnimToolRangeFrom `;
+		string $sTo = ` textFieldGrp -q -tx tfgTransAnimToolRangeTo `;
+		$range = $sFrom + ":" + $sTo;
+	}
+	// ========= START TIME ==========
+	int $iStartTime = ` checkBox -q -v cbTransAnimToolStartTime `;
+	string $startTime = "";
+	if ($iStartTime == 1)
+	{
+		$startTime = ` textFieldGrp -q -tx tfgTransAnimToolStartTime `;
+	}
+	// ========= ATTRIBUTES ==========
+	int $allTrans = ` checkBox -q -v cbTransAnimToolTranslateAll `;
+	int $transX = 0; int $transY = 0; int $transZ = 0;
+	if ($allTrans)
+	{
+		$transX = 1; $transY = 1; $transZ = 1;
+	}
+	else
+	{
+		$transX = ` checkBox -q -v cbTransAnimToolTranslateX `;
+		$transY = ` checkBox -q -v cbTransAnimToolTranslateY `;
+		$transZ = ` checkBox -q -v cbTransAnimToolTranslateZ `;
+	}
+	int $allRot = ` checkBox -q -v cbTransAnimToolRotateAll `;
+	int $rotX = 0; int $rotY = 0; int $rotZ = 0;
+	if ($allRot)
+	{
+		$rotX = 1; $rotY = 1; $rotZ = 1;
+	}
+	else
+	{
+		$rotX = ` checkBox -q -v cbTransAnimToolRotateX `;
+		$rotY = ` checkBox -q -v cbTransAnimToolRotateY `;
+		$rotZ = ` checkBox -q -v cbTransAnimToolRotateZ `;
+	}
+	int $allScale = ` checkBox -q -v cbTransAnimToolScaleAll `;
+	int $scaleX = 0; int $scaleY = 0; int $scaleZ = 0;
+	if ($allScale)
+	{
+		$scaleX = 1; $scaleY = 1; $scaleZ = 1;
+	}
+	else
+	{
+		$scaleX = ` checkBox -q -v cbTransAnimToolScaleX `;
+		$scaleY = ` checkBox -q -v cbTransAnimToolScaleY `;
+		$scaleZ = ` checkBox -q -v cbTransAnimToolScaleZ `;
+	}
+	int $allExtras = ` checkBox -q -v cbTransAnimToolExtraAttrsAll `;
+	
+	// List all keyable attributes in source object
+	string $attrs[] = ` listAttr -k -u -c $sel[0] `;
+	for ($i = 1; $i < size($sel); $i++)	// For each tgt obj
+	{
+		string $transferAttrs[];	clear $transferAttrs;
+		for ($eachAttr in $attrs)	// For each attr
+		{
+			if (` attributeExists $eachAttr $sel[$i] `)
+			{
+				switch ($eachAttr)
+				{
+					case "translateX":
+						if ($transX)
+							$transferAttrs[size($transferAttrs)] = $eachAttr;
+						break;
+					
+					case "translateY":
+						if ($transY)
+							$transferAttrs[size($transferAttrs)] = $eachAttr;
+						break;
+					
+					case "translateZ":
+						if ($transZ)
+							$transferAttrs[size($transferAttrs)] = $eachAttr;
+						break;
+					
+					case "rotateX":
+						if ($rotX)
+							$transferAttrs[size($transferAttrs)] = $eachAttr;
+						break;
+					
+					case "rotateY":
+						if ($rotY)
+							$transferAttrs[size($transferAttrs)] = $eachAttr;
+						break;
+					
+					case "rotateZ":
+						if ($rotZ)
+							$transferAttrs[size($transferAttrs)] = $eachAttr;
+						break;
+					
+					case "scaleX":
+						if ($scaleX)
+							$transferAttrs[size($transferAttrs)] = $eachAttr;
+						break;
+					
+					case "scaleY":
+						if ($scaleY)
+							$transferAttrs[size($transferAttrs)] = $eachAttr;
+						break;
+					
+					case "scaleZ":
+						if ($scaleZ)
+							$transferAttrs[size($transferAttrs)] = $eachAttr;
+						break;
+					
+					default:
+						if ($allExtras)
+							$transferAttrs[size($transferAttrs)] = $eachAttr;
+						break;
+				}
+			}
+			else
+			{
+				warning ($eachAttr + " attribute does not exist on " + $sel[$i] + ".\n");
+			}
+		}
+		
+		// Transfer animation from src to tgt with attributes specified
+		lasAnimTools_transAnimAttr ($sel[0], $sel[$i], $range, $startTime, $transferAttrs, "");
+	}
+}
+
+
+// ***************************************************************************************
+//	Function to transfer animation from a source object to a target object, based on attribute
+// ***************************************************************************************
+global proc lasAnimTools_transAnimAttr (string $src, string $tgt, string $range, string $startTime, string $attrs[], string $option)
+{
+	for ($eachAttr in $attrs)
+	{
+		//if there are no keys, transfer the value
+		if( size(`keyframe -q -tc -vc ($src+"."+$eachAttr)`) == 0 )
+		{
+			float $value = ` getAttr ($src+"."+$eachAttr) `;
+			setAttr ($tgt+"."+$eachAttr) $value;
+		}
+		else
+		{
+			if ( $option == "") $option = "insert";
+		
+			copyKey -time $range -hierarchy none -animation objects -o curve -attribute $eachAttr $src;
+			if ($startTime == "")
+			{
+				pasteKey -option $option -animation objects -attribute $eachAttr $tgt;
+			}
+			else
+			{
+				float $time = $startTime;
+				pasteKey -time $time -option $option -animation objects -attribute $eachAttr $tgt;
+			}
+		}
+	}
+}
+
+
+// **********************************************************************
+//		UI Function:
+//			Opens up a file browser and enter selected file
+//			into the textFieldButtonGrp
+// **********************************************************************
+global proc lasAnimTools_fileBrowserToTextFieldButtonGrp (string $tfbg)
+{
+	string $result = ` fileDialog -dm "*.mov" `;
+	textFieldButtonGrp -edit -tx $result $tfbg;
+}
+
+
+// **********************************************************************
+//		Function to get the namespace of the object passed it
+// **********************************************************************
+global proc string lasAnimTools_getNamespace (string $obj)
+{
+	string $tokens[];
+	tokenize $obj ":" $tokens;
+	
+	if (size($tokens) > 1)
+		return $tokens[0];
+	else
+		return "";
+}
+
+
+// **********************************************************************
+//		Function to get the prefix of the object passed it
+// **********************************************************************
+global proc string lasAnimTools_getPrefix (string $obj)
+{
+	string $tokens[];
+	tokenize $obj "_" $tokens;
+	return $tokens[0];
+}
+
+
+// **********************************************************************
+//					Justin scripts
+// **********************************************************************
+global proc string fsGetMsgObj(string $directory, string $attr)
+{
+    global int $lalRigDebug;
+    string $objects[];
+    string $object;
+    
+    // first make sure the attribute exists on the directory
+    if(`attributeExists $attr $directory` != 1)
+    {
+        if($lalRigDebug)
+        {
+            warning("A '"+$attr+"' message attribute does not exist on the " + 
+            $directory +" node.");
+            
+        }
+        return "";
+    }
+    else
+    {
+        // this script returns the object and makes sure that there is only one
+        // connection on the attribute.
+        
+        $objects = `listConnections ($directory + "." + $attr)`;
+        if(size($objects) == 1)
+        {
+            $object = $objects[0];
+            return $object;
+        }
+        else if(size($objects) > 1)
+        {
+            $object = $objects[0];
+            return $object;
+            warning(($directory + "." + $attr)+" has multiple connections." +
+            "Please remove multiple connections or use 'lalGetMsgObjArray'.");
+        }
+        else
+        {
+            if($lalRigDebug)
+            {
+                warning("No object connected to the '"+ $attr 
+                +"' message connection.");
+            }
+            return "";
+        }
+    }
+}
+
+
+global proc string fsGetDirectory(string $asset, string $type)
+{
+    //print("Running \"fsGetDirectory\"...\n");
+    int    $a;
+    int    $b = 0;
+    string $connections[];
+    string $matches[];
+    string $dirType;
+    string $directory;
+    
+    if (`attributeExists "assetDirectory" $asset`)
+    	$connections = `listConnections ($asset+".assetDirectory")`;
+    else
+    	return "";
+    
+    for($a=0;$a<size($connections);$a++)
+    {
+        $dirType = `getAttr ($connections[$a]+".directoryType")`;
+        if($dirType == $type)
+        {
+         // we have match 
+         $matches[$b] = $connections[$a];
+         $b++;
+        }
+    }
+       
+    // Lets make sure that we only return one matching directory
+    if(size($matches) == 1)
+    {
+        $directory = $matches[0];
+        return $directory;
+    }
+    if(size($matches) > 1)
+    {
+        warning("fsGetDirectory: More than one matching directory connected.");
+        $directory = $matches[0];
+        return $directory;
+    }
+    
+    // or return nothing when cant find the directory
+    if(size($matches) == 0)
+    	return "";
+}
+
+
+//******************************************************************************
+//	global proc string lalGetFullPath(string $type, $motionRig, string $ctrlName)
+//	given the object's name, it'l return the complete path
+//	to the controller
+//******************************************************************************
+global proc string lalGetFullPath(string $type, string $objName, string $ctrlName)
+{
+	//use directory structure to get the controllers
+	string $targetObj;
+	
+	string $dir  = fsGetDirectory($objName, $type);
+	if ($dir !="")
+	{
+		$targetObj = fsGetMsgObj($dir, $ctrlName);
+		//print ("TargetObj: "+$targetObj+"\n");
+		return $targetObj;
+	}
+	else
+		return "";
+}
+
+
+// **********************************************************************
+//	Function to retrieve the motion rig node given the character's rig
+// **********************************************************************
+global proc string lasAnimTools_getMotionRigNode (string $charRig)
+{
+	string $assets  = fsGetDirectory($charRig, "assets");
+	string $motionRig  = fsGetMsgObj($assets, "motionRig");
+	return $motionRig;
+}
+
+
+// **********************************************************************
+//	Function to retrieve paths to all controllers connected to the 
+//	controls node of the motion rig
+// **********************************************************************
+global proc string[] lasAnimTools_getAllCtrls (string $controlNode)
+{
+	string $allCtrls[];	clear $allCtrls;
+	
+	// Get all the message connections to controls node
+	string $conns[] = ` listConnections -type transform -s 0 -d 1 $controlNode`;
+	
+	for ($eachConn in $conns)
+	{
+		$allCtrls[size($allCtrls)] = $eachConn;
+	}
+		
+	return $allCtrls;
+}
+
+
+// **********************************************************************
+//	Function to retrieve all the message attributes of the controls node 
+//	of the motion rig that are connected to controls
+// **********************************************************************
+global proc string[] lasAnimTools_getAllCtrlMessageAttrs (string $controlNode)
+{
+	string $allCtrls[];	clear $allCtrls;
+	
+	// Get all the message connections, source + destination
+	string $conns[] = ` listConnections -s 0 -d 1 -c 1 $controlNode`;
+	
+	for ($i = 0; $i < size($conns) - 1; $i = $i + 2)
+	{
+		string $tokens[];	clear $tokens;
+		tokenize $conns[$i] "." $tokens;
+		$allCtrls[size($allCtrls)] = $tokens[1];
+	}
+	
+	return $allCtrls;
+}
+
+
+// **********************************************************************
+// 	Function to find all characters in the current scene and 
+//	list them in the optionmenugrp
+// **********************************************************************
+global proc lasAnimTools_listSceneChars (string $omg)
+{	
+	// Store the existing selection first
+	string $menuItems[] = ` optionMenuGrp -q -itemListLong $omg`;
+	string $existSel = "";
+	if (size($menuItems) != 0)
+		$existSel = ` optionMenuGrp -q -v $omg`;
+	
+	// Clear all existing options
+	string $menuItems[] = ` optionMenuGrp -q -itemListLong $omg`;
+	for ($eachItem in $menuItems)
+	{
+		deleteUI $eachItem;
+	} 
+
+	string $chars[] = lasAnimTools_getSceneChars();
+	
+	// Check if there are any chars in the scene
+	if (size($chars) > 0)
+	{
+		for ($each in $chars)
+		{
+			menuItem -label $each;
+		}
+	}
+	else
+	{
+		menuItem -label "NIL";
+	}
+	
+	// If original selection exists, jump to that selection
+	clear $menuItems;
+	$menuItems = ` optionMenuGrp -q -itemListShort $omg`;
+	
+	for ($each in $menuItems)
+	{
+		string $value = ` menuItem -q -label $each`;
+		if ($value == $existSel)
+		{
+			optionMenuGrp -edit -v $existSel $omg;
+			break;
+		}
+	}
+}
+
+
+// **********************************************************************
+// 	Function to get all characters in the scene
+// **********************************************************************
+global proc string[] lasAnimTools_getSceneChars()
+{
+	// list all lalAsset Nodes
+	string $assets[] = `ls -long -type lalAsset`;
+	
+	string $charList[];
+	
+	for ($each in $assets)
+	{
+		// Get the asset root node
+		string $assetName = ` rootOf ($each)`;
+		//$assetName = ` substitute "|" $assetName ""`;
+		
+		// Check if this asset name is already in the list of characters
+		int $flag = 0;
+		for ($eachChar in $charList)
+		{
+			if ($eachChar == $assetName)
+			{
+				$flag = 1;
+				break;
+			}
+		}
+		
+		if (!$flag)
+		{
+			$charList[size($charList)] = $assetName;
+		}
+	}
+	
+	// check if the assets in the list are characters, if not, remove them
+	string $toRemove[] = {""};
+	for ($eachChar in $charList)
+	{
+		int $motion = 0;
+		int $env = 0;
+	
+		// Get the children motionRig and envelopRig
+		string $children[] = ` listRelatives -children -typ lalAsset -fullPath $eachChar`;
+		for ($eachChild in $children)
+		{
+			//print ($eachChild + "\n");
+			int $temp = getAttr ($eachChild + ".assetClass");
+			if ($temp == 2)
+				$motion = 1;
+			else if ($temp == 3)
+				$env = 1;
+		}
+		
+		// assume that if the asset does not have both motion and envelope rig, it is not a char
+		if (!($motion && $env))	//if (!$motion)	// change to if no motion rig cant find rig, becos low res rig does not have an envelope rig
+		{
+			$toRemove[size($toRemove)] = $eachChar;
+		}
+	}
+	
+	string $return[] = stringArrayRemoveExact($toRemove, $charList);
+	
+	// Remove the root "|" char
+	for ($i = 0; $i < size($return); $i++)
+	{
+		string $temp = `substitute "|" $return[$i] ""`;
+		$return[$i] = $temp;
+	}
+	
+	return $return;
+}
+
+
+// **********************************************************************
+//	Function to transfer animation from a source object to a target object
+// **********************************************************************
+global proc lasAnimTools_transferAnim (string $src, string $tgt, string $range, string $startTime, string $option)
+{
+	if ( !`objExists $src` || !`objExists $tgt` )
+	{
+		error ("Either "+$src+" or "+$tgt+" does not exist.\n");
+	}
+	
+	if ($range == "")
+		$range = ":";
+
+	string $attrs[] = ` listAttr -k -u -c $src `;
+	for ($eachAttr in $attrs)
+	{
+		//if there are no keys, transfer the value
+		if( size(`keyframe -q -tc -vc ($src+"."+$eachAttr)`) == 0 )
+		{
+			float $value = ` getAttr ($src+"."+$eachAttr) `;
+			if (` attributeExists $eachAttr $tgt `)
+			{
+				setAttr ($tgt+"."+$eachAttr) $value;
+			}
+		}
+		else
+		{
+			if ( $option == "") $option = "insert";
+		
+			copyKey -time $range -hierarchy none -animation objects -o curve -attribute $eachAttr $src;
+			if ($startTime == "")
+			{
+				if (` attributeExists $eachAttr $tgt `)
+					pasteKey -option $option -animation objects -attribute $eachAttr $tgt;
+			}
+			else
+			{
+				float $time = $startTime;
+				if (` attributeExists $eachAttr $tgt `)
+					pasteKey -time $time -option $option -animation objects -attribute $eachAttr $tgt;
+			}
+		}
+	}
+}
+
+
+// **********************************************************************
+//	Function to write animation data of a rig to a file
+// **********************************************************************
+global proc lasAnimTools_exportAnim (string $rig, string $file, string $timeOption)
+{
+	// Search for all controllers
+	string $charName = ` getAttr ($rig+".assetName")`;
+	string $ns = lasAnimTools_getNamespace ($rig);
+	string $motionRig = lasAnimTools_getMotionRigNode ($rig);
+	string $controlsNode = fsGetDirectory($motionRig, "controls");
+	string $ctrls[] = lasAnimTools_getAllCtrlMessageAttrs ($controlsNode);
+	
+	// Getting the time option
+	string $from = "";
+	string $to = "";
+	if ($timeOption == "AllKeys")
+	{
+		print "Exporting all found keyframes...\n";
+	}
+	else if ($timeOption == "Timeline")
+	{
+		$from = ` playbackOptions -q -min `;
+		$to = ` playbackOptions -q -max `;
+	}
+	else
+	{
+		string $tokens[];	clear $tokens;
+		tokenize $timeOption "," $tokens;
+		$from = $tokens[1];
+		$to = $tokens[2];
+	}
+	
+	// Open file for write operation
+	int $fileId = fopen($file, "w");
+	string $output = "";
+	
+	string $sourceFile = `file -q -sn`;
+	if( !`filetest -r $sourceFile` ) $sourceFile = "<-scene not saved->";
+	string $output = "LAS Animation Library File\nExported by: "+ `getenv USER` +"\nSource file: "+ $sourceFile +"\n";
+	
+	for ($eachCtrlAttr in $ctrls)
+	{
+		string $eachCtrl = fsGetMsgObj ($controlsNode, $eachCtrlAttr);
+		//print ($eachCtrlAttr + " >> " + $eachCtrl + "\n");
+		string $attrs[] = `listAttr -keyable -visible -scalar -multi $eachCtrl`;
+		if (size($attrs) > 0)
+		{
+			// Output the ctrl name and the no of attrs
+			//$output += ($eachCtrl + "," + (size($attrs)) + "\n");
+			$output += ($eachCtrlAttr + "," + (size($attrs)) + "\n");
+			
+			for ($eachAttr in $attrs)
+			{
+				// Check if that attribute is keyframed
+				float $allKeys[] = sort(`keyframe -time ($from + ":" + $to) -q ($eachCtrl+"."+$eachAttr)`);
+				// If yes, export keyframe data to file with KEY header
+				if (size($allKeys) > 0)
+				{
+					// Output KEY header + attr name + num of keyframes
+					$output += "KEY\t" + $eachAttr + "\t" + size($allKeys) + "\n";
+					
+					for ($eachKey in $allKeys)
+					{
+						// Getting all the necessary values for each keyframe
+						string $tanType[2] = `keyTangent -t $eachKey -q -itt -ott ( $eachCtrl +"."+ $eachAttr )`;
+						float $keyVal[2] = `keyframe -t $eachKey -q -vc ( $eachCtrl +"."+ $eachAttr )`;
+						float $inTan[2] = `keyTangent -t $eachKey -q -ia -iw ( $eachCtrl +"."+ $eachAttr )`;
+						float $outTan[2] = `keyTangent -t $eachKey -q -oa -ow ( $eachCtrl +"."+ $eachAttr )`;
+						int $lockState[] = `keyTangent -t $eachKey -q -l ( $eachCtrl +"."+ $eachAttr )`;
+	
+						// Output in format of time,value,inTanType,outTanType,inTanAngle,inTanWt,outTanAngle,outTanWt,lockstate
+						$output += $eachKey + "," + $keyVal[0] + "," + $tanType[0] + "," + $tanType[1] + "," + $inTan[0] + "," + $inTan[1] + "," + $outTan[0] + "," + $outTan[1] + "," + $lockState[0] + "\n";					
+					}
+				}
+				else	// If no, export attr values to file with ATTRS header
+				{
+					// Output ATTR header + attr name + value
+					$output += "ATTR\t" + $eachAttr + "\t" + ` getAttr ($eachCtrl+"."+$eachAttr)` + "\n";
+				}
+			}
+		}
+		else
+		{
+			print ("No keyable attrs on "+$eachCtrl+". Skipping to next ctrl...\n");
+			continue;
+		}
+	}	
+       	// output the string
+	fprint ($fileId, $output);
+	// Close the file
+	fclose $fileId;	
+	
+	print "Animation Exported Successfully.\n";
+}
+
+
+// **********************************************************************
+//	Function to load animation data from a file to a rig
+//	options = startTime,maintainGlobal
+// **********************************************************************
+global proc lasAnimTools_importAnim (string $file, string $rig, string $options)
+{
+	string $ns = lasAnimTools_getNamespace ($rig);
+	
+	string $charName = ` getAttr ($rig+".assetName")`;
+	string $motionRig = lasAnimTools_getMotionRigNode ($rig);
+	string $controlsNode = fsGetDirectory($motionRig, "controls");
+		
+	// Get the options
+	string $tokens[];	clear $tokens;
+	tokenize $options "," $tokens;
+	float $startTime = $tokens[0];
+	int $maintainGlobal = $tokens[1];
+	
+	// Open file for read operation
+	int $fileId = fopen($file, "r");
+	
+	string $nextLine = `fgetline $fileId`;	// LAS Animation Library File
+	$nextLine = `fgetline $fileId`;		// Exported by: <who>
+	print ($file + " " + $nextLine);
+	$nextLine = `fgetline $fileId`;		// Source file: <.ma file>
+	$nextLine = `fgetline $fileId`;		// 1st controller name
+	
+	while (size($nextLine) > 0)
+	{
+		string $tokens[];	clear $tokens;
+		tokenize $nextLine ",\n\t" $tokens;
+		
+		// Getting the ctrlAttr name of the exported controller
+		string $oldCtrlAttr = $tokens[0];
+		// Getting no of attrs exported
+		int $numAttrs = $tokens[1];
+		// Finding the corresponding controller in the current rig by searching the message connections
+		string $newCtrl = fsGetMsgObj ($controlsNode, $oldCtrlAttr);
+		
+		// Getting name of exported controller
+		//string $oldCtrl = $tokens[0];
+		// Getting no of attrs exported
+		//int $numAttrs = $tokens[1];
+		// Namespace of exported controller
+		//string $oldNs = lasAnimTools_getNamespace ($oldCtrl);
+		//string $newCtrl = "";
+		/*
+		if ($ns == $oldNs )
+			$newCtrl = $oldCtrl;
+		else
+		{
+			$newCtrl = `substitute ($oldNs+":") $oldCtrl ($ns+":")`;
+			while (`gmatch $newCtrl ("*"+$oldNs+":*")`)
+				$newCtrl = `substitute ($oldNs+":") $newCtrl ($ns+":")`;	// replace old ns with current ns
+		}
+		*/
+		
+		// For each attr exported
+		for ($i = 0; $i < $numAttrs; $i++)
+		{
+			// Info on each attribute
+			$nextLine = `fgetline $fileId`;
+			clear $tokens;
+			tokenize $nextLine "\t\n" $tokens;
+			
+			if ($tokens[0] == "ATTR")	// Case if no keyframes
+			{
+				
+				string $attr = $tokens[1];
+				float $value = $tokens[2];
+				if ((` objExists $newCtrl `) && (` attributeExists $attr $newCtrl `))
+				{	
+					if ($maintainGlobal)
+					{
+						if (!` gmatch $newCtrl "*Start" `)
+						{
+							setAttr ($newCtrl+"."+$attr) $value;
+						}
+					}
+					else
+					{
+						setAttr ($newCtrl+"."+$attr) $value;
+					}
+				}
+				else
+					print ($oldCtrlAttr + " not found in " + $rig + ". Unable to set attr value.\n");
+				
+			}
+			else if ($tokens[0] == "KEY")	// Case if keyframes exported
+			{
+				string $attr = $tokens[1];
+				int $numKeys = $tokens[2];
+				float $key;
+				float $value;
+				string $inTanType;
+				string $outTanType;
+				float $inTanAngle;
+				float $inTanWt;
+				float $outTanAngle;
+				float $outTanWt;
+				int $lock;
+				float $diff = 0.0;
+				
+				for ($j = 0; $j < $numKeys; $j++)
+				{
+					$nextLine = `fgetline $fileId`;
+				
+					
+					clear $tokens;
+					tokenize $nextLine "," $tokens;
+					$key = $tokens[0];
+					$value = $tokens[1];
+					$inTanType = $tokens[2];
+					$outTanType = $tokens[3];
+					$inTanAngle = $tokens[4];
+					$inTanWt = $tokens[5];
+					$outTanAngle = $tokens[6];
+					$outTanWt = $tokens[7];
+					$lock = $tokens[8];
+					
+					// Get the difference between start time and 1st keyframe
+					if ($j == 0)
+					{
+						$diff = $key - $startTime;
+					}
+					
+					if ((` objExists $newCtrl `) && (` attributeExists $attr $newCtrl `))
+					{
+						int $timeDiff = $startTime - $key;
+					
+						if ($maintainGlobal)
+						{
+							if (!` gmatch $newCtrl "*Start" `)
+							{
+								// Set keyframe
+								setKeyframe -t ($key-$diff) -v $value ( $newCtrl +"."+ $attr );
+								// Set tangent types
+								keyTangent -itt $inTanType -t ($key-$diff) ( $newCtrl +"."+ $attr );
+								keyTangent -ott $outTanType -t ($key-$diff) ( $newCtrl +"."+ $attr );
+								// Unlock tangent
+								keyTangent -t ($key-$diff) -l 0 ( $newCtrl +"."+ $attr );
+								// Setting in/out tangent angles and weights
+								keyTangent -t ($key-$diff) -ia $inTanAngle -iw $inTanWt ( $newCtrl +"."+ $attr );
+								keyTangent -t ($key-$diff) -oa $outTanAngle -ow $outTanWt ( $newCtrl +"."+ $attr );
+								// Locking as per data
+								keyTangent -t ($key-$diff) -l $lock ( $newCtrl +"."+ $attr );
+							}
+						}
+						else
+						{
+							// Set keyframe
+							setKeyframe -t ($key-$diff) -v $value ( $newCtrl +"."+ $attr );
+							// Set tangent types
+							keyTangent -itt $inTanType -t ($key-$diff) ( $newCtrl +"."+ $attr );
+							keyTangent -ott $outTanType -t ($key-$diff) ( $newCtrl +"."+ $attr );
+							// Unlock tangent
+							keyTangent -t ($key-$diff) -l 0 ( $newCtrl +"."+ $attr );
+							// Setting in/out tangent angles and weights
+							keyTangent -t ($key-$diff) -ia $inTanAngle -iw $inTanWt ( $newCtrl +"."+ $attr );
+							keyTangent -t ($key-$diff) -oa $outTanAngle -ow $outTanWt ( $newCtrl +"."+ $attr );
+							// Locking as per data
+							keyTangent -t ($key-$diff) -l $lock ( $newCtrl +"."+ $attr );
+						}
+					}
+					else
+						print ($newCtrl + " not found in " + $rig + ". Unable to set attr keyframe.\n");
+				}			
+				
+			}
+		}			
+	
+		$nextLine = `fgetline $fileId`;	// next controller
+	}
+		
+	// Close the file
+	fclose $fileId;
+
+	print "Animation Imported Successfully.\n";
+}
+
+
+// Function to reset whole body rig to default
+global proc lasAnimTools_resetBodyRig (string $rigName)
+{
+	// Get character name
+ 	string $charName = ` getAttr ($rigName + ".assetName") `;
+ 	string $lalAssetNode = lasAnimTools_getMotionRigNode ($rigName);
+ 	string $controlNode = lasAnimTools_getControlNode ($lalAssetNode);
+ 	string $ns = lasAnimTools_getNamespace ($lalAssetNode);
+ 	if ($controlNode != "")
+	{
+ 		string $ctrls[] = ` lasAnimTools_getAllBodyCtrls ($controlNode) `;
+ 		
+ 		for ($eachCtrl in $ctrls)
+		{
+			string $attrs[] = ` listAttr -k -u -c $eachCtrl`;
+			for ($eachAttr in $attrs)
+			{
+				if (($eachAttr == "translateX") || ($eachAttr == "translateY") || ($eachAttr == "translateZ") ||
+				($eachAttr == "rotateX") || ($eachAttr == "rotateY") || ($eachAttr == "rotateZ"))
+				{
+					int $setable = lasAnimTools_checkAttrSettable ($eachCtrl, $eachAttr);
+					
+					if ($setable)
+						setAttr ($eachCtrl + "." + $eachAttr) 0;
+				}
+				else if (($eachAttr != "legScaleY") && ($eachAttr != "display") && ($eachAttr != "cgcgInnerSkirtCntrl") && ($eachAttr != "cgcgOuterSkirtCntrl"))
+				{
+					float $default = ` addAttr -q -dv ($eachCtrl + "." + $eachAttr) `;
+					int $setable = lasAnimTools_checkAttrSettable ($eachCtrl, $eachAttr);
+					
+					if ($setable)
+						setAttr ($eachCtrl + "." + $eachAttr) $default;
+				}
+			}
+		}
+	}
+	else
+	{
+		error "Control Node of motion rig not found.\n";
+	}
+}
+
+
+// -----------------------------------------------------------------------------------------------
+// Function to obtain the control node of the asset node given
+// -----------------------------------------------------------------------------------------------
+global proc string lasAnimTools_getControlNode (string $rigNode)
+{
+	string $controlNode  = fsGetDirectory($rigNode, "controls");
+	
+	return $controlNode;
+}
+
+
+// -----------------------------------------------------------------------------------------------
+// Function to get all body controllers
+// -----------------------------------------------------------------------------------------------
+global proc string[] lasAnimTools_getAllBodyCtrls (string $controlNode)
+{
+	string $allBodyCtrls[];	clear $allBodyCtrls;
+	
+	string $ns = lasAnimTools_getNamespace ($controlNode);
+		
+	// Get all the message connections to controls node
+	string $conns[] = ` listConnections -type transform -s 0 -d 1 $controlNode`;
+	
+	for ($eachConn in $conns)
+	{
+		// Check if it is a hand ctrl
+		if (!((`gmatch $eachConn "*Index*"`) || (`gmatch $eachConn "*Middle*"`) || (`gmatch $eachConn "*Ring*"`) || (`gmatch $eachConn "*Pinky*"`) || (`gmatch $eachConn "*Thumb*"`)))
+		{
+			// Ignore Start and Offset controls
+			if ((!` gmatch $eachConn "*Start" `) && (!` gmatch $eachConn "*Offset" `))
+			{
+				// Check if they are facial guis
+				string $parent = firstParentOf($eachConn);
+				if (!`gmatch $parent "*Face*"`)
+				{
+					$allBodyCtrls[size($allBodyCtrls)] = $eachConn;
+				}
+			}
+		}
+	}
+		
+	return $allBodyCtrls;
+}
+
+
+// Function to check if an attribute is settable (not connected by anything else other than animCurves)
+global proc int lasAnimTools_checkAttrSettable (string $obj, string $attr)
+{
+	// Check if this attribute is connected by anything other than animCurves
+	string $conns[] = ` listConnections -s 1 -d 0 ($obj+"."+$attr)`;
+	int $setable = 1;
+	for ($eachConn in $conns)
+	{
+		if (`objectType $eachConn` != "animCurve")
+		{
+			$setable = 0;
+			break;
+		}
+	}
+	
+	return $setable;
+}
+
+
+// Function to return all available versions of specified asset
+global proc string[] lasAnimTools_getAvailVers (string $assetType, string $assetName)
+{
+	string $assetTypePath = ` getenv "LIBRARY_ROOT"` + "/" + $assetType + "/";
+	
+	string $assetVerFolders[] = ` getFileList -folder ($assetTypePath + $assetName + "/")`;
+	
+	// Store the versions in a string array
+	string $verList[]; clear $verList;
+	for ($each in $assetVerFolders)
+	{
+		if (` gmatch $each ($assetName + "*")`)
+		{
+			// Get the version only
+			string $tokens[]; clear $tokens;
+			tokenize $each "." $tokens;
+			
+			$verList[size($verList)] = $tokens[1] + "." + $tokens[2];
+		}
+	}
+	
+	// Sort the versions, latest ones 1st
+	string $sortedList[] = lasCharPick_sortVerList ($verList);
+	
+	return $sortedList;
+}
+
+
+// Function to sort the version list
+global proc string[] lasAnimTools_sortVerList (string $verList[])
+{
+	string $tokens[]; clear $tokens;
+	string $result[]; clear $result;
+	string $tempOne = "";
+	string $tempDec = "";
+	for ($each in $verList)
+	{
+		tokenize $each "." $tokens;
+		int $ones = $tokens[0];
+		int $decs = $tokens[1];
+		
+		if (size($result) == 0)
+		{
+			$tempOne = $ones;
+			$tempDec = $decs;
+			$result[0] = $tempOne + "." + $tempDec;
+		}
+		else
+		{		
+			lasCharPick_checkVerWithList ($each, $result, 0);
+		}
+	}
+	
+	//print $result;
+	//print "=========\n";
+	return $result;
+}
+
+
+// Function to insert the given version into the version list
+// lasAnimTools_checkVerWithList ( version to check, sorted list of versions, starting index of list to check against )
+global proc lasAnimTools_checkVerWithList (string $ver, string $result[], int $startIndex)
+{
+	string $tTokens[]; clear $tTokens;
+	for ($i = $startIndex; $i < size($result); $i++)
+	{
+		// Get the ones and decs of the version to insert in
+		tokenize $ver "." $tTokens;
+		int $one = $tTokens[0];
+		int $dec = $tTokens[1];
+		
+		// Get the ones and decs of the version in the sorted list now
+		clear $tTokens;
+		tokenize $result[$i] "." $tTokens;
+		int $listOne = $tTokens[0];
+		int $listDec = $tTokens[1];
+		
+		// Checking
+		if ($listOne == $one)	// Check the decimal place
+		{
+			if ($listDec < $dec)
+			{
+				// Case when list version is smaller than the current version
+				// Insert current into the list and check the list one with the rest of the list
+				string $temp = $listOne + "." + $listDec;
+				$result[$i] = $one + "." + $dec;
+				if ($i + 1 < size ($result))
+					lasCharPick_checkVerWithList ($temp, $result, ($i+1));
+				else
+				{
+					$result[$i+1] = $temp;
+				}
+				break;
+			}
+		}
+		else if ($listOne < $one)	// Check the decimal place
+		{
+			// Case when list version is smaller than the current version
+			// Insert current into the list and check the list one with the rest of the list
+			string $temp = $listOne + "." + $listDec;
+			$result[$i] = $one + "." + $dec;
+			if ($i + 1 < size ($result))
+				lasCharPick_checkVerWithList ($temp, $result, ($i+1));
+			else
+			{
+				$result[$i+1] = $temp;
+			}
+			break;
+		}
+	}
+
+}
+
+
+
+
+
+
+
+

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BuildMachineOSBuild</key>
+	<string>11G63b</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>Digital Rebellion Software Update</string>
+	<key>CFBundleIconFile</key>
+	<string>SoftwareUpdate.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.digitalrebellion.SoftwareUpdate</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Digital Rebellion Software Update</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>2.1.4</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>2140</string>
+	<key>DRGroupID</key>
+	<string>com.digitalrebellion.shared</string>
+	<key>DTCompiler</key>
+	<string></string>
+	<key>DTPlatformBuild</key>
+	<string>4E3002</string>
+	<key>DTPlatformVersion</key>
+	<string>GM</string>
+	<key>DTSDKBuild</key>
+	<string>10K549</string>
+	<key>DTSDKName</key>
+	<string>macosx10.6</string>
+	<key>DTXcode</key>
+	<string>0433</string>
+	<key>DTXcodeBuild</key>
+	<string>4E3002</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.6</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+</dict>
+</plist>

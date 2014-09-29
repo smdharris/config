@@ -1,0 +1,24 @@
+/*
+procdure permettant de creer des locators a la place des trackedPoint3DLocators
+crees mar mayalive.
+
+Usage: selectionner les trackedPoint3DLocators et lancer la commande copyLocator
+dans le script editor
+*/
+
+
+global proc copyLocator(){
+
+string $obj;
+float $TX,$TY,$TZ;
+
+$st= `ls -sl`;
+    for ($obj in $st){
+
+    $TX=eval("getAttr "+ $obj+".tx");
+    $TY=eval("getAttr "+ $obj+".ty");
+    $TZ=eval("getAttr "+ $obj+".tz");
+    
+    spaceLocator -p $TX $TY $TZ;
+    }
+}

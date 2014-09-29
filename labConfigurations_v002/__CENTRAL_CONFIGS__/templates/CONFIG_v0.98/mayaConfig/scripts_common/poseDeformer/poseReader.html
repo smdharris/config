@@ -1,0 +1,123 @@
+<html>
+<head>
+<title>poseReader</title>
+</head>
+<body bgcolor="#505050" text="#d0d0d0" link="#5070ff"
+vlink="#201070" alink="#FFFF00">
+
+<img src="poseReader.jpg" width="400" height="199" border=0 align="right">
+<p>
+
+<h2>poseReader</h2>
+<p>
+<pre>
+poseReader - Pose Space Angle Reader Maya Plugin by Michael B. Comet
+Copyright ©2004 Michael B. Comet
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+    For information on poseDeformer contact:
+        Michael B. Comet - comet@comet-cartoons.com
+        or visit http://www.comet-cartooons.com/toons/
+</pre>
+<p>
+
+<p>
+<br clear="right">
+
+<u><b>DESCRIPTION:</b></u>
+<p>
+This plugin provides a simple way to easily "read" pose angles from nodes or joints.  This 
+allows easy psoe driven deformation or other tasks.  Angles can be read with or without twist,
+and with an easily set min and max angle.  The value is then output to a "weight" attribute
+that can be used to drive a rig or blendshape.
+<p>
+
+<u><b>REQUIREMENTS:</b></u>
+<p>
+This recompiled plugin requires a Windows version of Maya 6.0.
+<p>
+
+<u><b>INSTALL:</b></u>
+<p>
+<ol>
+<li>Quit Maya if it is running.
+<p>
+<li>Unzip the contents of the ZIP file.
+<p>
+<li>Copy the <b>poseReader.mll</b> to the Maya binary plugin path where you installed
+Maya.  This is typically:<br>
+&nbsp; &nbsp; &nbsp; &nbsp;  <b>C:\Program Files\Alias\Maya6.0\bin\plug-ins\</b>
+<p>
+<li>Copy the poseReaderUI.mel file into your Maya scripts folder.
+<p>
+<li>Restart Maya.
+<p>
+<li>Open to the menu for Window | Setting/Preferences | Plug-in Manager...
+<p>
+<li>Look for the "poseReader.mll" entry in the window.  Choose "loaded" to load
+the plugin.  You can also check the "auto load" box so that the plugin is loaded 
+automatically every time you start Maya.
+<p>
+<li>Close the dialog.
+<p>
+<li>Choose File | Save Preferences to make sure your prefs are saved.
+<p>
+<li>The plugin is now loaded and installed, you can now use the new MEL command
+called "poseReaderUI" to launch the UI to set up poseReader nodes.
+<p>
+</ol>
+<p>
+
+<u><b>USAGE:</b></u>	
+<ol>
+<li>Make some joints or nodes.
+<p>
+<li>Run the poseReaderUI script.
+<p>
+<li>Select one or more nodes that you want to make a pose read for.  Generally you will 
+want to already pose them in the angle that you want to read.
+<p>
+<li>Click the "Rig" button.  You will usually want World space calculation.  In cases where
+you get cycle check errors, you can attempt to use Local space, but the node must then be 
+parented to the same parent as the one you are reading.
+<p>
+<li>Adjust rotation or scale of pose node.  You can also adjust the min and max angles and so on.
+<p>
+If the pose is outside of the max angle arc, then the output weight will be zero.
+If the pose is inside of the min angle arc, then it will be one.  If it is inbetween, it will
+blend between zero to one.
+<p>
+If you choose to have your pose count twisting as part of the pose, then you can set the allowTwist
+to zero.
+<p>
+Generally speaking you will want the main "Axis" to read for the pose to be the one down the 
+length of the joint chain.  I typically align with Y down the chain, instead of Maya X, which is
+why the script defaults to Y.
+<p>
+<li>Connect the "weight" attribute to something useful, such as a blendShape node to drive 
+blenshapes when the poses are hit.  
+<p>
+<li>SEE THE SAMPLE FILES, Particularly the Sample #2 for how it can be used to drive blendShapes.
+<p>
+
+</ol>
+
+
+
+<hr>
+<a href="http://www.comet-cartoons.com/toons/">Comet Cartoons - http://www.comet-cartoons.com/</a> - Michael B. Comet
+</body>
+</html>
