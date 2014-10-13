@@ -10,7 +10,7 @@ windowPref -topLeftCorner 250 200 -widthHeight 524 470 -maximized false devicePa
 windowPref -topLeftCorner 754 59 -widthHeight 688 562 -maximized false hyperShadePanel1Window;
 windowPref -topLeftCorner 250 200 -widthHeight 700 400 -maximized false dynPaintScriptedPanelWindow;
 windowPref -topLeftCorner 250 200 -widthHeight 550 562 -maximized false blindDataEditor1Window;
-windowPref -topLeftCorner 22 12 -widthHeight 1680 1050 -maximized true MayaWindow;
+windowPref -topLeftCorner 671 52 -widthHeight 1676 1639 -maximized false MayaWindow;
 windowPref -topLeftCorner 364 562 -widthHeight 440 42 -maximized false greasePencilFloatingWindow;
 windowPref -topLeftCorner 163 902 -widthHeight 778 645 -maximized false RRM_Window;
 windowPref -topLeftCorner 270 361 -widthHeight 665 500 -maximized false PreferencesWindow;
@@ -40,7 +40,7 @@ windowPref -topLeftCorner 304 916 -widthHeight 300 217 -maximized false icTransf
 windowPref -topLeftCorner 370 47 -widthHeight 400 351 -maximized false batchRenderWnd;
 windowPref -topLeftCorner 790 920 -widthHeight 660 800 -maximized false RRM_Selector;
 windowPref -topLeftCorner 364 562 -widthHeight 200 190 -maximized false SHAPESAboutWin;
-windowPref -topLeftCorner 443 261 -widthHeight 316 180 -maximized false SHAPESBrushWin;
+windowPref -topLeftCorner 424 87 -widthHeight 316 180 -maximized false SHAPESBrushWin;
 windowPref -topLeftCorner 364 562 -widthHeight 290 300 -maximized false Lightmaps;
 windowPref -topLeftCorner 437 750 -widthHeight 398 271 -maximized false RenderLayerEditorWindow;
 windowPref -topLeftCorner 95 548 -widthHeight 846 921 -maximized false expressionEditorWin;
@@ -49,3 +49,4 @@ windowPref -topLeftCorner 364 562 -widthHeight 550 500 -maximized false projectW
 windowPref -topLeftCorner 348 494 -widthHeight 486 325 -maximized false dynRelEdPanel1Window;
 windowPref -topLeftCorner 130 189 -widthHeight 683 325 -maximized false nodeEditorPanel2Window;
 windowPref -topLeftCorner 828 662 -widthHeight 520 620 -maximized false connectWindow;
+windowPref -topLeftCorner 364 562 -widthHeight 250 241 -maximized false dpInfoWindow;
