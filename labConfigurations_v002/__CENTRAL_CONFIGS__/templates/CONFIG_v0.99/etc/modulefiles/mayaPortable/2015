@@ -68,6 +68,25 @@ setenv DYLD_LIBRARY_PATH $MAYA_LOCATION/MacOS
 ###  modules does this with a placeholder envvar
 ###  so to avoid the nag warning I am setting rather than appending this
 
+#########################################################
+# 	Renderman Studio Setup
+#
+
+module load renderman/19.0b3
+
+set RMS "RenderManStudio-19.0b3-maya2015"
+setenv RMS_VERSION RMS
+append-path MAYA_MODULE_PATH /Applications/Pixar/$RMS/etc
+#set RMANTREE $env(RMANTREE)
+set RMSTREE /Applications/Pixar/$RMS
+setenv RMSTREE $RMSTREE
+append-path MAYA_PLUG_IN_PATH $RMSTREE/plug-ins
+append-path MAYASCRIPT_PATH $RMSTREE/scripts
+#append-path RMS_SCRIPT_PATHS
+append-path PYTHONPATH $RMSTREE/scripts:$RMSTREE/bin
+setenv PIXAR_LICENSE_FILE /Applications/Pixar/pixar.license
+#########################################################
+
 
 	
 # for Tcl script use only
