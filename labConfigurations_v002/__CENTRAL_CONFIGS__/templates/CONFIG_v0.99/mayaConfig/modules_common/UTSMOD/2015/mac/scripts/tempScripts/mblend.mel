@@ -1,0 +1,213 @@
+//------------------------mblend--------------------------------
+// originally made by ....Julian Mann and Elie Jamaa July 1998-------------------------
+// blend animated hierarchies (sources) onto a target  hierarchy
+// hierarchies must match
+// this version only works on joints as it is at its most powerfull 
+// for character blending.
+// blending attributes are created for each source and will blend between all channels selected
+// in the channel mask at the time mblend is invoked (i.e. when the blend button is pressed)
+// modified to use quarternian blending on rotations M Gidney - uses plug blendAnim.so
+
+global proc mblendHelp () {
+	print (" >> mblend ....Pick two source joint heirachies and a target one - and blend rotations in quarternion space \n");
+	print (" Translations and Scale are linear by default\n");
+	print (" Rotations can be calculated in quarternion space using plugin blandAnim\n");
+	print (" >> mblend ....Pick two source joint heirachies and a target one - and blend rotations in quarternion space \n");	
+}
+
+proc string[] getTokens(string $inString, string $tokenSymbol){
+	string $tokens[];
+        tokenize $inString $tokenSymbol $tokens;	
+	return $tokens;
+}
+proc string getBoneName(string $longName) {
+	string $shortNames[] = getTokens($longName,"|");
+        string $shortName = $shortNames[size($shortNames) -1];
+
+	return $shortName;
+}
+global proc theBlender (string $channels[], int $doHeirachy) {
+	// gather some information about the selections
+	string $parents[] = `ls -sl -type "joint"`;
+	string $sourceA[];
+	string $sourceB[];
+	string $target[];
+	string $cmd;
+	int $toomany = 0;
+	if((size($parents))!=3) {
+		print("Can only blend two heirachies onto one target!!! - try wblend instead\n");
+		$toomany = 1;
+		}			
+	if ($doHeirachy) {
+		string $Bones[] = `listRelatives -fullPath -allDescendents -type "joint" $parents[2]`;
+		int $numBonesTemp = size($Bones);
+		for ($i=0;$i<3;$i++){
+				switch ($i) {
+					case 0:
+						$sourceA = `listRelatives -fullPath -allDescendents -type "joint" $parents[$i]`;
+						$sourceA[$numBonesTemp]=$parents[$i];
+						break;
+					case 1:
+						$sourceB = `listRelatives -fullPath -allDescendents -type "joint" $parents[$i]`;
+						$sourceB[$numBonesTemp]=$parents[$i];
+						break;
+					case 2:
+						$target = `listRelatives -fullPath -allDescendents -type "joint" $parents[$i]`;
+						$target[$numBonesTemp]=$parents[$i];
+						break;
+					}
+				}
+		} else {	
+		$sourceA[0]=$parents[0];
+		$sourceB[0]=$parents[1];
+		$target[0]=$parents[2];
+		}		
+	int $mismatch = 0;
+	// find out if the hierarchies match
+	int $numTargets = size($target);
+	if ( ( size($target) != size($sourceA)) || ( size($target) !=  size($sourceB) ) ) {
+			$mismatch = 1;
+	}
+	if ($mismatch || $toomany) {
+		print "\nhierarchy does not match Or more than two sources selected";
+	} else {
+		print "\nhierarchy does match .....";
+		// convert the current angular unit to radians
+		// this prevents the creation of redundent unit conversion nodes
+			currentUnit -a rad;
+		// do the blending bit
+		
+		string $sourceAroot = $sourceA[$numTargets-1];
+		string $sourceBroot = $sourceB[$numTargets-1];			
+		string $targetRoot = $target[$numTargets-1];
+		
+		print	(`getBoneName $sourceAroot` + "\n"+`getBoneName $sourceBroot`	+ "\n"+ `getBoneName $targetRoot`+ "\n");
+		
+		//create an influence attribute for the source
+		string $infName = (`getBoneName $sourceAroot`) + (`getBoneName $sourceBroot`);
+		print ("\nInfName = " + $infName + "\n");
+		if (!`objExists ($targetRoot + "." + $infName + "Influence")`) {
+			addAttr -at double -ln ($infName + "Influence") -min 0 -max 1 -dv 0  $targetRoot ;
+			setAttr -e -keyable true  ($targetRoot + "." + $infName + "Influence");
+		}
+		for ($i = 0; $i < $numTargets; $i++) {
+			for ( $channel in $channels ) {
+				print("\n$i = " + $i + "    channel = " + $channel);
+				
+				string $existing_connections[] = `listConnections -s 1 -d 0 ($target[$i] + "." + $channel)`;
+				string $blend_node;
+				if ((`size $existing_connections` > 0) && (`nodeType $existing_connections[0]` == "blendAnim")) {
+					$blend_node = $existing_connections[0];
+				} else {
+				$blend_node = `createNode blendAnim -name ("blendAnim" + $i + "_"+ $channel + "Node")`;
+				}
+				connectAttr -f ($blend_node + ".output") ($target[$i] + "." + $channel);
+				connectAttr -f ($sourceA[$i]+"."+$channel) ($blend_node+".input1");
+				connectAttr -f ($sourceB[$i]+"."+$channel) ($blend_node+".input2");
+				connectAttr -f ($targetRoot + "." + $infName + "Influence") ($blend_node + ".weight");
+				switch ($channel) {
+					case "rotate":
+						//set blend method to quarternion short
+						setAttr ($blend_node+".rotationBlend") 0;
+						break;
+					case "translate":
+						//set blend method to linear
+						setAttr ($blend_node+".rotationBlend") 2;
+						break;
+					case "scale":		
+						//set blend method to linear
+						setAttr ($blend_node+".rotationBlend") 2;
+						break;
+						}
+			}
+				
+		}
+	}
+		// return the units to degrees
+		currentUnit -a deg;
+		select -r $target;
+}
+
+// turn the channel checkbox values into an array of channel names-------------------
+// so we turn them into a string array where only the channels turned on are returned
+
+global proc string[] chanArray (string $tcs, string $rcs, string $scs) {
+	string $sArray[] = {$tcs, $rcs, $scs};
+	string $channel_prefix[] = {"translate", "rotate", "scale"};
+	string $channels[];
+	int $count = 0;
+	if ( `checkBoxGrp -q -v1 $sArray[0]`) {
+		$channels[$count] = ($channel_prefix[0]);
+		$count++;
+	}	
+	if ( `checkBoxGrp -q -v1 $sArray[1]`) {
+		$channels[$count] = ($channel_prefix[1]);
+		$count++;
+	}	
+	if ( `checkBoxGrp -q -v1 $sArray[2]`) {
+		$channels[$count] = ($channel_prefix[2]);
+		$count++;
+	}
+	for ($i= 0;$i < (size($channels));$i++){
+		print("....channels to blend...." + $channels[$i] + "\n");
+	}
+	return $channels;
+}
+
+// query the range slider values and make an array ----------------------------------
+global proc int heirachyArray (string $hei) {
+	int $doHeirachy = 0;
+	if ( `checkBoxGrp -q -v1 $hei`) {
+		$doHeirachy = 1;
+	}
+	return $doHeirachy;
+}
+
+// Build UI ----------------------------------------------------------------
+global proc mblend() {
+	//waitCursor -state on;
+	//loadPlugin -quiet "blendAnimNode";
+	//waitCursor -state off;
+	mblendHelp;
+	
+	string $wbwin = `window	-w 400 -h 256
+		-t "  quarternion rotation blender    matt gidney July 2003 -"
+		-in "- mblend -"
+		-s 1 -rtf 1` ;
+	string $form = `formLayout`;
+		string $blendCmd;
+		$bottomLine = `rowLayout -nc 2 -ct2 both both -cw2 200 200`;
+	formLayout -e -attachForm $bottomLine "bottom" 6 $form;
+		setParent ..;
+	menuBarLayout;
+		menu -l "Help" -hm 1;
+		menuItem -l "Help..." -c mblendHelp;
+		menuItem -l "About the mBlend" -c mblendHelp;
+	columnLayout -adj 1;
+		separator; separator; separator;
+	frameLayout -cl 1 -cll 1 -l "Channels" -mw 0 -mh 10 -bs etchedIn;
+		columnLayout;	
+			string $tcs = `checkBoxGrp	-ncb 1 -l "Translate" -cat 1 right 20 -cw 1 150 
+					-l1 " "  -v1 0   `;
+			string $rcs = `checkBoxGrp	-ncb 1 -l "Rotate" -cat 1 right 20 -cw 1 150 
+					-l1 "default" -v1 1`;
+			string $scs = `checkBoxGrp	-ncb 1 -l "Scale" -cat 1 right 20 -cw 1 150 
+					-l1 " "  -v1 0   `;
+
+			string $hei =`checkBoxGrp	-ncb 1 -l "Do Heirachy" -cat 1 right 20 -cw 1 150 
+					-l1 "Yes" -v1 1`;
+			text -l " ";
+			
+			setParent ..;
+			setParent ..;
+			
+	$blendCmd = ("theBlender `chanArray " + $tcs + " " + $rcs + " " + $scs + "`  `heirachyArray " + $hei + "`");
+	print ($blendCmd + "\n");
+				
+	button -vis 0 -w 400 -h 36;
+		setParent $bottomLine;
+		button -l "BLEND !"	-al center	-command $blendCmd;
+		button -l "Cancel"	-al center	-command ("deleteUI " + $wbwin + ";");
+
+	showWindow;
+}

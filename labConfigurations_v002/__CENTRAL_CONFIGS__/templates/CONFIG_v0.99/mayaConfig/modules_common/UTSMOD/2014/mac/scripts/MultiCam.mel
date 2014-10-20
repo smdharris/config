@@ -1,0 +1,1431 @@
+/****************************************************************************
+ *  Copyright (C) 2003-2007 Animal Logic Pty Ltd                            *
+ *                                                                          *
+ *  These coded instructions, statements, and computer programs contain     *
+ *  unpublished  proprietary  information of Animal Logic Pty Ltd,          *
+ *  and are protected by copyright law.  They  may  not be disclosed        *
+ *  to  third  parties  or copied or duplicated in any form, in whole or    *
+ *  in part, without the prior written consent of  Animal Logic Pty Ltd.    *
+ *                                                                          *
+ ****************************************************************************/
+
+//Original code by Justen Marshall
+//Camera Option Duplication code by Murray Stevenson
+//MakeCameraMain GUI by Bryan Smith
+//
+
+//#includePlugins RegEx safezone
+//#includeMels SafeZone 
+
+loadVersionedTool("layoutTools");
+
+//Set default camera type to be 1 (Camera only)
+//this can be changed by the Create Shot Cam shelf popupMenu.
+global int $MultiCamCameraType = 1;
+
+//
+// Scripts/functions for managing multicamera rigs.
+//
+
+proc MultiCamSetDefaultRotateOrder(string $camera)
+{
+  setAttr ($camera + ".rotateOrder") 2; // zxy
+}
+
+global proc MultiCamSwitchCameras( string $fromCam, string $toCam, string $panel) 
+{
+//	print ("Changing viewport " + $panel + " to lookThru " + $toCam + "\n");
+	lookThru $toCam $panel;
+
+	// Since the camera expression relies on side effects, we won't
+	// probably get updated properly if they've moved the camera.
+	currentTime -e (currentTime( "-q" ));
+}
+
+global proc string MultiCamCreateCamera( string $basename )
+{
+	global int $MultiCamCameraType;
+
+	//clone cameraMain, minus the safezone
+	string $dupCam[] = `duplicate -rr -renameChildren cameraMain`;
+	string $safeZoneShape[] = `listRelatives -ad -typ SafeZoneNode $dupCam[0]`;
+	
+	//delete SafeZone shape and transform 
+	string $szxform[]  = `listRelatives -p $safeZoneShape[0]`; 
+	delete $szxform;
+
+	// Make sure it's renamed to the name they asked for.
+	$theCam = rename( $dupCam[0], $basename );
+
+	//move back to origin (provided the xforms aren't frozen...)
+	move 0 0 0 $theCam;
+	rotate 0 0 0 $theCam;
+
+	//Create the right type of Shot Camera. 
+	//1 = camera
+	//2 = camera and aim
+	//3 = camera, aim and up
+	cameraMakeNode $MultiCamCameraType $theCam;
+
+	string $camParentGrp[]  = `listRelatives -p $theCam`; 
+	if ( size($camParentGrp) > 0 ) {
+		rename $camParentGrp[0] ("grp_" + $theCam );
+	}
+
+	// Tell them what it's called.
+	return $theCam;
+}
+
+
+//callback for when user changes Film Gate setting
+global proc MultiCamFilmGateCallback() {
+
+	//duplicate what maya does behind the scenes
+	float $horizfa = 0.0;
+	float $vertfa = 0.0;
+	float $aspect = 0.0;
+	float $lensq = 0.0;
+
+	int $filmGate = `optionMenuGrp -q -sl MultiCamFilmGateOpt`;
+
+	switch($filmGate) {
+	case 1 :
+		//User - do nothing to change anything!
+		return;
+		break;
+	case 2 :
+		//35mm Academy
+		$horizfa = 0.864;
+		$vertfa = 0.630;
+		$aspect = 1.37;
+		$lensq = 1.0;
+		break;
+	case 3 :
+		//35mm TV Projection
+		$horizfa = 0.816;
+		$vertfa = 0.612;
+		$aspect = 1.33;
+		$lensq = 1.0;
+		break;
+	case 4 :
+		//35mm Full Apeture 
+		$horizfa = 0.980;
+		$vertfa = 0.735;
+		$aspect = 1.33;
+		$lensq = 1.0;
+		break;
+	case 5 :
+		//35mm 1.85 Projection 
+		$horizfa = 0.825;
+		$vertfa = 0.446;
+		$aspect = 1.85;
+		$lensq = 1.0;
+		break;
+	case 6 :
+		//35mm Anamorphic 
+		$horizfa = 0.864;
+		$vertfa = 0.732;
+		$aspect = 1.18;
+		$lensq = 2.0;
+		break;
+
+	default:
+		error "Unknown Film Gate Type, please update MultiCamFilmFateCallback()";
+		break;
+	}
+
+	floatFieldGrp -e -v1 $horizfa MultiCamApetureFld;
+	floatFieldGrp -e -v2 $vertfa MultiCamApetureFld;
+	floatFieldGrp -e -v1 $aspect MultiCamAspectFld;
+	floatFieldGrp -e -v1 $lensq MultiCamLenseSqueezeFld;
+
+	//set the safe zone aspect ratio field if required.
+	if ( `checkBoxGrp -q -v1 MultiCamSZUseCamAspect` ) {
+		floatFieldGrp -e -v1 $aspect MultiCamSZAspectFld;		
+	}
+
+}
+
+global proc MultiCamFilmBackChange() {
+	//basically, if you change any settings, set the drop down to user. 
+	optionMenuGrp -e -sl 1 MultiCamFilmGateOpt;
+	//don't bother about changing back for now if the user _happens_ to 
+	//user same settings as a maya preset film gate
+	
+	//set the safe zone aspect ratio field.
+	if ( `checkBoxGrp -q -v1 MultiCamSZUseCamAspect` ) {
+		floatFieldGrp -e -v1 (`floatFieldGrp -q -v1 MultiCamAspectFld`) MultiCamSZAspectFld;		
+	}
+}
+
+//swap the enabled state around for the safe zone aspect field.
+global proc MultiCamSZUseCamAspectChange() {
+	int $useCamAspect = `checkBoxGrp -q -v1 MultiCamSZUseCamAspect`;
+	if ( $useCamAspect ) {
+		floatFieldGrp -e -v1 (`floatFieldGrp -q -v1 MultiCamAspectFld`) MultiCamSZAspectFld;		
+	}
+	floatFieldGrp -e -en (!$useCamAspect)  MultiCamSZAspectFld;
+}
+
+
+global proc MultiCamSetCamTypeOption(int $type)
+{
+	global int $MultiCamCameraType;
+
+	if ( $type > 0 && $type <= 3 ) {
+		$MultiCamCameraType = $type;
+	} else {
+		warning ("Unknown camera node type: '" + $type + "'. Valid types: 1 (Camera), 2 (Camera + Aim), 3 ( Camera + Aim + Up)");  
+	}
+
+}
+
+//gather the setting from the GUI, then create the main camera appropriately.
+global proc MultiCamCreateMasterCam()
+{
+	
+	//get attributes from the UI. 
+	float $camScale = `floatFieldGrp -q -v1 MultiCamScaleFld`; 
+	int $nearClip   = `intFieldGrp -q -v1 MultiCamClippingPlanesFld`; 
+	int $farClip    = `intFieldGrp -q -v2 MultiCamClippingPlanesFld`; 
+
+	int $filmGate   = `optionMenuGrp -q -sl MultiCamFilmGateOpt`;
+	float $horizfa  = `floatFieldGrp -q -v1 MultiCamApetureFld`;
+	float $vertfa   = `floatFieldGrp -q -v2 MultiCamApetureFld`;
+	float $aspect   = `floatFieldGrp -q -v1 MultiCamAspectFld`;
+	float $lensq    = `floatFieldGrp -q -v1 MultiCamLenseSqueezeFld`;
+
+	string $fitResGate     = `optionMenuGrp -q -v  MultiCamFitResolutionGateOpt`;
+	float $filmFitOffset 	 = `floatFieldGrp -q -v1 MultiCamFilmFitOffsetFld`;
+	float $horizFilmOffset = `floatFieldGrp -q -v1 MultiCamFilmOffsetFld`;
+	float $vertFilmOffset  = `floatFieldGrp -q -v2 MultiCamFilmOffsetFld`;
+
+	float $overscan = `floatFieldGrp -q -v1 MultiCamOverscanFld`;
+
+	string $camBaseName = `textFieldGrp -q -tx MultiCamBaseNameFld`;
+
+	float $szaspect = `floatFieldGrp -q -v1 MultiCamSZAspectFld`;
+
+	//actually make the camera
+	MultiCamCreateMasterCamera(
+		$camScale,
+		$nearClip,
+		$farClip,
+		$filmGate,
+		$horizfa,
+		$vertfa,
+		$aspect,
+		$lensq,
+		$fitResGate,
+		$filmFitOffset,
+		$horizFilmOffset, 
+		$vertFilmOffset, 
+		$overscan, 
+		$camBaseName, 
+		$szaspect
+		);
+
+
+}
+
+//
+//Main camera creation function 
+//
+//takes many args, but this way it can be built from GUI settings, presets or whatever
+//
+global proc MultiCamCreateMasterCamera(
+	float $camScale,
+	int $nearClip,
+	int $farClip,
+	int $filmGate,
+	float $horizfa,
+	float $vertfa,
+	float $aspect,
+	float $lensq,
+	string $fitResGate,
+	float $filmFitOffset,
+	float $horizFilmOffset, 
+	float $vertFilmOffset, 
+	float $overscan, 
+	string $camBaseName, 
+	float $szaspect
+	)
+{
+
+	if( objExists( "cameraMain" ) ) {
+		warning "MultiCam: cameraMain already exists, no action taken.";
+		return;
+	}
+
+	string $cmd = "camera  -dr true -filmFit \""+$fitResGate+"\" -centerOfInterest 5 -focalLength 35 -lensSqueezeRatio "+$lensq+" -cameraScale "+$camScale+" -horizontalFilmAperture " + $horizfa + " -horizontalFilmOffset "+$horizFilmOffset+" -verticalFilmAperture " + $vertfa + " -verticalFilmOffset "+$vertFilmOffset+" -overscan " + $overscan + " -motionBlur 0 -shutterAngle 144 -nearClipPlane "+$nearClip+" -farClipPlane "+$farClip+" -orthographic 0 -orthographicWidth 30 -displayFilmGate 1";
+
+	string $cam[] = eval($cmd); 
+  MultiCamSetDefaultRotateOrder($cam[0]);
+
+//default camera as Maya makes it...
+//string $cam[] = `camera -centerOfInterest 5 -focalLength 35 -lensSqueezeRatio 1 -cameraScale 1 -horizontalFilmAperture 1.41732 -horizontalFilmOffset 0 -verticalFilmAperture 0.94488 -verticalFilmOffset 0 -filmFit Fill -overscan 1 -motionBlur 0 -shutterAngle 144 -nearClipPlane 0.01 -farClipPlane 1000 -orthographic 0 -orthographicWidth 30`;
+
+
+	//because of expressons, we can't make cameraMain with aims or ups etc, only Shot Cams
+	//but that's fine coz you don't animate with the cameraMain anyway. 
+
+	//camera modes: 
+	//1 = normal
+	//2 = camera and aim
+	//3 = camera, aim and up
+	cameraMakeNode 1 "";
+	
+	//scale to 3.5 to see SafeZone (?!?!)
+	scale -a 3.5 3.5 3.5;
+
+	// It'll come back with a 1 on the end, get rid of that.
+	$camMain = rename( $cam[0], "cameraMain" );
+
+	string $relos[] = listRelatives( "-s", $camMain );
+	string $camMainShape = $relos[0];
+
+	// Make Safe Zone, add text info to it.
+	string $sz = SafeZoneMake( $camMain );
+	
+	MultiCamConfigureSafeZone( $sz, 1, $szaspect);
+
+	addAttr -ln cameraName -sn cbn -dt "string" $sz;
+
+
+	// Add some att's we need on the camera for our expression to work.
+	addAttr -k on -ln cameraNumber -sn cn -at "float" $camMain;
+	setAttr ($camMain + ".cameraNumber") 1;
+	addAttr -ln cameraBaseName -sn cbn -dt "string" $camMain;
+	setAttr -type "string" ($camMain + ".cameraBaseName") $camBaseName;
+
+	//looks like this is already added by the "SafeZoneAddKingdomInfo", but leave here 
+	//incase this changes.
+	if (! `attributeExists "defaultAspectRatio" $camMain`) {
+  	addAttr -at "float" -ln "defaultAspectRatio" $camMain;
+  	setAttr ($camMain + ".defaultAspectRatio") $aspect;
+  }
+
+	//set a keyframe on the first frame for the first camera, set it to step tangent. 
+	setKeyframe -t 1 "cameraMain.cn";
+	keyTangent -ott step;
+
+	
+
+	// Make and add the expression.
+	string $exp = "foo";
+	$exp = ("undoInfo -swf off;\n" +
+	 "float $cn = "+$camMain+".cameraNumber + 0.05;\n" +
+	 "int $opt = floor(($cn - floor($cn)) * 10);\n" +
+	 "string $camExt = floor($cn) + ($opt>0 ? \"opt\" + $opt : \"\");\n" +
+	 "string $cameraBaseName;\n" +
+   "if( catch( $cameraBaseName = getAttr(\""+$camMain+".cameraBaseName\") ) ) { " +
+   "undoInfo -swf on; error (\"MultiCam: Failed to get camera base name!\"); };\n" +
+	 "string $realCam = ($cameraBaseName + $camExt);\n" +
+   "string $realCamCount[] = eval(\"ls -l \" + $cameraBaseName + $camExt);\n" +
+   "if( size($realCamCount)>1 ) { warning (\"MultiCam: Warning - \" + size($realCamCount) + \" cameras called \" + $realCam + \"! I'll use \" + $realCamCount[0] + \", but you should only have one of each.\"); $realCam = $realCamCount[0]; }\n" +
+	 "if( objExists( $realCam ) ) {\n" +
+	 "  if( catch( `setAttr -type \"string\" \""+$sz+".cameraName\" ($cameraBaseName + $camExt)` ) ) { undoInfo -swf on; error (\"MultiCam: Failed to set SafeZone camera name!\"); };\n");
+
+  // We'll want to clone a bunch of attributes from the real camera,
+  // onto cameraMain.
+  string $cloneAtts[] = { "horizontalFilmAperture", "verticalFilmAperture",
+                          "focalLength", "lensSqueezeRatio", "fStop",
+                          "focusDistance", "focusRegionScale", "shutterAngle",
+                          "centerOfInterest", "nearClipPlane", "farClipPlane" };
+  for( $att in $cloneAtts ) {
+    $exp += ("  if( catch( " + $camMainShape + "." + $att +
+             " = getAttr( $realCam + \"." + $att + 
+             "\") ) ) { undoInfo -swf on; error (\"MultiCam: " +
+             "Expression failed while copying \" + $realCam + \"." + 
+             $att + "!\"); };\n" );
+  }
+  
+  // Copy rotation order
+  $exp += ("  if( catch( " + $camMain + ".rotateOrder = getAttr( $realCam + \".rotateOrder\" ) ) ) { undoInfo -swf on; error (\"MultiCam: Expression failed while copying \" + $realCam + \".rotateOrder!\"); }; \n" );
+    
+  $exp += (
+	 "  float $tV[3] = `xform -q -ws -t $realCam`;\n" +
+	 "  "+$camMain+".translateX = $tV[0];\n" +
+	 "  "+$camMain+".translateY = $tV[1];\n" +
+	 "  "+$camMain+".translateZ = $tV[2];\n" +
+	 "  float $rV[3] = `xform -q -ws -ro $realCam`;\n" +
+	 "  "+$camMain+".rotateX = $rV[0];\n" +
+	 "  "+$camMain+".rotateY = $rV[1];\n" +
+   "  "+$camMain+".rotateZ = $rV[2];\n" +
+	 "} else {\n" +
+	 "  if( catch( `setAttr -type \"string\" \""+$sz+".cameraName\"  \"(Invalid Camera)\"` ) ) { undoInfo -swf on; error (\"MultiCam: Failed to set base SafeZone camera name!\"); };\n" +
+	 "  "+$camMainShape+".horizontalFilmAperture = "+$horizfa+";\n" +
+	 "  "+$camMainShape+".verticalFilmAperture = "+$vertfa+";\n" +
+	 "  "+$camMainShape+".focalLength = 35;\n" +
+	 "  "+$camMainShape+".lensSqueezeRatio = "+$lensq+";\n" +
+	 "  "+$camMainShape+".fStop = 5.6;\n" +
+   "  "+$camMainShape+".focusDistance = 5;\n" +
+	 "  "+$camMainShape+".focusRegionScale = 1;\n" +
+	 "  "+$camMainShape+".shutterAngle = 144;\n" +
+	 "  "+$camMainShape+".centerOfInterest = 5;\n" +
+	 "  "+$camMainShape+".nearClipPlane = "+$nearClip+";\n" +
+	 "  "+$camMainShape+".farClipPlane = "+$farClip+";\n" +
+	 "  "+$camMain+".translateX = 0;\n" +
+	 "  "+$camMain+".translateY = 0;\n" +
+	 "  "+$camMain+".translateZ = 0;\n" +
+	 "  "+$camMain+".rotateX = 0;\n" +
+	 "  "+$camMain+".rotateY = 0;\n" +
+	 "  "+$camMain+".rotateZ = 0;\n" +
+	 "}\n" +
+	 "undoInfo -swf on;\n");
+
+	expression -ae true -an true -n "cameraMainExpression" -s $exp;
+
+	select $camMain;
+
+	//update the GUI, if it's open.
+	checkCameraMain();
+}
+
+//some coupling to safeZone here, configure the frame counter plus the 
+//text items for the safe zone in question. 
+//these settings could be retrieved on a per-project basis, perhaps
+//querying launcher2, or reading some asset?
+global proc MultiCamConfigureSafeZone(string $safeZone, int $isCameraMain, float $szAspect)
+{
+
+	//aspect ratio override
+	//nuke the expression connected to that attribute that safeZone sets up for us
+	string $exprs[] = eval("listConnections -d off -s on " + $safeZone + ".aspect");
+	string $expr;
+	for( $expr in $exprs ) {
+		delete $expr;
+	}
+
+	string $szTextItems = " 0.99 -1.1 1 1 1 1 l\tUSERNAME\n"
+											+" -0.99 1.15 1 1 1 1 r\tFRAMECOUNTER\n"
+											+" 0.99 1.15 1 1 1 1 l\tSCENENAME\n"
+											+" -0.99 -1.1 1 1 1 1 r\tTODAYSDATE\n"
+											+" 0.99 0.95 1 1 0 0.3 l\tCAMERALENS\n";
+
+	if ( $isCameraMain ) {
+		//always add in the special cameraName attribute for cameraMain.
+		//this tells us which shot camera we're looking at. 
+		$szTextItems += " 0 -1.1 .8 .9 1 1 c\tTEXT:cameraName\n";
+		setAttr ($safeZone + ".aspect") $szAspect;
+	} else {
+		//for shot cams, show the real camera name
+		$szTextItems +=" 0 -1.1 1 1 0 1 c\tCAMERANAME\n";
+
+		//link to cameraMain's SafeZone aspect
+		//bryans: this caused problems with "duplicate camera as options" since it copies upstream nodes.
+		//connectAttr cameraMain|SafeZone1|SafeZoneShape1.aspect ($safeZone + ".aspect");		
+		setAttr ($safeZone + ".aspect") `getAttr cameraMain|SafeZone1|SafeZoneShape1.aspect`;		
+	}
+
+	
+
+
+	if ( $isCameraMain ) {
+		
+
+	}
+
+	//set text items	
+	setAttr -type "string" ($safeZone + ".textItems") ($szTextItems);
+
+	// Create an expression to connect the frame attribute to the frame
+	// variable.
+	expression -s ($safeZone + ".frame = frame + " + $safeZone + ".frameOffset;\n")
+	           -o $safeZone -ae 1 -uc all;
+}
+
+
+//bryans: is this still needed?
+global proc MultiCamCheckSafeZoneAtts( string $safezone )
+{
+	// Further, add the camera name in the middle, for Shot Cams only...
+	string $textItems = getAttr( $safezone + ".textItems" );
+	if( ! reMatch( ".*\tCAMERANAME\n.*", $textItems )) {
+		setAttr -type "string" ($safezone + ".textItems") ($textItems + " 0 -1.1 1 1 0 1 c\tCAMERANAME\n");
+	}
+	setAttr ($safezone + ".maskOpacity") 0.666;
+	setAttr ($safezone + ".maskColour") -type double3 0.575 0 0.0165;
+}
+
+global proc MultiCamCreateRealCam()
+{
+	string $basename = getAttr( "cameraMain.cameraBaseName" );
+	string $realCam = MultiCamCreateCamera( $basename + "#" );
+
+	string $cmSafeZone[] = `listRelatives -f -ad -typ SafeZoneNode cameraMain`;
+	
+	//make safe zone, copy info from cameraMain.
+	string $sz = SafeZoneMake( $realCam );
+
+	//blank out cameraName, it's not needed for shot cams (only an override for cameraMain)
+	//but SafeZone will still look for it... 
+	addAttr -ln cameraName -sn cbn -dt "string" $sz;
+	setAttr -type "string" ($sz + ".cameraName") "";
+
+	string $szTextItems = getAttr( $cmSafeZone[0] + ".textItems" );
+	
+	//configure safe zone for shot camera
+	MultiCamConfigureSafeZone( $sz, 0, 0 );
+
+	// Check it has proper MultiCam SafeZone atts.
+	MultiCamCheckSafeZoneAtts $sz;
+
+
+	string $relos[] = listRelatives( "-p", "-f", $sz );
+	string $szp = $relos[0];
+	setAttr ($szp+".visibility") 0;
+
+	select $realCam;
+
+	//update the GUI, if it's open.
+	checkCameraMain();
+}
+
+proc int MultiCamIsUnique(string $attr, string $attrList[])
+{
+	int $result = 1;
+
+	string $attrName;
+	for ($attrName in $attrList) {
+		if ($attr == $attrName) {
+			$result = 0;
+			break;
+		}
+	}
+
+	return $result;
+}
+
+global proc MultiCamAddSelectedChannels()
+{
+	if (1 == `channelBox -q -ex mainChannelBox`) {
+		string $oList[] = `ls -sl -o`;
+		string $aList[] = `channelBox -q -sma mainChannelBox`;
+
+		// We'll need to iterate the options, and make sure this 
+		// channel exists for all of them.
+		string $options[] = MultiCamGetList( "options" );
+
+		string $attrName;
+		string $oName, $aName;
+		string $currentList[] = MultiCamGetList( "channels" );
+		for ($oName in $oList) {
+			for ($aName in $aList) {
+				// Sanity check - can't process any cameraMain atts except 'cn'.
+				if( $oName == "cameraMain" && $aName != "cn" ) {
+					print ("MultiCam: Warning - skipped " + $oName + "." + $aName + ", unsuitable attribute.\n");
+					continue;
+				}
+
+				$attrName = ($oName + "." + $aName);
+				if (1 == MultiCamIsUnique($attrName, $currentList)) {
+					$currentList[size($currentList)] = $attrName;
+
+					// Check if this fcurve exists for all options.
+					// It probably won't...
+					for( $opt in $options ) {
+						string $fcname = MultiCamMakeFCurveName( $opt, $attrName );
+						print ("Testing for '" + $fcname + "'\n");
+						if( !objExists($fcname) ) {
+							// This fcurve doesn't exist for this option, so make
+							// one from somewhere. If the fcurve isn't connected
+							// to anything, make a key.
+							MultiCamAddFCurve $attrName $opt;
+						}
+					}
+				}
+			}
+		}
+
+		MultiCamSetList "channels" $currentList;
+	} else {
+		error "MultiCam: You must show the channel box and select a channel!";
+	}
+}
+
+global proc MultiCamRenameOption( string $oldOptName, string $newOptName )
+{
+	// Rename the option.
+	string $opts[] = MultiCamGetList( "options" );
+	string $newOpts[];
+	for( $opt in $opts ) {
+		if( $opt == $oldOptName ) {
+			$opt = $newOptName;
+		}
+		$newOpts[size($newOpts)] = $opt;
+	}
+	MultiCamSetList "options" $newOpts;
+
+	string $fcurves[] = MultiCamGetList( "channels" );
+	for( $fc in $fcurves ) {
+		string $oldName = MultiCamMakeFCurveName( $oldOptName, $fc );
+		string $newName = MultiCamMakeFCurveName( $newOptName, $fc );
+		rename $oldName $newName;
+	}
+
+	MultiCamPopulateLists;
+}
+
+global proc MultiCamDeleteOption( string $optName )
+{
+	// Start by selecting some other option.
+	string $opts[] = MultiCamGetList( "options" );
+	if( size($opts) <= 1 ) {
+		error "MultiCam: Can't delete last option!";
+	}
+	for( $opt in $opts ) {
+		if( $opt != $optName ) {
+			MultiCamChooseOption $opt;
+			break;
+		}
+	}
+
+	// Remove from the list.
+	MultiCamDelListItem "options" $optName;
+
+	// Nuke the FCurves.
+	delete (MultiCamMakeFCurvePattern( $optName ));
+
+	// Update the dialog.
+	MultiCamPopulateLists;
+}
+
+global proc MultiCamPopulateLists()
+{
+	string $channels[] = MultiCamGetList( "channels" );
+	textScrollList -e -ra channelList;
+	for ($ch in $channels) {
+		textScrollList -e -append $ch channelList;
+	}
+
+	string $options[] = MultiCamGetList( "options" );
+	textScrollList -e -ra optionList;
+	for ($op in $options) {
+		textScrollList -e -append $op optionList;
+	}
+}
+
+global proc MultiCamDrawControls()
+{
+	// Control variables.
+	int $txtWid = 130;
+	int $txtHgt = 22;
+
+	// Define the controls.
+	frameLayout -cll true -bv false -l "Options" multicamFrame;
+		formLayout multicamForm;
+			separator -style "in" mc_sep1;
+//			separator -style "in" mc_sep2;
+			separator -style "in" mc_sep3;
+			separator -style "in" mc_sep4;
+
+			text -h $txtHgt -w $txtWid -al right -l "F-Curves:" mc_fclbl;
+			textScrollList -h 109 channelList;
+
+			text -h $txtHgt -w $txtWid -al right -l "Option:" mc_optlbl;
+			textScrollList -h 109 -sc "{ string $opt[] = `textScrollList -q -si optionList`; MultiCamChooseOption($opt[0]); }" optionList;
+
+			text -h $txtHgt -w $txtWid -al right -l "New Option Name:" mc_nmlbl;
+			textField optionName;
+
+			button -c "MultiCamAddSelectedChannels; MultiCamPopulateLists; " -l "From Channel Box" gcbutton;
+			button -c "MultiCamCreateOption(`textField -q -text optionName`)"
+			       -l "Add" -w 60 -h $txtHgt fcbutton;
+			button -c "{ string $opt[] = `textScrollList -q -si optionList`; MultiCamDeleteOption($opt[0]); }"
+			       -l "Delete" -w 60 -h $txtHgt dobutton;
+			button -c ("{ string $opt[] = `textScrollList -q -si optionList`; " +
+			          "MultiCamRenameOption($opt[0], `textField -q -text optionName`); }")
+			       -l "Rename" -w 60 -h $txtHgt rnbutton;
+		setParent ..;
+	setParent ..;
+
+	MultiCamPopulateLists;
+
+	formLayout -e
+	  -af  mc_sep1				"top"			0
+	  -af  mc_sep1				"left"    0
+	  -af  mc_sep1				"right"		0
+
+		-ac  mc_fclbl				"top"			0 mc_sep1
+		-af  mc_fclbl				"left"		0
+		-ac  channelList		"top"			0	mc_sep1
+		-ac  channelList		"left"		0	mc_fclbl
+		-af  channelList		"right"		0
+
+		-ac  gcbutton				"top"			0 channelList
+		-aoc gcbutton				"left"		0 channelList
+		-aoc gcbutton				"right"		0 channelList
+
+	  -ac  mc_sep4				"top"			0 gcbutton
+	  -af  mc_sep4				"left"    0
+	  -af  mc_sep4				"right"		0
+
+		-ac  mc_optlbl			"top"			0 mc_sep4
+		-af  mc_optlbl			"left"		0
+		-ac  optionList			"top"			0	mc_sep4
+		-ac  optionList			"left"		0	mc_optlbl
+		-af  optionList			"right"		0
+
+		-ac  mc_nmlbl				"top"			3 optionList
+		-af  mc_nmlbl				"left"		0
+		-ac  optionName			"top"			3	optionList
+		-ac  optionName			"left"		0	mc_nmlbl
+		-ac  optionName			"right"		0 fcbutton
+
+		-ac  fcbutton				"top"			3 optionList
+		-af  fcbutton				"right"		0
+
+		-ac  dobutton				"top"			0 fcbutton
+		-af  dobutton				"right"		0
+
+		-ac  rnbutton				"top"			0 fcbutton
+		-ac  rnbutton				"right"		0 dobutton
+
+	  -ac  mc_sep3				"top"			3	dobutton
+	  -af  mc_sep3				"left"    0
+	  -af  mc_sep3				"right"		0
+
+		multicamForm;
+}
+
+global proc string MultiCamMakeFCurveName( string $optName, string $fcurve )
+{
+	return reSubst( "[^\\w]", "_", "mco_" + $optName + "_" + $fcurve);
+}
+
+global proc string MultiCamMakeFCurvePattern( string $optName )
+{
+	return reSubst( "[^\\w]", "_", "mco_" + $optName + "_") + "*";
+}
+
+global proc int MultiCamIsOptionFCurveName( string $fcurve )
+{
+	int $res = reMatch( "mco_\\w+", $fcurve );
+	return $res;
+}
+
+global proc MultiCamChooseOption( string $optName )
+{
+	string $fcurves[] = MultiCamGetList( "channels" );
+	for( $fc in $fcurves ) {
+		string $conns[] = listConnections( "-c", 1, $fc );
+		string $conns_plugs[] = listConnections( "-c", 1, "-p", 1, $fc );
+		string $fcname = MultiCamMakeFCurveName( $optName, $fc );
+		if( $conns[1] != $fcname &&
+				$conns[1] != "" &&
+				connectionInfo("-isSource", $conns_plugs[1]) ) {
+//			print ("Would disconnect " + $fc + " from " + $conns[1] +
+//			       " and connect it to " + $fcname + "\n");
+			disconnectAttr $conns_plugs[1] $fc;
+			connectAttr ($fcname + ".output") $fc;
+		}
+	}
+	textScrollList -e -si $optName optionList;
+}
+
+global proc string[] MultiCamGetList( string $listname )
+{
+	string $chanstr = getAttr( "cameraMain." + $listname );
+	return reSplit( "\t", $chanstr );
+}
+
+global proc MultiCamSetList( string $listname, string $fcurves[] )
+{
+	string $chanstr;
+	for( $fc in sort($fcurves) ) {
+		$chanstr += ($fc + "\t");
+	}
+	setAttr -type "string" ("cameraMain." + $listname) (strip($chanstr));
+}
+
+global proc MultiCamAddListItem( string $listname, string $item ) 
+{
+	string $currentItems[] = MultiCamGetList( $listname );
+	$currentItems[size($currentItems)] = $item;
+	MultiCamSetList $listname $currentItems;
+}
+
+global proc MultiCamDelListItem( string $listname, string $item ) 
+{
+	string $currentItems[] = MultiCamGetList( $listname );
+	string $newItems[];
+	for( $i in $currentItems ) {
+		if( $i != $item ) {
+			$newItems[size($newItems)] = $i;
+		}
+	}
+	MultiCamSetList $listname $newItems;
+}
+
+global proc MultiCamAddFCurve( string $fc, string $optName )
+{
+	string $conns[] = listConnections( "-c", 1, $fc );
+	string $conns_plugs[] = listConnections( "-c", 1, "-p", 1, $fc );
+	if( $conns[1] == "" || connectionInfo("-isDestination", $conns_plugs[1]) ) {
+		warning ("MultiCam: Added fcurve to " + $fc + ", using current frame/value.");
+		setKeyframe $fc;
+		$conns = listConnections( "-c", 1, $fc );
+	}
+
+	string $newname = MultiCamMakeFCurveName( $optName, $fc );
+	if( MultiCamIsOptionFCurveName( $conns[1] ) ) {
+		duplicate -n $newname -rr -un $conns[1];
+	} else {
+		rename $conns[1] $newname;
+	}
+}
+
+global proc MultiCamCreateOption( string $optName )
+{
+	string $fcurves[] = MultiCamGetList( "channels" );
+	for( $fc in $fcurves ) {
+		MultiCamAddFCurve $fc $optName;
+	}
+
+	MultiCamAddListItem "options" $optName;
+	MultiCamPopulateLists;
+	MultiCamChooseOption $optName;
+}
+
+global proc MultiCamCheckNugget()
+{
+	// If we don't have it, make it.
+	if( !objExists( "cameraMain" ) ) {
+		error "MultiCam: Please create cameraMain before opening the GUI!";
+	}
+	if( !attributeQuery( "-ex", "-n", "cameraMain", "channels" )) {
+		addAttr -dt "string" -ln channels -sn chs "cameraMain";
+	}
+	if( !attributeQuery( "-ex", "-n", "cameraMain", "options" )) {
+		addAttr -dt "string" -ln options -sn ops "cameraMain";
+	}
+}
+
+global proc MultiCamUpgradeNugget()
+{
+	// Preserve some attributes.
+  string $basename;
+	if( attributeQuery( "-ex", "-n", "cameraMain", "cameraBaseName" )) {
+		$basename = getAttr( "cameraMain.cameraBaseName" );
+	}
+  string $opts;
+	if( attributeQuery( "-ex", "-n", "cameraMain", "options" )) {
+		$opts = getAttr( "cameraMain.options" );
+	}
+  string $chans;
+	if( attributeQuery( "-ex", "-n", "cameraMain", "channels" )) {
+		$chans = getAttr( "cameraMain.channels" );
+	}
+
+	// Disconnect the cn fcurve.
+  string $cncurve[] = listConnections( "-type", "animCurve", "cameraMain.cn" );
+	if( size($cncurve)>0 ) {
+	  disconnectAttr ($cncurve[0] + ".output") cameraMain.cn;
+	}
+
+	// Nuke the old camera.
+  delete cameraMain;
+
+	// Create a new one.
+  MultiCamCreateMasterCam;
+
+	// Add whatever attributes to the new cameraMain.
+  MultiCamCheckNugget;
+
+	// Hook up the cn fcurve again.
+	if( size($cncurve)>0 ) {
+	  connectAttr ($cncurve[0] + ".output") cameraMain.cn;
+	}
+
+	// Finally, restore the values to the attributes.
+  setAttr -type "string" "cameraMain.options" $opts;
+  setAttr -type "string" "cameraMain.channels" $chans;
+  setAttr -type "string" "cameraMain.cameraBaseName" $basename;
+}
+
+global proc MultiCamShowUI()
+{
+	// Nuke any old window that still exists.
+	if( `window -ex MultiCamWindow` ) {
+		deleteUI -wnd "MultiCamWindow";
+	}
+
+	// Check that the nugget exists...
+	MultiCamCheckNugget;
+
+	string $window = `window -t "MultiCam" MultiCamWindow`;
+	MultiCamDrawControls;
+
+	showWindow $window;
+}
+
+global proc MultiCamToggleCurrentViewPortEditMode()
+{
+	// Turn undo off, so we don't pollute the undo queue.
+	undoInfo -swf off;
+
+	string $panel = getPanel( "-wf" );
+
+	int $success = 0;
+
+	// If the panel's the wrong type, or it's the right
+	// type but an ortho viewport, try something else.
+	string $pantype = getPanel( "-typeOf", $panel );
+	if( $pantype != "modelPanel" ||
+			( $pantype == "modelPanel" && 
+	      getAttr(	lookThru( "-q", $panel ) + ".orthographic" ) == 1 )) {
+		string $visibles[] = getPanel( "-visiblePanels" );
+		for( $item in $visibles ) {
+			if( getPanel( "-typeOf", $item ) == "modelPanel" && 
+			    getAttr( lookThru( "-q", $item ) + ".orthographic" ) == 0 ) {
+				$panel = $item;
+				$success = 1;
+				break;
+			}
+		}
+	} else {
+		$success = 1;
+	}
+
+	string $longnames[] = ls( "-l", lookThru( "-q", $panel ) );
+	$lookthru = $longnames[0];
+
+	if( nodeType( $lookthru ) != "transform" ) {
+		string $relos[] = listRelatives( "-f", "-p", $lookthru );
+		$lookthru = $relos[0];
+	}
+
+	if( !$success ) {
+		error "Couldn't find a decent modelPanel!";
+		undoInfo -swf on;
+		return;
+	}
+
+	// Does it look like one of our cameras?
+	if( reMatch( ".*\\bcameraMain\\d*\\b.*", $lookthru ) ) {
+		float $cn = getAttr( $lookthru + ".cameraNumber" ) + 0.05;
+		int $opt = floor(($cn - floor($cn)) * 10);
+		string $camExt = floor($cn) + ($opt>0 ? "opt" + $opt : "");
+		string $cameraBaseName = getAttr( $lookthru + ".cameraBaseName" );
+		string $realCam = ($cameraBaseName + $camExt);
+		MultiCamSwitchCameras( $lookthru, $realCam, $panel );
+		if( objExists( $lookthru + "|SafeZone1" ) ) {
+			setAttr ($lookthru + "|SafeZone1.visibility") 0;
+		}
+		if( objExists( $realCam + "|SafeZone1" ) ) {
+			setAttr ($realCam + "|SafeZone1.visibility") 1;
+			setAttr ($realCam + "|SafeZone1.visibility") 1;
+			MultiCamCheckSafeZoneAtts ($realCam + "|SafeZone1");
+		}
+		setAttr ($lookthru + ".visibility") 0;
+	} else if( $lookthru != "" &&
+	           objExists( "cameraMain" ) ) {
+		MultiCamSwitchCameras( $lookthru, "cameraMain", $panel );
+		if( objExists( $lookthru + "|SafeZone1" ) ) {
+			setAttr ($lookthru + "|SafeZone1.visibility") 0;
+		}
+		if( objExists( "cameraMain|SafeZone1" ) ) {
+			setAttr "cameraMain|SafeZone1.visibility" 1;
+		}
+		setAttr "cameraMain.visibility" 1;
+	} else {
+		undoInfo -swf on;
+		error "Can't find camera called 'cameraMain'! Make sure you have one.";
+		return;
+	}
+
+	// Turn undo back on.
+	undoInfo -swf on;
+}
+
+global proc string MultiCamGetCameraNumberFromName(string $camera)
+{
+	string $cameraBaseName = `getAttr cameraMain.cameraBaseName`;
+	
+	string $shotNum = "0";
+	
+	string $shotCam = `match ($cameraBaseName + "[0-9]+") $camera`;
+	if ( $shotCam != "" ) {
+		$shotNum = `match "[0-9]+$" $shotCam`;
+	} else {
+		error ("Not a recognized shot camera: " + $camera);
+	}
+
+	string $optNum = "0"; //default
+	string $optBit = `match "opt[1-9]" $camera`;
+	if ( $optBit != "" ) {
+		//in reality can't be > 9, but if we extend this it won't break here. 
+		$optNum = `match "[0-9]+$" $optBit`;
+	}
+
+	return  $shotNum + "." + $optNum;
+
+}
+
+
+global proc string MultiCamDuplicateNamedCameraAsOption(string $camera)
+{
+	string $cameraBaseName = `getAttr cameraMain.cameraBaseName`;
+	string $newCameraName = "";
+	string $newCameraGrpName = ""; //default no camera group.
+	string $camExt;
+	float $camNum;
+	int $newOpt;
+	
+	// make sure we've got the camera's transform
+	if( nodeType( $camera ) != "transform" ) 
+	{
+		string $parent[] = `listRelatives -f -p $camera`;
+		$camera = $parent[0];
+	}
+	
+	// if the current camera is cameraMain, then bugger off 
+	if (`gmatch $camera "*cameraMain"`)
+	{
+		error "cannot duplicate cameraMain as an option";
+	}
+	// if the current camera is a shot cam, then that's ok. 
+	else if (`gmatch $camera ("*" + $cameraBaseName + "*")`)
+	{
+		//get the new camera name
+		
+		$newCameraName = `match ($cameraBaseName + "[0-9]+") $camera`;
+		$newCameraName += "opt";
+		$newOpt = 1; //start at 1
+
+		//get the latest option number
+		while(`objExists ($newCameraName + $newOpt)` ) {
+			$newOpt++;
+		}
+
+		// option 10 is not possible
+		if ($newOpt >= 10) {
+			error ("Unable to create option " + $newOpt + " only options 1-9 are allowed");
+		}
+
+		//add it to the newCameraName.
+		$newCameraName += $newOpt;
+
+		
+		//see if the camera we are duplicating has an assosciated camera group (with aim/up)
+	
+		//check if the shotCam is actually grouped (i.e could have aim/up etc)
+		string $parentGrp[] = `listRelatives -p $camera`;
+		if ( $parentGrp[0] != "" ) {
+			$newCameraGrpName = "grp_" + $newCameraName;
+		} 
+
+	}
+	// otherwise, bugger off. 
+	else
+	{
+		error "// Unknown camera selected!";
+	}
+
+	//duplicate with input graph
+	string $duplicatedCameraName[] = `duplicate -rr -un -n $newCameraName $camera`;
+
+	//rename duplicated camera group, aims and ups (nasty hack)
+	if ( $newCameraGrpName != "" ) {
+		string $pGrp[] = `listRelatives -p $newCameraName`;
+		$newCamerGrpName = `rename $pGrp[0] $newCameraGrpName`;
+		
+		//get the old name for replacment (without the grp_ bit)
+		string $origCam[];
+		int $n = `tokenize $camera "|" $origCam`; 
+
+		//will also need to rename the aim (and up) locators if they exist
+		string $children[] = `listRelatives -c $newCameraGrpName`;
+		string $c = "";
+		for ($c in $children) {
+			if ( `gmatch $c "*_aim*"` || `gmatch $c "*_up*"` ) {
+				string $newName = `substitute $origCam[$n-1] $c $newCameraName`;
+				rename ($newCameraGrpName+"|"+$c) $newName;
+			}
+		}
+	}
+
+	return $newCameraName;
+}
+
+//duplicate the camera we're looking thru as an option
+//from Murray Stevenson's msDupeCameraAsOption script
+
+global proc MultiCamDuplicateCameraAsOption()
+{
+	if (!`objExists cameraMain`)
+	{
+		error "Unable to detect cameraMain!";
+	}
+	string $cameraBaseName = `getAttr cameraMain.cameraBaseName`;
+	string $newCameraName;
+	float $camNum;
+	int $opt;
+	
+	//get the current panel
+	string $panel = `getPanel -wf`;
+	
+	// get the current camera
+	string $camera = `lookThru -q $panel`;
+	
+	string $camId = MultiCamGetCameraNumberFromName($camera);
+
+	string $cameraToken[];
+	tokenize $camId "." $cameraToken;
+	$camNum = $cameraToken[0];
+	$opt = $cameraToken[1];
+
+	//duplicate the camera
+	$newCameraName = MultiCamDuplicateNamedCameraAsOption($camera);
+
+	string $newCamId = MultiCamGetCameraNumberFromName($newCameraName);
+
+	clear $cameraToken;
+	tokenize $newCamId "." $cameraToken;
+	float $newOptNum = $cameraToken[1];
+
+	
+	// option 10 is not possible
+	if ($newOptNum > 9)
+	{
+		delete $newCameraName;
+		error "Option number cannot be greater than 9";
+	}	
+
+	
+	float $newKeyVal = floor($camNum) + ($newOptNum / 10);
+	
+	if( !`connectionInfo -isDestination "cameraMain.cameraNumber"` )
+	{
+		setAttr "cameraMain.cameraNumber" $newKeyVal;
+	}
+	else
+	{
+		// find the cameraNumber key that matches this camera
+		float $currentFrame = `currentTime -q`;
+		float $currentKeyTime = `findKeyframe -time ($currentFrame + 0.05) -which previous cameraMain.cameraNumber`;
+	
+		float $lastKeyVal = round (`getAttr -t $currentKeyTime cameraMain.cameraNumber`, 1);
+		float $lastCamNum = (floor($camNum) + (float($opt) / 10));
+	
+		//if (`keyframe -t $currentKeyTime -q -vc cameraMain.cameraNumber` == (floor($camNum) + ($opt / 10)))
+		if ($lastKeyVal == $lastCamNum)
+		{
+			// edit the cameraNumber curve to use the new camera
+			keyframe -e -t $currentKeyTime -vc $newKeyVal -a cameraMain.cameraNumber;
+		
+			// check for and edit matching keys immediately previous to the first found key
+		
+			float $prevKeyTime = `findKeyframe -time $currentKeyTime -which previous cameraMain.cameraNumber`;
+			float $prevKeyVal = round (`getAttr -t $prevKeyTime cameraMain.cameraNumber`, 1);
+			float $keyTime; 
+			
+			while ($prevKeyVal == $lastCamNum)
+			{
+				keyframe -e -t $prevKeyTime -vc $newKeyVal -a cameraMain.cameraNumber;
+				$keyTime = `findKeyframe -time $prevKeyTime -which previous cameraMain.cameraNumber`;
+				$prevKeyVal = round (`getAttr -t $keyTime cameraMain.cameraNumber`, 1);
+				if( $prevKeyTime == $keyTime )
+				{
+					break;
+				}
+				else
+				{
+					$prevKeyTime = $keyTime;
+				}
+			}
+			
+			// check for and edit matching keys immediately after the first found key
+			
+			float $nextKeyTime = `findKeyframe -time $currentKeyTime -which next cameraMain.cameraNumber`;
+			float $nextKeyVal = round (`getAttr -t $nextKeyTime cameraMain.cameraNumber`, 1);
+			float $keyTime; 
+
+			while ($nextKeyVal == $lastCamNum)
+			{
+				keyframe -e -t $nextKeyTime -vc $newKeyVal -a cameraMain.cameraNumber;
+				$nextKeyTime = `findKeyframe -time $nextKeyTime -which next cameraMain.cameraNumber`;
+				$nextKeyVal = round (`getAttr -t $nextKeyTime cameraMain.cameraNumber`, 1);	
+				if( $nextKeyTime == $keyTime )
+				{
+					break;
+				}
+				else
+				{
+					$nextKeyTime = $keyTime;
+				}
+			}
+		}
+		else
+		{
+			warning "// Warning: Previous key does not match previous camera number, no keyframe will be set";
+		}
+	}
+	
+	// look through the new camera, toggling safezone visibility along the way
+	MultiCamSwitchCameras ( $camera, $newCameraName, $panel );
+	if( objExists( $camera + "|SafeZone1" ) ) {
+			setAttr ($camera + "|SafeZone1.visibility") 0;
+	}
+	if( objExists( $newCameraName + "|SafeZone1" ) ) {
+		setAttr ($newCameraName + "|SafeZone1.visibility") 1;
+		setAttr ($newCameraName + "|SafeZone1.visibility") 1;
+		MultiCamCheckSafeZoneAtts ($newCameraName + "|SafeZone1");
+	}
+	setAttr ($camera + ".visibility") 0;
+}
+
+
+global proc checkCameraMain()
+{
+	//if the window exists...
+  string $multiCamWindow = "MultiCamMakeCameraWindow";
+  if (`window -exists $multiCamWindow`) {
+		//enable or disable features depending if cameraMain exists or not. 
+		if( objExists( "cameraMain" ) ) {
+			//disable the CameraMain attributes.
+			frameLayout -e -en 0 MultiCamAttributesFrm;  
+			frameLayout -e -en 0 MultiCamSafeZoneAttrFrm;  
+			button -e -en 0 MultiCamMakeCameraMainBtn;
+		} else {
+			//enable creation of cameraMain
+			frameLayout -e -en 1 MultiCamAttributesFrm;  
+			frameLayout -e -en 1 MultiCamSafeZoneAttrFrm;  
+			button -e -en 1 MultiCamMakeCameraMainBtn;
+		}
+	}
+
+}
+
+
+//new CameraMain creation GUI
+global proc buildMultiCamMakeCameraWindow() 
+{
+		string $multiCamWindow = "MultiCamMakeCameraWindow";
+    window
+        -menuBar true
+        -menuBarVisible true
+        -title "MultiCam"
+        -iconName "MultiCam"
+        -titleBar true
+        -minimizeButton true -maximizeButton true
+        -h 560 -w 300
+        -sizeable true $multiCamWindow;
+    menu
+        -label "Help"
+        -tearOff false;
+    menuItem
+        -label "Help on MultiCam."
+        -c "doMultiCamHelp()";
+
+    string $form = `formLayout -numberOfDivisions 100`;
+
+		//get logo from icon search path (should be with released with shelves)
+		string $pathStr = `getenv("XBMLANGPATH")`;
+		string $pathArr[] = stringToStringArray($pathStr, ";");
+		string $AL_logo = searchPathArray("AL.bmp",$pathArr);
+
+		if ($AL_logo == "") {
+			$AL_logo = "AL.bmp";
+		}
+
+
+    //make buttons
+    string $buttons = `formLayout -numberOfDivisions 100`;
+	
+    string $b1 = `button -label "Make cameraMain" -c  ("MultiCamCreateMasterCam();window -e -vis 0 " + $multiCamWindow) MultiCamMakeCameraMainBtn`;
+    //string $b2 = `button -label "Make ShotCam" -c  "MultiCamCreateRealCam();" MultiCamMakeShotCamBtn`;
+    string $b3 = `button -l "Close"  -c ("window -e -vis 0 " + $multiCamWindow)`;
+    setParent..;
+
+    //edit the button form layout
+    formLayout -edit
+        -af $b1 top 1
+        -ap $b1 right 1 50
+        -af $b1 left 1
+        -af $b1 bottom 2
+
+     //   -af $b2 top 1
+     //   -ap $b2 left 1 33
+     //   -ap $b2 right 1 67
+     //   -af $b2 bottom 2
+
+        -af $b3 top 1
+        -ap $b3 left 1 51
+        -af $b3 right 1
+        -af $b3 bottom 2
+    $buttons;
+
+
+
+    string $scroll = `scrollLayout -cr 1 -verticalScrollBarThickness 16 -horizontalScrollBarThickness 0`;
+
+    columnLayout -rs 5  -adjustableColumn true;
+        rowLayout -numberOfColumns 2
+            -columnWidth2 22 378
+            -ct2 "left" "left"
+            -co2 5 15;
+            //text at top
+            if ( `about -nt`) {
+                image -w 21 -h 24 -image $AL_logo;
+            } else {
+                image -w 21 -h 24 -image $AL_logo;
+            }
+            text -label "(C)Animal Logic 2003-2007." -align "left";
+        setParent ..;
+
+        //gui stuff here
+        frameLayout -label "CameraMain Attributes" -labelAlign "center"
+            -borderStyle "etchedIn" -cll true MultiCamAttributesFrm;
+            columnLayout -rs 5 -adjustableColumn true;
+
+							//Camera node type.
+//							optionMenuGrp -label "Shot Cam Controls:" -cw2 100 300 -cal 1 "right" 
+//								-ann "Camera Controls for Shot Cameras (only)"
+//								MultiCamNodeTypeOpt;
+//							menuItem -label "Camera";
+//							menuItem -label "Camera and Aim";
+//							menuItem -label "Camera, Aim and Up";
+
+							floatFieldGrp	-l "Camera Scale:" -cw2 100 50 -cal 1 "right" -v1 1.0 -pre 3 -en 1
+								-ann "Camera Scale."
+								MultiCamScaleFld;
+
+							
+							intFieldGrp	-l "Clipping Planes:" -nf 2 -cw3 100 50 50 -cal 1 "right" -v1 1 -v2 10000 -en 1
+								-ann "Near/Far Clipping Planes"
+								MultiCamClippingPlanesFld;
+
+							textFieldGrp -l "Shot Cam Prefix:" -cw2 100 100 -cal 1 "right" -tx "scXX_"
+								-ann "Shot Camera Name prefix"
+								MultiCamBaseNameFld;
+
+							separator;
+
+							optionMenuGrp -label "Film Gate" -cw2 100 300 -cal 1 "right" 
+								-cc "MultiCamFilmGateCallback"
+								MultiCamFilmGateOpt;
+							menuItem -label "User";
+							menuItem -label "35mm Academy";
+							menuItem -label "35mm TV Apeture";
+							menuItem -label "35mm Full Apeture";
+							menuItem -label "35mm 1.85 Projection";
+							menuItem -label "35mm Anamorphic";
+
+
+							floatFieldGrp	-l "Camera Apeture:" -nf 2 -cw3 100 50 50 -cal 1 "right" -v1 1.41732 -v2 0.94488 -pre 3 -en 1
+								-cc "MultiCamFilmBackChange"
+								-ann "Horizontal/Vertical Film Apeture."
+								MultiCamApetureFld;
+							floatFieldGrp	-l "Film Aspect Ratio:" -cw2 100 50 -cal 1 "right" -v1 1.333 -pre 3 -en 1
+								-cc "MultiCamFilmBackChange"
+								-ann "Camera Aspect Ratio."
+								MultiCamAspectFld;
+							floatFieldGrp	-l "Lens Squeeze:" -cw2 100 50 -cal 1 "right" -v1 1.0 -pre 3 -en 1
+								-cc "MultiCamFilmBackChange"
+								-ann "Lens Squeeze."
+								MultiCamLenseSqueezeFld;
+
+							separator;
+
+							optionMenuGrp -label "Fit Resolution Gate" -cw2 100 100  -cal 1 "right" MultiCamFitResolutionGateOpt;
+							menuItem -label "Fill";
+							menuItem -label "Horizontal";
+							menuItem -label "Vertical";
+							menuItem -label "Overscan";
+
+							floatFieldGrp	-l "Film Fit Offset:" -cw2 100 50 -cal 1 "right" -v1 0.0 -pre 3 -en 1
+								-ann "Film Fit Offset"
+								MultiCamFilmFitOffsetFld;
+
+							floatFieldGrp	-l "Film Offset:" -nf 2 -cw3 100 50 50 -cal 1 "right" -v1 0.0 -v2 0.0 -pre 3 -en 1
+								-ann "Horizontal/Vertical Film Offset."
+								MultiCamFilmOffsetFld;
+
+							separator;
+
+							floatFieldGrp	-l "Overscan:" -cw2 100 50 -cal 1 "right" -v1 1.2 -pre 3 -en 1
+								-ann "Camera Overscan."
+								MultiCamOverscanFld;
+
+
+                setParent ..;
+            setParent ..;
+				//end camera attributes frame
+
+        frameLayout -label "SafeZone Attributes" -labelAlign "center"
+            -borderStyle "etchedIn" -cll true MultiCamSafeZoneAttrFrm;
+            columnLayout -rs 5 -adjustableColumn true;
+
+								//checkbox - same as camera aspect
+								checkBoxGrp -ncb 1 -l "" -l1 "Use CameraMain Aspect Ratio" -cw2 10 190 -cal 1 "right" -v1 1 -en 1
+									-cc "MultiCamSZUseCamAspectChange"
+									-ann "link SafeZone aspect to camera aspect ratio"
+									MultiCamSZUseCamAspect;
+									
+
+								floatFieldGrp	-l "SafeZone Aspect:" -cw2 100 50 -cal 1 "right" -v1 1.333 -pre 3 -en 0
+									-ann "SafeZone Aspect Ratio."
+									MultiCamSZAspectFld;
+
+								//float field.
+
+                setParent ..;
+            setParent ..;
+				//end safezone frame
+
+        //end gui stuf
+        setParent ..;
+    setParent ..;
+    formLayout -edit
+
+      -attachForm     $scroll "top"    0
+      -attachForm     $scroll "left"   0
+      -attachControl  $scroll "bottom" 5 $buttons
+      -attachForm     $scroll "right"  0
+
+      -attachNone     $buttons     "top"
+      -attachForm     $buttons     "left"   0
+      -attachForm     $buttons     "bottom" 5
+      -attachForm     $buttons     "right"  0
+
+    $form;
+
+		//enable/disable the camera creation button appropriately. 
+		checkCameraMain();
+}
+
+
+
+// This procedure builds the MultiCamMakeCamera window if necessary and then shows it.
+global proc MultiCamMakeCameraMainGUI()
+{
+    // Put the wait cursor on and build the  window if it does not exist.
+    waitCursor -state on;
+    string $multiCamWindow = "MultiCamMakeCameraWindow";
+    if (!`window -exists $multiCamWindow`)
+        buildMultiCamMakeCameraWindow();
+
+    // Make sure the window is shown and then turn off the wait cursor.
+    showWindow $multiCamWindow;
+    waitCursor -state off;
+}
+
+
+
+//Old MultiCam GUI, left here in case anyone actually uses it... ?
+global proc MultiCam()
+{
+	// This is basically just a wrapper.
+	MultiCamShowUI;
+}
+
+// Welcome message.
+global int $MultiCamShowedBanner;
+if( !$MultiCamShowedBanner ) {
+	print "MultiCam: Animal Logic (c) 2003-2007\n";
+	$MultiCamShowedBanner = 1;
+}
+
+

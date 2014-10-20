@@ -1,0 +1,19 @@
+global proc copyInstance(string $instancer)
+{
+    int $n=0;
+    string $instance[]=`instancer -q -obj $instancer`;
+	string $part[] = `listConnections -type particle $instancer`;
+	int $count = `getAttr ($part[0]
+	
+    while($n < $count)
+    {
+        select -r particle1.pt[$n];
+        float $pos[]=`getParticleAttr -at position `;
+				
+        float $rd[]=`getParticleAttr -at randomPP`;
+        xform -ws -t $pos[0] $pos[1] $pos[2] `duplicate $instance[(int)$rd[0]]`;
+
+        $n++;
+    }
+
+}
