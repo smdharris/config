@@ -2,6 +2,8 @@
 //
 //
 
+hotkey -keyShortcut "s" -alt -releaseName ("SHAPESBrushMMPopDown_NameCommand");
+hotkey -keyShortcut "s" -alt -name ("SHAPESBrushMM_NameCommand");
 hotkey -keyShortcut "d" -alt -name ("dR_quadDrawToolNameCommand");
 hotkey -keyShortcut "m" -ctl -name ("mirrorMeReadKeyNameCommand");
 hotkey -keyShortcut "0" -releaseName ("HfAttrSelect_Menu_revert");

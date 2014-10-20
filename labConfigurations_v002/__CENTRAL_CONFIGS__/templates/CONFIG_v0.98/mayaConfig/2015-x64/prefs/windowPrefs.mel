@@ -10,7 +10,7 @@ windowPref -topLeftCorner 250 200 -widthHeight 524 470 -maximized false devicePa
 windowPref -topLeftCorner 754 59 -widthHeight 688 562 -maximized false hyperShadePanel1Window;
 windowPref -topLeftCorner 250 200 -widthHeight 700 400 -maximized false dynPaintScriptedPanelWindow;
 windowPref -topLeftCorner 250 200 -widthHeight 550 562 -maximized false blindDataEditor1Window;
-windowPref -topLeftCorner 671 52 -widthHeight 1676 1639 -maximized false MayaWindow;
+windowPref -topLeftCorner 22 5 -widthHeight 1676 1639 -maximized true MayaWindow;
 windowPref -topLeftCorner 364 562 -widthHeight 440 42 -maximized false greasePencilFloatingWindow;
 windowPref -topLeftCorner 163 902 -widthHeight 778 645 -maximized false RRM_Window;
 windowPref -topLeftCorner 270 361 -widthHeight 665 500 -maximized false PreferencesWindow;
@@ -50,3 +50,5 @@ windowPref -topLeftCorner 348 494 -widthHeight 486 325 -maximized false dynRelEd
 windowPref -topLeftCorner 130 189 -widthHeight 683 325 -maximized false nodeEditorPanel2Window;
 windowPref -topLeftCorner 828 662 -widthHeight 520 620 -maximized false connectWindow;
 windowPref -topLeftCorner 364 562 -widthHeight 250 241 -maximized false dpInfoWindow;
+windowPref -topLeftCorner 364 562 -widthHeight 230 270 -maximized false SHAPESLabelPrefsWin;
+windowPref -topLeftCorner 364 562 -widthHeight 186 122 -maximized false SHAPESBrushHotkeyWindow;

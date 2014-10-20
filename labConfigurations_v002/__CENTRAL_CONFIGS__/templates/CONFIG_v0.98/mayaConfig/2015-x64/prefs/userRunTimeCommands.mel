@@ -9,3 +9,17 @@ runTimeCommand
 	-command ("mirrorMeRead();")
 	mirrorMeReadKey;
 
+runTimeCommand
+	-annotation "Open the SHAPES Brush marking menu"
+	-category "User"
+	-commandLanguage "mel"
+	-command ("SHAPESBrushDefaultTool; SHAPESBrushBuildMM;")
+	SHAPESBrushMMCommand;
+
+runTimeCommand
+	-annotation "Close the SHAPES Brush marking menu"
+	-category "User"
+	-commandLanguage "mel"
+	-command ("MarkingMenuPopDown")
+	SHAPESBrushMMPopDownCommand;
+

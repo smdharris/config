@@ -14,3 +14,15 @@ nameCommand
 	-command ("mirrorMeReadKey")
 	mirrorMeReadKeyNameCommand;
 
+nameCommand
+	-annotation "SHAPESBrushMM"
+	-sourceType "mel"
+	-command ("SHAPESBrushMMCommand")
+	SHAPESBrushMM_NameCommand;
+
+nameCommand
+	-annotation "SHAPESBrushMMPopDown"
+	-sourceType "mel"
+	-command ("SHAPESBrushMMPopDownCommand")
+	SHAPESBrushMMPopDown_NameCommand;
+
