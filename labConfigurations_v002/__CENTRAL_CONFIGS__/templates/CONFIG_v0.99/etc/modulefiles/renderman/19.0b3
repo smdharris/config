@@ -18,23 +18,39 @@ switch [ module-info mode ] {
 	}
 #######################################################
 #    RMANTREE - establishes the location of your PRMan distribution.	
-set RMANTREE "/Applications/Pixar/RenderManProServer-19.0b3"
+
+set RMANTREE "/Applications/Pixar/RenderManProServer-19.0b5"
 setenv RMANTREE $RMANTREE
 append-path PATH $RMANTREE/bin
 
 #######################################################
 # RDIR - speficies a directory where additional configuration files can be found, e.g. a site-specific rendermn.ini
-set RDIR "/Volumes/Renderfarm/__CENTRAL_CONFIGS__/etc/pixarConfig/site/config_latest"
-setenv RDIR $RDIR
+#set RDIR "/Volumes/Renderfarm/__CENTRAL_CONFIGS__/etc/pixarConfig/site/config_latest"
+#setenv RDIR $RDIR
 
 #######################################################
 #   this is for renderman studio scripts and ini locations
 #   probably better set if rms is being loaded so as part of maya/2015
 #
-set RMS_SCRIPT_PATHS "/Volumes/Renderfarm/__CENTRAL_CONFIGS__/etc/pixarConfig/site/config_latest"
-setenv RMS_SCRIPT_PATHS $RMS_SCRIPT_PATHS
+#set RMS_SCRIPT_PATHS "/Volumes/Renderfarm/__CENTRAL_CONFIGS__/etc/pixarConfig/site/config_latest"
+
 setenv PIXAR_LICENSE_FILE /Applications/Pixar/pixar.license
-	
+#########################################################
+# 	Renderman Studio Setup
+#
+
+set RMS 						"RenderManStudio-19.0b3-maya2015"
+setenv RMS_VERSION 				$RMS
+append-path MAYA_MODULE_PATH 	/Applications/Pixar/$RMS/etc
+
+set RMSTREE 					/Applications/Pixar/$RMS
+setenv RMSTREE 					$RMSTREE
+append-path MAYA_PLUG_IN_PATH 	$RMSTREE/plug-ins
+append-path MAYASCRIPT_PATH 	$RMSTREE/scripts
+append-path PYTHONPATH 			$RMSTREE/scripts:$RMSTREE/bin
+setenv PIXAR_LICENSE_FILE 		/Applications/Pixar/pixar.license
+#setenv RMS_SCRIPT_PATHS 		$RMS_SCRIPT_PATHS
+#########################################################	
 	
 # for Tcl script use only
 set     version      "@VERSION@"

@@ -11,7 +11,7 @@ menuSet -permanent 0 -hotBoxVisible 1 -label "Surfaces" -menuArray { "mainEditCu
 menuSet -moveMenuSet surfacesMenuSet 3;
 menuSet -permanent 0 -hotBoxVisible 1 -label "Dynamics" -menuArray { "mainParticlesMenu", "mainFluidsMenu", "mainFluidsCacheMenu", "mainFieldsMenu", "mainDynBodiesMenu", "mainDynEffectsMenu", "mainDynSettingsMenu" } dynamicsMenuSet;
 menuSet -moveMenuSet dynamicsMenuSet 4;
-menuSet -permanent 0 -hotBoxVisible 1 -label "Rendering" -menuArray { "mainShadingMenu", "mainRenTexturingMenu", "mainRenderMenu", "mainStereoMenu", "mainCreatorMenu", "SBSHairMenu" } renderingMenuSet;
+menuSet -permanent 0 -hotBoxVisible 1 -label "Rendering" -menuArray { "mainShadingMenu", "mainRenTexturingMenu", "mainRenderMenu", "mainCartoonMenu", "mainStereoMenu", "mainCreatorMenu" } renderingMenuSet;
 menuSet -moveMenuSet renderingMenuSet 5;
 menuSet -permanent 0 -hotBoxVisible 1 -label "nDynamics" -menuArray { "mainNParticleMenu", "mainNMeshMenu", "mainHairMenu", "mainNConstraintMenu", "mainNCacheMenu", "mainNSolverMenu", "mainFieldsMenu", "mainEffectsAssetsMenu" } nDynamicsMenuSet;
 menuSet -moveMenuSet nDynamicsMenuSet 6;

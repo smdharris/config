@@ -1,0 +1,7 @@
+import os,sys
+a= os.getenv("PYTHONPATH")
+b=a.split(":")
+for i in b:
+    print i
+    
+    

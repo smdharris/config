@@ -26,7 +26,7 @@ set-alias post "open -a \"/Applications/Post Haste.app\""
 set-alias wiki "open -a /Applications/Safari.app http://www.dabanimation.pbworks.com"
 
 module load mayaPortable/2015
-
+module load renderman/19.0b3
 
 
 # for Tcl script use only
