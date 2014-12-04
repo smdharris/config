@@ -1,7 +1,0 @@
-global proc jbMirrorSelectedJoints () {
-$jointsToMirror = `ls -sl -type joint`;
-for($joint in $jointsToMirror) {
-		mirrorJoint -myz -sr "Left" "Right" $joint;
-}
-}
-jbMirrorSelectedJoints;

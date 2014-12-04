@@ -1,4 +1,0 @@
-in python tab type:
-
-import attrman2011
-reload (attrman2011)

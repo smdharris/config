@@ -1,6 +1,0 @@
-     select -r Armada;
-     addAttr -ln mribgeoshields -dt "string";
-     setAttr  -type "string" Armada.mribgeoshields NOGEO;
-     file -save;		
-	
-

@@ -1,2 +1,0 @@
-module use /usr/local/etc/modulefiles
-module use /Volumes/Renderfarm/__CENTRAL_CONFIGS__/etc/modulefiles

@@ -1,5 +1,0 @@
-extractDeltas -s bodyBound -c bodyShaped
-
-extractDeltas -h -s pCylinder1 -c fix2
-
-parent -add -s controlShape1 prefix_joint12

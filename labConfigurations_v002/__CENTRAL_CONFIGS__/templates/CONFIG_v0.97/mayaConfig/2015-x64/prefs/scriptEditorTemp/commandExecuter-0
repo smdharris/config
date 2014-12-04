@@ -1,9 +1,0 @@
-import maya.cmds as cmds
-import dpAutoRigSystem
-import dpAutoRigSystem.dpAutoRig as dpAR
-reload(dpAR)
-dpUI = DP_AutoRig_UI()
-print "\ndpAutoRigSystem loaded with success."
-
-print dir(dpAR)
-dpAR.DPAR_VERSION
