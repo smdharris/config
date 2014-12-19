@@ -4,6 +4,7 @@
 ###
 ### edited by Pascal Grosvenor for DAB setup  
 ### last modified  3/5/11
+### modified by Matt Gidney dec 2014 - added support fot a list of mount points
 ###
 ### Mount File Servers -- Set up local mounts for our file server
 ###
@@ -18,6 +19,83 @@
 #          This avoids assuming DNS fully operational during boot.
 #          Often DNS is unstable during boot, even with boot dependencies.
 #
+
+ShowMountList()
+{
+	mountlist=./MountList
+	if [ -f $mountlist ]; then
+		$LOGGER "Showing contents of mount list"
+		while read -r line
+		do
+			[[ $line = \#* ]] && continue
+			IFS=' '
+			read -a array <<< $line
+			echo ${line[@]}
+			echo "num "${#array[@]}
+			echo "remote directory = "${array[0]}
+			echo "local directory = "${array[1]}
+			echo "protocol = "${array[2]}
+			echo "attributes = "${array[3]}
+			 
+			# for index in "${!array[@]}"
+			# do
+			# 	echo "$index ${array[index]}"
+			# done
+
+		done < $mountlist
+	fi
+
+
+}
+
+# SUBROUTINE: MOUNT THE SPECIFIED LIST OF DRIVES
+MountList()
+{
+
+	mountlist=./MountList
+	if [ -f $mountlist ]; then
+		$LOGGER "Mounting Drives from MountList"
+		
+		# default and priority
+    	remdrive="138.25.145.200:/Volumes/Renderfarm"   # $1 -- the remote drive,  eg. "192.168.1.10:/jobs"
+    	localdir="/Volumes/Renderfarm"	 	    # $2 -- local mount point, eg. "/net/jobs"
+    	flags="intr,bg,tcp,vers=3"		        # $3 -- nfs flags, eg. "rw,intr,bg,vers=3"
+		protocol="nfs"							# $3 -- eg nfs afp smb
+		
+		while read -r line
+		do
+			[[ $line = \#* ]] && continue
+			IFS=' '
+			read -a array <<< $line
+			echo "   "${line[@]}
+
+			remdrive=${array[0]}
+			localdir=${array[1]}
+			protocol=${array[2]}
+			flags=${array[3]}
+
+   	 		# ENSURE MOUNT POINT EXISTS
+   	 		if [ ! -d "$localdir" ]; then
+				$LOGGER "Creating mount point $localdir"
+				mkdir -p -m 755 "$localdir"
+    		fi
+
+	    	# ALREADY MOUNTED? DONT MOUNT TWICE
+	    	if mount | grep -q "$localdir"; then
+				$LOGGER "$localdir already mounted"
+	    	else
+				$LOGGER "Attempting to Mount '$remdrive' on '$localdir' as '$protocol'"
+				( mount -t "$protocol" -o "$flags" "$remdrive" "$localdir" ) 2>&1 | $LOGGER
+	    	fi
+		
+		done < $mountlist
+	fi	
+		
+}
+
+
+
+# SUBROUTINE: MOUNT THE SPECIFIED DRIVE
 Mount()
 {
     remdrive="138.25.145.200:/Volumes/Renderfarm"   # $1 -- the remote drive,  eg. "192.168.1.10:/jobs"
@@ -39,13 +117,45 @@ Mount()
     fi
 }
 
-# SUBROUTINE: UNMOUNT THE SPECIFIED DRIVE
+# SUBROUTINE: UNMOUNT THE SPECIFIED LIST OF DRIVES
+UnmountList()
+{
+    localdir="/Volumes/Renderfarm"		# $1 -- local mount point, eg. "/net/jobs"
+	mountlist=./MountList
+	
+	if [ -f $mountlist ]; then
+		$LOGGER "Un Mounting Drives from MountList"
+		
+		# default and priority
+    	localdir="/Volumes/Renderfarm"	 	    # $2 -- local mount point, eg. "/net/jobs"
+		
+		while read -r line
+		do
+			[[ $line = \#* ]] && continue
+			IFS=' '
+			read -a array <<< $line
+			echo "   "${line[@]}
+			
+			localdir=${array[1]}
+
+		    $LOGGER "Un-mounting '$localdir'"
+		    umount "$localdir" 2>&1 | $LOGGER
+		
+		done < $mountlist
+	fi	
+	
+}
+
+# SUBROUTINE: UNMOUNT THE SPECIFIED LIST OF DRIVES
 Umount()
 {
     localdir="/Volumes/Renderfarm"		# $1 -- local mount point, eg. "/net/jobs"
     $LOGGER "Un-mounting '$localdir'"
     umount "$localdir" 2>&1 | $LOGGER
 }
+
+
+
 
 ###
 ### MAIN
@@ -62,20 +172,27 @@ case "$ARG1" in
 
     start)
         ### MOUNT ALL SERVERS ON BOOT
-	Mount 138.25.145.200:/Volumes/Renderfarm    /Volumes/Renderfarm    "intr,bg,tcp,vers=3"        # OSX/TCP
+		MountList
+		#Mount 138.25.145.200:/Volumes/Renderfarm    /Volumes/Renderfarm    "intr,bg,tcp,vers=3"        # OSX/TCP
         ;;
 
     stop)
         ### UN-MOUNT ALL SERVERS ON SHUTDOWN
-	Umount /Volumes/Renderfarm
-	;;
+		#Umount /Volumes/Renderfarm
+		UnmountList
+		;;
 
     restart)
         $0 stop
         $0 start
         ;;
+	
+	show)
+	    ShowMountList
+		;;
+	
     *)
-        echo "usage: $0 {start|stop|restart}"
+        echo "usage: $0 {start|stop|restart|show}"
         exit 1
         ;;
 esac
