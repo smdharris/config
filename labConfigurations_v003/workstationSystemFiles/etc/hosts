@@ -8,13 +8,23 @@
 255.255.255.255	broadcasthost
 ::1             localhost 
 fe80::1%lo0		localhost
+
+##########################  dab server
 138.25.145.200	producer
 138.25.145.200	producer.dab.uts.edu.au
-138.25.145.195	animation
-138.25.145.195	tractor-engine
-138.25.145.195	tractor-monitor
-138.25.145.195	tractor-logger
 
+##########################  deb server
+138.25.145.195 animation pixarserver
+138.25.37.139 dr-no dr-no.itd.uts.edu.au tractor-engine tractor-monitor tractor-logger
+
+##########################  new renderfarm machines
+138.25.37.232 ermdc02 tractor-test-blade
+138.25.37.155 dabrn01 dabrn01.itd.uts.edu.au
+138.25.37.156 dabrn02 dabrn02.itd.uts.edu.au
+138.25.37.157 dabrn03 dabrn03.itd.uts.edu.au
+
+
+##########################
 138.25.145.81   render-node-01
 138.25.145.82   render-node-02
 

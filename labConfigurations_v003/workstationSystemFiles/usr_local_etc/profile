@@ -19,7 +19,3 @@ export PATH
 DISPLAY=:0.0
 export DISPLAY
 
-# initialise environment  modules /usr/local/etc/modules
-
-#export MODULESHOME="/usr/local/etc/modules"
-#eval `tclsh ${MODULESHOME}/modulecmd.tcl sh autoinit`
