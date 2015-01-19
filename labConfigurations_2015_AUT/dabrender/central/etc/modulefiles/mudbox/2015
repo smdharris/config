@@ -1,0 +1,35 @@
+#%Module
+##
+## @configure_input@
+##
+proc ModulesHelp { } {
+        global version
+        puts stderr "\tThis module configures Mudbox."
+        puts stderr "\n\tVersion $version\n"
+}
+set curMod [ module-info name]
+module-whatis	"This is the base configuration for $curMod"
+
+prereq "dab"
+conflict "mudbox/2014"
+
+switch [ module-info mode ] {
+	"load"   { puts stderr ">>>>>> Loaded    $curMod" }
+	"unload" { puts stderr "<<<<<< Unloading $curMod" }
+	}
+#######################################################
+
+##########################  set in dab/central
+set CONFIG_RENDER $env(CONFIG_RENDER)
+set USER $env(USER)
+##########################
+
+
+######################################  set by user configs 
+# set CONFIG $env(CONFIG)
+
+	
+	
+# for Tcl script use only
+set     version      "@VERSION@"
+

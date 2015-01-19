@@ -1,0 +1,31 @@
+#%Module
+##
+## @configure_input@
+##
+proc ModulesHelp { } {
+        global version
+        puts stderr "\tThis module configures mtoa (arnold)."
+        puts stderr "\n\tVersion $version\n"
+}
+set curMod [ module-info name]
+module-whatis	"This is the base configuration for $curMod"
+
+prereq "mayaPortable/2015"
+
+switch [ module-info mode ] {
+	"load"   { puts stderr ">>>>>> Loaded    $curMod" }
+	"unload" { puts stderr "<<<<<< Unloading $curMod" }
+	}
+#######################################################
+	
+append-path MAYA_RENDER_DESC_PATH /Users/Shared/solidangle/mtoa/2015
+append-path PATH /Users/Shared/solidangle/mtoa/2015/bin
+append-path ARNOLD_PLUGIN_PATH /Users/Shared/solidangle/mtoa/2015/shaders
+append-path MTOA_EXTENSIONS_PATH /Users/Shared/solidangle/mtoa/2015/extensions
+
+
+
+	
+# for Tcl script use only
+set     version      "@VERSION@"
+

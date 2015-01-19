@@ -1,0 +1,18 @@
+global proc loc2poly()
+{
+string $selection[]  = `ls -sl`;
+string $boundObjLocs[] = `listRelatives -allDescendents -type locator -fullPath $selection[0]`;
+  string $tempBoundPoly = "boatPositionPolygon";
+  // make up a single polygon whose verts are all the boat positions
+  if (`objExists $tempBoundPoly`) {
+    delete $tempBoundPoly;
+  }
+  string $polyCmd = ("polyCreateFacet -name \"" + $tempBoundPoly + "\"");
+  string $obj;
+  for($obj in $boundObjLocs) {
+    float $pos[] = `getAttr ($obj + ".worldPosition")`;
+    $polyCmd += " -p " + $pos[0] + " " + $pos[1] + " " + $pos[2];
+  }
+  eval($polyCmd);
+  setAttr ($tempBoundPoly + ".primaryVisibility") 0;
+}

@@ -1,0 +1,11 @@
+{
+  Description     = "rush render queue";
+  Provides        = ("Rush");
+  Requires        = ("Network", "System Log", "Resolver");
+  OrderPreference = "Last";
+  Messages =
+  {
+    start = "Starting rushd";
+    stop  = "Stopping rushd";
+  };
+}

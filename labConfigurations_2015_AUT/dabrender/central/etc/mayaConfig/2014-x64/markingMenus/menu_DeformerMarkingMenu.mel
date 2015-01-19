@@ -1,0 +1,679 @@
+
+    menuItem
+        -label "BlendshapeCreate" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performBlendShape 0" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "E" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "BlendshapeCreate" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem1;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performBlendShape 1" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem2;
+
+    menuItem
+        -label "Lattice Create" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performLattice false" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "W" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Lattice Create" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem3;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performLattice true" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem4;
+
+    menuItem
+        -label "Bend" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performBend 0" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Bend" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem26;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performBend 1" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem29;
+
+    menuItem
+        -label "Wrap Create" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performCreateWrap false" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Wrap Create" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem5;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performCreateWrap true" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem6;
+
+    menuItem
+        -label "Sculpt Deformer Create" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performSculpt false" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Sculpt Deformer Create" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem7;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performSculpt true" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem8;
+
+    menuItem
+        -label "Cluster Create" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performCluster false" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "S" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Cluster Create" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem9;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performCluster true" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem10;
+
+    menuItem
+        -label "Curve Cluster" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "clusterCurve" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "SW" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Curve Cluster" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem11;
+
+    menuItem
+        -label "Add Blendshape" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performBlendShapeAdd 0" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "SE" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Add Blendshape" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem12;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performBlendShapeAdd 1" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem13;
+
+    menuItem
+        -label "Paint Membership" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "artSetPaintToolScript 4" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "NE" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Paint Membership" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem14;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "artSetPaintToolScript 3" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem15;
+
+    menuItem
+        -label "Twist" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performTwist 0" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Twist" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem16;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performTwist 1" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem17;
+
+    menuItem
+        -label "Wave" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performWave 0" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Wave" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem18;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performWave 1" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem19;
+
+    menuItem
+        -label "Wire" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "setToolTo wireCtx" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "N" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Wire" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem20;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "setToolTo wireCtx; toolPropertyWindow" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem21;
+
+    menuItem
+        -label "Flare" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performFlare 0" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Flare" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem22;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performFlare 1" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem23;
+
+    menuItem
+        -label "Jiggle" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performJiggle false" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Jiggle" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem24;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performJiggle true" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem25;
+
+    menuItem
+        -label "Soft Mod" 
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "setToolTo ShowManips; performSoftMod 0 0 0 {0.0, 0.0, 0.0}" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 0
+        -enable 1
+        -data 0
+        -radialPosition "NW" 
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 1
+        -echoCommand 0
+        -annotation "Soft Mod" 
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem30;
+
+    menuItem
+        -divider 0
+        -subMenu 0
+        -tearOff 0
+        -command "performSoftMod 1 0 0 {0.0, 0.0, 0.0}" 
+        -altModifier 0
+        -optionModifier 0
+        -commandModifier 0
+        -ctrlModifier 0
+        -shiftModifier 0
+        -optionBox 1
+        -enable 1
+        -data 0
+        -allowOptionBoxes 1
+        -postMenuCommandOnce 0
+        -enableCommandRepeat 0
+        -echoCommand 0
+        -italicized 0
+        -boldFont 0
+        -sourceType "mel" 
+        menuEditorMenuItem31;
+
+setParent -m ..;
+

@@ -1,0 +1,30 @@
+#%Module
+##
+## @configure_input@
+##
+proc ModulesHelp { } {
+        global version
+        puts stderr "\tThis module configures the shell for $curMod"
+        puts stderr "\n\tVersion $version\n"
+}
+
+set curMod [ module-info name]
+module-whatis	"This is the base configuration of  $curMod"
+
+prereq "dab"
+conflict "semester"
+
+
+switch [ module-info mode ] {
+	"load"   { puts stderr ">>>>>> Loaded    $curMod" }
+	"unload" { puts stderr "<<<<<< Unloading $curMod" }
+	}
+#######################################################
+
+
+module load maya/2015
+
+
+# for Tcl script use only
+set     version      "@VERSION@"
+

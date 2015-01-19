@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>title</key>
+		<string>Project Number</string>
+		<key>type</key>
+		<integer>2</integer>
+		<key>val</key>
+		<string>0001</string>
+		<key>defaultVal</key>
+		<string>0001</string>
+		<key>useInPath</key>
+		<integer>1</integer>
+		<key>projectID</key>
+		<true/>
+	</dict>
+	<dict>
+		<key>saveHistory</key>
+		<true/>
+		<key>title</key>
+		<string>Client</string>
+		<key>type</key>
+		<integer>0</integer>
+		<key>val</key>
+		<string></string>
+		<key>defaultVal</key>
+		<string></string>
+		<key>useInPath</key>
+		<integer>1</integer>
+	</dict>
+	<dict>
+		<key>saveHistory</key>
+		<true/>
+		<key>title</key>
+		<string>Project Name</string>
+		<key>type</key>
+		<integer>0</integer>
+		<key>val</key>
+		<string>Project</string>
+		<key>defaultVal</key>
+		<string>Project</string>
+		<key>useInPath</key>
+		<integer>1</integer>
+	</dict>
+	<dict>
+		<key>title</key>
+		<string>Date</string>
+		<key>type</key>
+		<integer>3</integer>
+		<key>useInPath</key>
+		<integer>1</integer>
+	</dict>
+	<dict>
+		<key>saveHistory</key>
+		<true/>
+		<key>title</key>
+		<string>Editor</string>
+		<key>type</key>
+		<integer>4</integer>
+		<key>useInPath</key>
+		<integer>1</integer>
+	</dict>
+</array>
+</plist>

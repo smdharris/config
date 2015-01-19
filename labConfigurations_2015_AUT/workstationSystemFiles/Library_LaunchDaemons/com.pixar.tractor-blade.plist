@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>Disabled</key>
+        <true/>
+        <key>KeepAlive</key>
+        <dict>
+                <key>NetworkState</key>
+                <true/>
+        </dict>
+        <key>Label</key>
+        <string>com.pixar.tractor-blade</string>
+        <key>LaunchOnlyOnce</key>
+        <true/>
+        <key>OnDemand</key>
+        <false/>
+        <key>ProgramArguments</key>
+        <array>
+                <string>/Applications/Pixar/tractor-blade-1.7.2/tractor-blade</string>
+                <string>--engine</string>
+                <string>tractor-engine</string>
+                <string>-P</string>
+                <string>5600</string>
+                <string>-v</string>
+                <string>--log</string>
+                <string>/var/tmp/blade.log</string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+        <key>UserName</key>
+        <string>root</string>
+        <key>EnvironmentVariables</key>
+        <dict>
+            <key>HOME</key>
+            <string>/var/root</string>
+        </dict>
+</dict>
+</plist>

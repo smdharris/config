@@ -1,0 +1,42 @@
+#%Module
+##
+## @configure_input@
+##
+proc ModulesHelp { } {
+        global version
+        puts stderr "\tThis module configures the shell for DAB LAB work $curMod"
+        puts stderr "\n\tVersion $version\n"
+}
+set curMod [ module-info name]
+module-whatis	"This is the base configuration of the DAB Animation Labs"
+
+#prereq
+conflict "dab/central"
+
+
+###########################  load renderman here - easier to manage
+module load renderman/18.0
+
+switch [ module-info mode ] {
+	"load"   { puts stderr ">>>>>> Loaded    $curMod" }
+	"unload" { puts stderr "<<<<<< Unloading $curMod" }
+	}
+#######################################################
+
+
+
+	set-alias i introduction
+	set-alias m module
+	set-alias a alias
+	set-alias post "open -a \"/Applications/Post Haste.app\""
+	set-alias wiki "open -a /Applications/Safari.app http://www.dabanimation.pbworks.com"
+
+	setenv CONFIG_RENDER "/Volumes/Renderfarm/__CENTRAL_CONFIGS__"
+	append-path PATH /Volumes/Renderfarm/__CENTRAL_CONFIGS__/bin
+	append-path PYTHONPATH /Volumes/Renderfarm/__CENTRAL_CONFIGS__/lib/python
+	
+
+
+# for Tcl script use only
+set     version      "@VERSION@"
+

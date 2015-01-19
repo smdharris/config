@@ -1,0 +1,11 @@
+{
+	Description = "Mounts the File Servers";
+	Provides = ("MountFileServers");
+	Requires = ("Network", "System Log", "Resolver");
+	OrderPreference = "Last";
+	Messages =
+	{
+		start = "Mounting local file server";
+		stop  = "Unmounting local file server";
+	};
+}

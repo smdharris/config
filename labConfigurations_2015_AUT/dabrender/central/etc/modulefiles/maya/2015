@@ -1,0 +1,84 @@
+#%Module
+##
+## @configure_input@
+##
+proc ModulesHelp { } {
+        global version
+        puts stderr "\tThis module configures Maya."
+        puts stderr "\n\tVersion $version\n"
+}
+set curMod [ module-info name]
+module-whatis	"This is the base configuration for $curMod"
+
+prereq "dab"
+conflict "maya/2014"
+
+switch [ module-info mode ] {
+	"load"   { puts stderr ">>>>>> Loaded    $curMod" }
+	"unload" { puts stderr "<<<<<< Unloading $curMod" }
+	}
+#######################################################
+	
+if { [ is-loaded renderman/18.0 ] } {
+	module unload renderman/18.0
+}
+
+##########################  set in dab/central
+set CONFIG_RENDER $env(CONFIG_RENDER)
+set USER $env(USER)
+##########################
+
+
+set MAYA_VERSION 2015
+
+setenv MAYA_VERSION $MAYA_VERSION
+set MAYA_INSTALL_PATH /Applications/Autodesk/maya$MAYA_VERSION
+setenv MAYA_INSTALL_PATH $MAYA_INSTALL_PATH
+
+######################################  set by user configs 
+# set CONFIG $env(CONFIG)
+# set STARTD $env(STARTD)
+#set MAYA_APP_DIR $CONFIG/mayaConfig
+#setenv MAYA_APP_DIR $MAYA_APP_DIR
+
+#set MAYA_PROJECT default
+#set MAYA_PROJECTS_DIR /Volumes/STUDENTWORK/$USER
+#setenv MAYA_PROJECT $MAYA_PROJECT
+#setenv MAYA_PROJECTS_DIR $MAYA_PROJECTS_DIR
+
+#append-path XBMLANGPATH $MAYA_APP_DIR/icons
+#append-path MAYA_SCRIPT_PATH $MAYA_APP_DIR/scripts
+#append-path MAYA_PRESET_PATH $MAYA_APP_DIR/presets
+
+#append-path MAYA_PLUG_IN_PATH $MAYA_APP_DIR/plugins
+#append-path MAYA_MODULE_PATH $MAYA_APP_DIR/$MAYA_VERSION-x64/modules
+#append-path MAYA_SHELF_PATH $MAYA_APP_DIR/shelves
+#append-path MAYA_TOOLCLIPS_PATH $MAYA_APP_DIR/toolclips
+#append-path PYTHONPATH $MAYA_APP_DIR/scripts
+
+#append-path PATH $STARTD/bin
+#######################################
+
+############################ centralized scripts and plugs
+append-path PATH $MAYA_INSTALL_PATH/Maya.app/Contents/bin
+append-path PATH /usr/aw/COM/bin
+append-path PATH /usr/aw/COM/etc
+
+append-path MAYA_SCRIPT_PATH $CONFIG_RENDER/etc/mayaConfig/$MAYA_VERSION-x64/scripts
+append-path MAYA_PLUG_IN_PATH $CONFIG_RENDER/etc/mayaConfig/$MAYA_VERSION-x64/plugins
+append-path MAYA_MODULE_PATH $CONFIG_RENDER/etc/mayaConfig/$MAYA_VERSION-x64/modules
+append-path MAYA_PRESET_PATH $CONFIG_RENDER/etc/mayaConfig/$MAYA_VERSION-x64/presets
+append-path MAYA_SHELF_PATH $CONFIG_RENDER/etc/mayaConfig/$MAYA_VERSION-x64/shelves
+append-path XBMLANGPATH $CONFIG_RENDER/etc/mayaConfig/$MAYA_VERSION-x64/icons
+
+set MAYA_LOCATION $MAYA_INSTALL_PATH/Maya.app/Contents
+setenv MAYA_LOCATION $MAYA_LOCATION
+setenv DYLD_LIBRARY_PATH $MAYA_LOCATION/MacOS	
+###  note osx 10.9 doesnt like you to append anything outside of their list of 
+###  envars that start with DYLD_ to the path
+###  modules does this with a placeholder envvar
+###  so to avoid the nag warning I am setting rather than appending this
+	
+# for Tcl script use only
+set     version      "@VERSION@"
+

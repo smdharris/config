@@ -1,0 +1,181 @@
+
+/*
+Script Name	: mg_setupTriggerWizard
+
+Version	: 1.2.1
+
+Author		: manish
+
+maid id	: manish@manishtoons.com
+
+website	: http://www.manishtoons.com
+
+Usage		: copy script in script directory . restart maya or source it.
+		  "source mg_setupTriggerWizard; mg_setupTriggerWizard;" enter command in command line
+
+Synopsis	: Usefull for triggering objects.
+
+Bug Fixed 	: Now script is undo supported
+*/
+
+
+
+
+
+global proc mg_setupTriggerWizard()
+
+{
+	if ( `window -ex mg_setupTriggerWizardUI `)
+	deleteUI mg_setupTriggerWizardUI;
+	
+	window -t "Trigger Wizard - "
+		mg_setupTriggerWizardUI;
+	
+	formLayout mainForm;
+	
+	frameLayout	-l "Redirect From"
+			-cll off
+			-cl off
+			fromFrame;
+	
+	formLayout fromForm;
+	
+	textFieldButtonGrp -cw3 145 125 95 -l "Redirect Selection From :" -bl "Load selected" -bc "textFieldButtonGrp -e -text `ls -sl` fromb;"  fromb;
+	
+	
+	text -l "please mention the string which gonna substitute \nfrom controler" txt1;
+	
+	textFieldGrp -l "Redirect Seleciotin by Substituting :" -columnWidth2 192 170 subsb;
+	
+	separator -style "none" -height 6 sep1;
+	
+	formLayout -e
+	
+		-af fromb top 5
+		-af fromb left 15
+		-af fromb right 0
+	
+		-ac txt1 top 10 fromb 
+		-af txt1 left 25
+		-af txt1 right 0
+	
+		-ac subsb top 10 txt1 
+		-af subsb left 15
+		-af subsb right 0
+	
+		-ac sep1 top 2 subsb 
+		-af sep1 left 0
+		-af sep1 right 0
+	
+	fromForm;
+	
+	setParent mainForm;
+	
+	
+	frameLayout	-l "Redirect To"
+			-cll off
+			-cl off
+			toFrame;
+	
+	formLayout toForm;
+	
+	text -l "please mention the string which will replace \"substituted\" string\nRedirect selection by replacing this string :" txt2;
+	
+	textFieldGrp -l "Redirect Selection by Replacing :" -columnWidth2 185 190 subsb2;
+	
+	separator -style "none" -height 6 sep2;
+	
+	formLayout -e
+	
+		-af txt2 top 5
+		-af txt2 left 25
+		-af txt2 right 0
+	
+		-ac subsb2 top 5 txt2
+		-af subsb2 left 15
+		-af subsb2 right 0
+	
+		-ac sep2 top 2 subsb2 
+		-af sep2 left 0
+		-af sep2 right 0
+	
+	toForm;
+	
+	setParent mainForm;
+	
+	
+	button -l "Apply" -c "mg_prepareTriggerWizardCmd fromb subsb subsb2" applybutton;
+	button -l "Cancel" -c "deleteUI mg_setupTriggerWizardUI;" cancelbutton;
+	
+	
+	formLayout -e
+	
+		-af fromFrame left 5
+		-af fromFrame right 5
+		-af fromFrame top 5
+	
+		-af toFrame left 5
+		-af toFrame right 5
+		-ac toFrame top 5 fromFrame 
+	
+	 	-ac applybutton top 0 toFrame 
+		-af applybutton left 5
+		-ap applybutton right 0 48
+		-af applybutton bottom 5 
+	
+		-ac cancelbutton top 0 toFrame 
+		-af cancelbutton right 5
+		-ap cancelbutton left 0 48 
+		-af cancelbutton bottom 5 
+	
+	
+	mainForm;
+	
+	
+	showWindow mg_setupTriggerWizardUI;
+
+}
+
+
+
+
+
+global proc mg_prepareTriggerWizardCmd (string $control, string $from, string $to)
+{
+string $control = `textFieldButtonGrp -q -text $control`;
+string $from = `textFieldGrp -q -text $from`;
+string $to = `textFieldGrp -q -text $to`;
+
+string $command = ("mg_setupTrigger" + " " + $control + " " + $from + " " + $to );
+evalEcho $command;
+
+}
+
+
+global proc mg_setupTrigger(string $control, string $from, string $to)
+{
+	string $listScriptNodes[] = `ls "*_mg_triggerSelection"`;
+	
+		if (size($listScriptNodes)!=0)
+		{
+			string $scriptUtility;
+			string $cmd = ("mg_triggerSelection" + " " + $control + " " +  $from + " " +  $to);
+			$scriptUtility+= ("scriptJob -killWithScene -event \"SelectionChanged\" \"" + $cmd + "\";\n\n");
+			string $oldScriptNode = ` scriptNode -q -beforeScript $listScriptNodes[0]`;
+			scriptNode -e -beforeScript ( $scriptUtility + $oldScriptNode)  $listScriptNodes[0];
+			eval $scriptUtility;
+		}
+		else
+		{
+			string $scriptUtility;
+			string $cmd = ("mg_triggerSelection" + " " + $control + " " +  $from + " " +  $to);
+			$scriptUtility+= ("scriptJob -killWithScene -cu 1 -event \"SelectionChanged\" \"" + $cmd + "\";\n\n");
+			$scriptUtility+= "global proc mg_triggerSelection(string $control, string $from, string $to)\r\r{\r\rstring $selection[] = `ls -sl`;\rstring $trigger;\r\r\tfor ($trigger in $selection)\r\t{\r\t\tif (($trigger== $control)&&(size($selection)==1))\r\t\t{\r\t\tstring $sub = ` substitute $from $trigger  $to `;\r\t\tselect $sub;\r\t\t}\r\t}\r\r}" ;
+			
+			string $scriptNode = `scriptNode  -beforeScript  $scriptUtility -n ($control + "_mg_triggerSelection")`;
+			setAttr ($scriptNode + ".scriptType") 2;
+			eval $scriptUtility;
+		}
+}
+
+

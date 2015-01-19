@@ -1,0 +1,143 @@
+global proc shelf_UTS_modelling () {
+    global string $gBuffStr;
+    global string $gBuffStr0;
+    global string $gBuffStr1;
+
+
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "extractDeltas -s pCylinder1 -c fix1" 
+        -enableBackground 0
+        -align "center" 
+        -label "extractDeltas -s pCylinder1 -c fix1" 
+        -labelOffset 0
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "commandButton.png" 
+        -image1 "commandButton.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "extractDeltas -s pCylinder1 -c fix1" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Select object(s) to key" 
+        -enableBackground 0
+        -align "center" 
+        -label "Set Key" 
+        -labelOffset 0
+        -font "plainLabelFont" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "setKeyframe.png" 
+        -image1 "setKeyframe.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "doSetKeyframeArgList 6 { \"1\",\"0\",\"0\",\"0\",\"0\",\"0\",\"0\",\"animationList\",\"0\",\"1\",\"0\" };" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Toggle local rotation axis visibility" 
+        -enableBackground 0
+        -align "center" 
+        -label "Local Rotation Axes" 
+        -labelOffset 0
+        -font "plainLabelFont" 
+        -imageOverlayLabel "LRA" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.25 
+        -image "menuIconDisplay.png" 
+        -image1 "menuIconDisplay.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "ToggleLocalRotationAxes" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Select, or select and remove, different types of polygonal geometry" 
+        -enableBackground 0
+        -align "center" 
+        -label "Cleanup..." 
+        -labelOffset 0
+        -font "plainLabelFont" 
+        -imageOverlayLabel "CLN" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.2 
+        -image "polyCleanup.png" 
+        -image1 "polyCleanup.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "polyCleanupArgList 3 { \"0\",\"2\",\"1\",\"0\",\"1\",\"0\",\"1\",\"0\",\"1\",\"1e-05\",\"1\",\"1e-05\",\"0\",\"1e-05\",\"0\",\"1\",\"1\" };" 
+        -sourceType "mel" 
+        -doubleClickCommand "performPolyCleanup 1" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Select quads" 
+        -enableBackground 0
+        -align "center" 
+        -label "Cleanup..." 
+        -labelOffset 0
+        -font "plainLabelFont" 
+        -imageOverlayLabel "QDS" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.2 
+        -image "polyCleanup.png" 
+        -image1 "polyCleanup.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "polyCleanupArgList 3 { \"0\",\"2\",\"0\",\"1\",\"0\",\"0\",\"0\",\"0\",\"0\",\"1e-05\",\"0\",\"1e-05\",\"0\",\"1e-05\",\"0\",\"-1\",\"0\" };" 
+        -sourceType "mel" 
+        -doubleClickCommand "performPolyCleanup 1" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+
+} 

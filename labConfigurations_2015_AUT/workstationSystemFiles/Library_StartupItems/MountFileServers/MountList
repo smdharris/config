@@ -1,0 +1,8 @@
+### The list of mounts to attempt
+### $1 -- the remote drive,  eg. "192.168.1.10:/jobs"
+### $2 -- local mount point, eg. "/net/jobs"
+### $4 -- nfs flags, eg. "rw,intr,bg,vers=3"
+### $3 -- type eg. "nfs"
+###
+138.25.145.200:/Volumes/Renderfarm /Volumes/Renderfarm nfs intr,bg,tcp,vers=3
+138.25.145.195:/Volumes/Labshare /Volumes/Labshare afp intr,bg,tcp,vers=3

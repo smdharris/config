@@ -1,0 +1,201 @@
+// showTextures.mel
+// Bryan
+// update by matthew gidney
+
+
+global proc showTextures() {
+
+	//name of window
+  string $texList = "TextureList" ;
+
+	//buttons
+	global string $orig;
+	global string $new;
+
+
+	string $allTextures[] = `ls -textures`;
+  string $name;
+  string $filename;
+  string $fileok;
+  int $i;
+  int $fileno;
+
+	global string  $texcomponents[];
+  global string  $shadercomponents[];
+  global string  $validatecomp[];
+
+
+if (`window -exists $texList`) {
+	deleteUI $texList;
+}
+
+  window -h 300 -w 800  $texList;
+    scrollLayout
+      -vst   16 -hst 0;
+
+    columnLayout;
+        rowColumnLayout -numberOfColumns 3 -cw 1 250 -cw 2 10 -cw 3 500 ;
+            text -label "";
+            text -label "";
+            text -label "Referenced Textures";
+
+	//build the textures
+  $fileno=0;
+	for ($i = 0; $i < size($allTextures); $i++)
+ 	{
+    if (`nodeType $allTextures[$i]` == "file")
+    {
+      $filename = `getAttr ($allTextures[$i] + ".ftn")`;
+
+      $name = `text -label $allTextures[$i]`;
+      $fileok=`text -l ""`;
+      checkFile($filename, $fileok);
+      $tx = `textField -tx $filename`;
+
+      $texcomponents[$fileno]=$tx;
+      $shadercomponents[$fileno]=$name;
+      $validatecomp[$fileno]=$fileok;
+      $fileno++;
+      string $command = "updateTex " + $allTextures[$i] + " " + $tx + " " + $fileok;
+      textField -e -cc ($command) $tx;
+
+    }
+
+  }
+
+        setParent ..;
+        rowLayout -cl1 "center" ;
+        separator -hr true -w 700 -h 20;
+        setParent ..;
+        rowColumnLayout -numberOfColumns 5 -cw 1 150 -cw 2 150 -cw 3 60 -cw 4 150 -cw 5 60 ;
+        text -l "Replace ";
+        $orig=`textField`;
+        text -l "With ";
+        $new=`textField`;
+        button -l "GO" -c ("replace($orig,$new)");
+        setParent ..;
+        rowLayout -cl1 "center" ;
+        separator -hr true -w 700 -h 20;
+        setParent ..;
+        rowColumnLayout -numberOfColumns 5 -cw 1 250 -cw 2 100 -cw 3 100 -cw 4 100 -cw 5 150 ;
+        text -l "";
+        button -l "Make Absolute" -c ("makeAbs()");
+        button -l "Make Relative" -c ("makeRel()");
+        button -l "Close" -c ("window -e -vis 0 TextureList");
+        text -l "";
+  
+  showWindow "TextureList";
+}
+
+
+global proc replace(string $search, string $replace) {
+	
+  global string  $texcomponents[];
+  global string  $shadercomponents[];
+  global string  $validatecomp[];
+
+	string $searchstring=`textField -q -tx $search`;
+  string $replacestring=`textField -q -tx $replace`;
+  int $i;
+  string $oldname;
+  string $newname;
+  string $shadername;
+  string $checkname;
+
+	print ("Texcomponents:");
+	print `size($texcomponents)`;
+	print ("\nshadercomponents:");
+	print `size($shadercomponents)`;
+	print ("\nvalidatecomp:");
+	print `size($validatecomp)`;
+
+  for ($i = 0; $i < size($texcomponents); $i++)
+  {
+    $oldname=`textField -q -tx $texcomponents[$i]`;
+    $newname=`substitute $searchstring $oldname $replacestring`;
+    $shadername = `text -q -l $shadercomponents[$i]`;
+    textField -e -tx $newname $texcomponents[$i];
+    updateTex($shadername, $texcomponents[$i], $validatecomp[$i]);
+  }
+
+}
+
+
+global proc makeAbs() {
+
+	global string $texcomponents[];
+  global string $shadercomponents[];
+  global string $validatecomp[];
+  string $proj=`workspace -q -rd`;
+  string $theShader;
+  int $i;
+  print("Make absolute \n");
+  print($texcomponents);
+
+  for ($i = 0; $i < size($texcomponents); $i++) {
+    string $filename=`textField -q -tx $texcomponents[$i]`;
+    string $testname = $proj + "/" + $filename;
+    print("Testing " + $testname + "\n");
+    if (`filetest -r $testname` ==1) {
+      $theShader = `text -q -l $shadercomponents[$i]`;
+      $theShader = $theShader + ".ftn";
+      setAttr $theShader -type "string" $testname;
+      textField -e -tx $testname $texcomponents[$i];
+      text -e -l "" $validatecomp[$i];    //Absolute OK
+    }
+  }
+
+}
+
+global proc makeRel() {
+
+  global string $texcomponents[];
+  global string $shadercomponents[];
+  global string $validatecomp[];
+
+  string $proj=`workspace -q -rd`;
+  string $abspart = $proj + "/";
+  string $theShader;
+  string $null="";
+  int $i;
+
+  for ($i = 0; $i < size($texcomponents); $i++) {
+    string $filename=`textField -q -tx $texcomponents[$i]`;
+    $testname=`substitute $abspart $filename $null`;
+    $theShader = `text -q -l $shadercomponents[$i]`;
+    $theShader = $theShader + ".ftn";
+    setAttr $theShader -type "string" $testname;
+    textField -e -tx $testname $texcomponents[$i];
+    checkFile($testname, $validatecomp[$i]);
+  }
+
+
+}
+
+global proc checkFile(string $filename, string $checked)
+{
+
+  string $proj=`workspace -q -rd`;
+  print("PROJECT IS "+ $proj+" \n");
+      if (`filetest -r $filename` == 1) {
+        text -e -l "" $checked;   //Absolute OK
+      } else {
+        $testname = $proj + "/" + $filename;
+        if (`filetest -r $testname` ==1) {
+          text -e -l "R " $checked; //Relative OK
+        } else {
+          text -e -l "? " $checked; //Bad
+        }
+      }
+}
+
+
+global proc updateTex(string $shadername, string $newnamefield, string $filecheck)
+{
+  string $att = $shadername + ".ftn";
+  string $newname = `textField -q -tx $newnamefield`;
+  setAttr $att -type "string" $newname;
+  //print("Set " + $shadername + " to " + $newname + " \n");
+  checkFile($newname, $filecheck);
+}
+
