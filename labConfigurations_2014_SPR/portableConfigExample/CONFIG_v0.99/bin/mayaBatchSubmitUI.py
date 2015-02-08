@@ -7,7 +7,7 @@ import ttk
 import tkMessageBox
 import datetime
 import tkFileDialog, Tkconstants
-import tractor.api.author as author
+import dabtractor.api.author as author
 import sys
 import os
 
