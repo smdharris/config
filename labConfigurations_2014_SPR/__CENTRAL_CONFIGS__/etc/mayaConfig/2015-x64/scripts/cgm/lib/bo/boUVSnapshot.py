@@ -104,9 +104,9 @@ class GUI(object):
 
 def snapshot(objs, dst, fmt, size, aa):
     """
-    Snapshot the given objects. Returns the exported images.
+    Snapshot the given objects. Returns the exported icons.
     
-    `dst` -- destination directory for the images
+    `dst` -- destination directory for the icons
     `fmt` -- the file format
     `size` -- the image resolution. should be a factor of 2
     `aa` -- whether to anti-alias the lines or not

@@ -7,7 +7,7 @@ global proc shelf_advancedSkeleton () {
 //In this example, AdvancedSkeleton is on a shared network drive called P:
 //You can change the path of the 2 lines below, to match your system.
 //Then just drag`n`drop this file into Maya on any machine to install the AdvancedSkeleton shelf
-string $asIconsPath="P:/SharedTools/maya/prefs/icons/AdvancedSkeleton/";
+string $asIconsPath="P:/SharedTools/maya/prefs/images/AdvancedSkeleton/";
 string $asScriptsPath="P:/SharedTools/maya/scripts/AdvancedSkeleton/";
 
 
