@@ -51,7 +51,7 @@ class GUI(object):
                 
                 sep2 = separator(h=4, st='in')
                 self.dstOpts = optionMenu(l='Destination', w=175)
-                for x in ['sourceimages', 'images']:
+                for x in ['sourceimages', 'icons']:
                     menuItem(l=x)
                 popupMenu(p=self.dstOpts, mm=True, b=3)
                 menuItem('Open', c=Callback(self.openDir))
@@ -104,9 +104,9 @@ class GUI(object):
 
 def snapshot(objs, dst, fmt, size, aa):
     """
-    Snapshot the given objects. Returns the exported images.
+    Snapshot the given objects. Returns the exported icons.
     
-    `dst` -- destination directory for the images
+    `dst` -- destination directory for the icons
     `fmt` -- the file format
     `size` -- the image resolution. should be a factor of 2
     `aa` -- whether to anti-alias the lines or not

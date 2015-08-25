@@ -173,7 +173,7 @@ class MayaBatchJob(object):
 
         task = author.Task(title="Make output directory", service="PixarRender")
         makediectory = author.Command(
-            argv=["mkdir", "%s/%s/%s" % (self.mayaprojectpath, "images", self.__mayascenebase)])
+            argv=["mkdir", "%s/%s/%s" % (self.mayaprojectpath, "icons", self.__mayascenebase)])
         task.addCommand(makediectory)
         job.addChild(task)
 

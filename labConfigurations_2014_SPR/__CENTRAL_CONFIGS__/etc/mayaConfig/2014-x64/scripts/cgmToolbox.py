@@ -33,7 +33,7 @@ def setupCGMScriptPaths():
     mayaScriptPaths = map( Path, maya.mel.eval( 'getenv MAYA_SCRIPT_PATH' ).split( os.pathsep ) )
     mayaScriptPathsSet = set( mayaScriptPaths )
 
-    for path in '/cgm/mel','/cgm/images','/cgm/lib/zoo':
+    for path in '/cgm/mel','/cgm/icons','/cgm/lib/zoo':
         fullPath = thisPath / path
         if fullPath not in mayaScriptPathsSet:
             mayaScriptPaths.append( fullPath )
